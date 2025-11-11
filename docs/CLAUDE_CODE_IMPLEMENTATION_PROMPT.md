@@ -24,9 +24,13 @@
 - Frontend: Expense pages (list, detail, new, approval queue, categories), Employee pages (list, detail, new, edit), Payroll summary, Dashboard updates
 - Status: COMPLETE & COMMITTED (commit: 84cf26d backend, 1bc62b4 frontend)
 
+**Phase 5: Cancellations & Refunds** ✅
+- Backend: Cancellation, Refund models with automatic calculations, two-step approval workflow (Accounts → HOF), auto-numbering
+- Frontend: Cancellations pages (list, detail, new), Refunds pages (list, detail, schedule, approval queue), Sales integration
+- Status: COMPLETE & COMMITTED (commit: 456fa97, fa843cd backend, 4ea595f API, 2a1da22 frontend)
+
 ### 🚧 PENDING PHASES
 
-**Phase 5:** Cancellations & Refunds ⏳
 **Phase 6:** Banking & Cheques ⏳
 **Phase 7:** SMS & Notifications ⏳
 **Phase 8:** Reports & Dashboards (Partial - basic dashboard done) ⏳
@@ -34,13 +38,13 @@
 **Phase 10:** Data Migration & Testing ⏳
 
 ### 📈 Progress Summary
-- **Modules Completed:** 4 out of 11 (36%)
-- **Backend Models:** 16 models created (User, Client, RSNumber, Plot, Sale, Receipt, InstallmentSchedule, Ledger, ExpenseCategory, Expense, Employee, EmployeeCost, etc.)
-- **API Endpoints:** 70+ endpoints functional
-- **Frontend Pages:** 32+ pages implemented
-- **Core Features Working:** Authentication, Client Management, Land Inventory, Sales Tracking, Receipt Management, Expense Management, Payroll Management - All with Approval Workflows
+- **Modules Completed:** 5 out of 11 (45%)
+- **Backend Models:** 18 models created (User, Client, RSNumber, Plot, Sale, Receipt, InstallmentSchedule, Ledger, ExpenseCategory, Expense, Employee, EmployeeCost, Cancellation, Refund, etc.)
+- **API Endpoints:** 87+ endpoints functional
+- **Frontend Pages:** 39+ pages implemented
+- **Core Features Working:** Authentication, Client Management, Land Inventory, Sales Tracking, Receipt Management, Expense Management, Payroll Management, Cancellations & Refunds - All with Multi-Level Approval Workflows
 
-### 📂 Files Implemented (Phase 1-4)
+### 📂 Files Implemented (Phase 1-5)
 
 **Backend Files:**
 ```
@@ -58,7 +62,9 @@ backend/src/
 │   ├── ExpenseCategory.ts ✅
 │   ├── Expense.ts ✅
 │   ├── Employee.ts ✅
-│   └── EmployeeCost.ts ✅
+│   ├── EmployeeCost.ts ✅
+│   ├── Cancellation.ts ✅
+│   └── Refund.ts ✅
 ├── controllers/
 │   ├── authController.ts ✅
 │   ├── clientController.ts ✅
@@ -69,7 +75,9 @@ backend/src/
 │   ├── expenseCategoryController.ts ✅
 │   ├── expenseController.ts ✅
 │   ├── employeeController.ts ✅
-│   └── employeeCostController.ts ✅
+│   ├── employeeCostController.ts ✅
+│   ├── cancellationController.ts ✅
+│   └── refundController.ts ✅
 ├── routes/
 │   ├── auth.routes.ts ✅
 │   ├── client.routes.ts ✅
@@ -80,7 +88,9 @@ backend/src/
 │   ├── expenseCategory.routes.ts ✅
 │   ├── expense.routes.ts ✅
 │   ├── employee.routes.ts ✅
-│   └── employeeCost.routes.ts ✅
+│   ├── employeeCost.routes.ts ✅
+│   ├── cancellation.routes.ts ✅
+│   └── refund.routes.ts ✅
 ├── middlewares/
 │   ├── auth.middleware.ts ✅
 │   ├── rbac.middleware.ts ✅
@@ -131,10 +141,19 @@ frontend/app/
 │   │   ├── [id]/costs/new/page.tsx ✅ (Cost entry)
 │   │   ├── new/page.tsx ✅ (Create)
 │   │   └── edit/[id]/page.tsx ✅ (Edit)
-│   └── payroll/
-│       └── page.tsx ✅ (Monthly summary)
+│   ├── payroll/
+│   │   └── page.tsx ✅ (Monthly summary)
+│   ├── cancellations/
+│   │   ├── page.tsx ✅ (List)
+│   │   ├── [id]/page.tsx ✅ (Detail)
+│   │   └── new/page.tsx ✅ (Create)
+│   └── refunds/
+│       ├── page.tsx ✅ (List)
+│       ├── [id]/page.tsx ✅ (Detail)
+│       ├── approval-queue/page.tsx ✅
+│       └── schedule/page.tsx ✅ (Create schedule)
 └── lib/
-    └── api.ts ✅ (Complete API client with Phase 1-4 types)
+    └── api.ts ✅ (Complete API client with Phase 1-5 types)
 ```
 
 ### 🎯 Current Working Features
@@ -205,6 +224,25 @@ frontend/app/
 - ✅ Monthly payroll summary with breakdown by cost type
 - ✅ Print-friendly payroll reports
 - ✅ Payroll statistics (total employees, monthly payroll)
+
+**Cancellations & Refunds Management:**
+- ✅ Booking cancellation with reason tracking
+- ✅ Automatic refund calculations:
+  - Office charge percentage (default 10%)
+  - Other deductions (penalties, dues)
+  - Refundable amount = Paid - Office Charge - Deductions
+- ✅ Cancellation approval workflow (Pending → Approved/Rejected)
+- ✅ Refund schedule creation (1-36 monthly installments)
+- ✅ Automatic refund number generation (RFD-YYYY-MM-XXXXX)
+- ✅ Two-step refund approval workflow:
+  - Draft → Accounts Manager → HOF → Approved
+- ✅ Approval queue filtered by user role
+- ✅ Payment recording with multiple methods
+- ✅ Automatic cancellation status updates (Approved → Partial Refund → Refunded)
+- ✅ Refund statistics and tracking
+- ✅ Sale status restoration on rejection
+- ✅ Real-time refund calculation preview
+- ✅ Cancel button integration in sales detail page
 
 **Dashboard & Reporting:**
 - ✅ Executive dashboard with 8 KPI cards:
