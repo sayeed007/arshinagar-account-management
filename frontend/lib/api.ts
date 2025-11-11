@@ -449,6 +449,461 @@ export const landApi = {
     const response = await apiClient.get<ApiResponse<any>>('/land/stats');
     return response.data.data!;
   },
+
+  /**
+   * Get all plots with pagination
+   */
+  getAllPlots: async (params?: {
+    page?: number;
+    limit?: number;
+    rsNumberId?: string;
+    status?: PlotStatus;
+    isActive?: boolean;
+  }): Promise<ApiResponse<Plot[]>> => {
+    const response = await apiClient.get<ApiResponse<Plot[]>>('/land/plots', { params });
+    return response.data;
+  },
+};
+
+/**
+ * ========================================
+ * Phase 3: Sales, Installments, Receipts Types
+ * ========================================
+ */
+
+export enum SaleStageStatus {
+  PENDING = 'Pending',
+  PARTIAL = 'Partial',
+  COMPLETED = 'Completed',
+  OVERDUE = 'Overdue',
+}
+
+export enum SaleStatus {
+  ACTIVE = 'Active',
+  COMPLETED = 'Completed',
+  CANCELLED = 'Cancelled',
+  ON_HOLD = 'On Hold',
+}
+
+export enum PaymentMethod {
+  CASH = 'Cash',
+  BANK_TRANSFER = 'Bank Transfer',
+  CHEQUE = 'Cheque',
+  PDC = 'PDC',
+  MOBILE_WALLET = 'Mobile Wallet',
+}
+
+export interface SaleStage {
+  _id: string;
+  stageName: string;
+  plannedAmount: number;
+  receivedAmount: number;
+  dueAmount: number;
+  status: SaleStageStatus;
+  expectedDate?: string;
+  completedDate?: string;
+  notes?: string;
+}
+
+export interface Sale {
+  _id: string;
+  saleNumber: string;
+  clientId: string | Client;
+  plotId: string | Plot;
+  rsNumberId: string | RSNumber;
+  totalPrice: number;
+  paidAmount: number;
+  dueAmount: number;
+  saleDate: string;
+  status: SaleStatus;
+  stages: SaleStage[];
+  notes?: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export enum InstallmentStatus {
+  PENDING = 'Pending',
+  PAID = 'Paid',
+  OVERDUE = 'Overdue',
+  PARTIAL = 'Partial',
+  MISSED = 'Missed',
+}
+
+export enum InstallmentFrequency {
+  MONTHLY = 'Monthly',
+  QUARTERLY = 'Quarterly',
+  HALF_YEARLY = 'Half-Yearly',
+  YEARLY = 'Yearly',
+  CUSTOM = 'Custom',
+}
+
+export interface InstallmentSchedule {
+  _id: string;
+  saleId: string | Sale;
+  clientId: string | Client;
+  installmentNumber: number;
+  dueDate: string;
+  amount: number;
+  paidAmount: number;
+  paidDate?: string;
+  status: InstallmentStatus;
+  paymentMethod?: string;
+  paymentId?: string;
+  notes?: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export enum ReceiptApprovalStatus {
+  DRAFT = 'Draft',
+  PENDING_ACCOUNTS = 'Pending Accounts',
+  PENDING_HOF = 'Pending HOF',
+  APPROVED = 'Approved',
+  REJECTED = 'Rejected',
+}
+
+export enum ReceiptType {
+  BOOKING = 'Booking',
+  INSTALLMENT = 'Installment',
+  REGISTRATION = 'Registration',
+  HANDOVER = 'Handover',
+  OTHER = 'Other',
+}
+
+export interface InstrumentDetails {
+  bankName?: string;
+  branchName?: string;
+  chequeNumber?: string;
+  chequeDate?: string;
+  accountNumber?: string;
+}
+
+export interface ApprovalHistory {
+  _id: string;
+  approvedBy: string | User;
+  approvalLevel: string;
+  approvedAt: string;
+  action: 'Approved' | 'Rejected';
+  remarks?: string;
+}
+
+export interface Receipt {
+  _id: string;
+  receiptNumber: string;
+  clientId: string | Client;
+  saleId: string | Sale;
+  stageId?: string;
+  installmentId?: string | InstallmentSchedule;
+  receiptType: ReceiptType;
+  amount: number;
+  method: PaymentMethod;
+  receiptDate: string;
+  instrumentDetails?: InstrumentDetails;
+  approvalStatus: ReceiptApprovalStatus;
+  approvalHistory: ApprovalHistory[];
+  postedToLedger: boolean;
+  ledgerPostingDate?: string;
+  notes?: string;
+  createdBy: string | User;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * ========================================
+ * Sales API Methods
+ * ========================================
+ */
+
+export const salesApi = {
+  /**
+   * Get all sales with pagination
+   */
+  getAll: async (params?: {
+    page?: number;
+    limit?: number;
+    status?: SaleStatus;
+    clientId?: string;
+    search?: string;
+    isActive?: boolean;
+  }): Promise<ApiResponse<Sale[]>> => {
+    const response = await apiClient.get<ApiResponse<Sale[]>>('/sales', { params });
+    return response.data;
+  },
+
+  /**
+   * Get sale by ID
+   */
+  getById: async (id: string): Promise<Sale> => {
+    const response = await apiClient.get<ApiResponse<Sale>>(`/sales/${id}`);
+    return response.data.data!;
+  },
+
+  /**
+   * Create new sale
+   */
+  create: async (data: {
+    clientId: string;
+    plotId: string;
+    totalPrice: number;
+    saleDate?: string;
+    stages?: Partial<SaleStage>[];
+    notes?: string;
+  }): Promise<Sale> => {
+    const response = await apiClient.post<ApiResponse<Sale>>('/sales', data);
+    return response.data.data!;
+  },
+
+  /**
+   * Update sale
+   */
+  update: async (id: string, data: Partial<Sale>): Promise<Sale> => {
+    const response = await apiClient.put<ApiResponse<Sale>>(`/sales/${id}`, data);
+    return response.data.data!;
+  },
+
+  /**
+   * Update sale stage
+   */
+  updateStage: async (
+    saleId: string,
+    stageId: string,
+    data: { receivedAmount?: number; notes?: string }
+  ): Promise<Sale> => {
+    const response = await apiClient.put<ApiResponse<Sale>>(
+      `/sales/${saleId}/stages/${stageId}`,
+      data
+    );
+    return response.data.data!;
+  },
+
+  /**
+   * Delete sale
+   */
+  delete: async (id: string): Promise<void> => {
+    await apiClient.delete(`/sales/${id}`);
+  },
+
+  /**
+   * Get sales statistics
+   */
+  getStats: async (): Promise<any> => {
+    const response = await apiClient.get<ApiResponse<any>>('/sales/stats');
+    return response.data.data!;
+  },
+};
+
+/**
+ * ========================================
+ * Installments API Methods
+ * ========================================
+ */
+
+export const installmentsApi = {
+  /**
+   * Create installment schedule
+   */
+  createSchedule: async (data: {
+    saleId: string;
+    totalAmount: number;
+    numberOfInstallments: number;
+    frequency?: InstallmentFrequency;
+    startDate?: string;
+  }): Promise<InstallmentSchedule[]> => {
+    const response = await apiClient.post<ApiResponse<InstallmentSchedule[]>>(
+      '/installments/schedule',
+      data
+    );
+    return response.data.data!;
+  },
+
+  /**
+   * Get all installments with pagination
+   */
+  getAll: async (params?: {
+    page?: number;
+    limit?: number;
+    status?: InstallmentStatus;
+    saleId?: string;
+    clientId?: string;
+    isActive?: boolean;
+  }): Promise<ApiResponse<InstallmentSchedule[]>> => {
+    const response = await apiClient.get<ApiResponse<InstallmentSchedule[]>>('/installments', {
+      params,
+    });
+    return response.data;
+  },
+
+  /**
+   * Get installment by ID
+   */
+  getById: async (id: string): Promise<InstallmentSchedule> => {
+    const response = await apiClient.get<ApiResponse<InstallmentSchedule>>(
+      `/installments/${id}`
+    );
+    return response.data.data!;
+  },
+
+  /**
+   * Update installment (mark as paid)
+   */
+  update: async (
+    id: string,
+    data: {
+      paidAmount?: number;
+      paidDate?: string;
+      paymentMethod?: string;
+      paymentId?: string;
+      notes?: string;
+    }
+  ): Promise<InstallmentSchedule> => {
+    const response = await apiClient.put<ApiResponse<InstallmentSchedule>>(
+      `/installments/${id}`,
+      data
+    );
+    return response.data.data!;
+  },
+
+  /**
+   * Get overdue installments
+   */
+  getOverdue: async (clientId?: string): Promise<InstallmentSchedule[]> => {
+    const response = await apiClient.get<ApiResponse<InstallmentSchedule[]>>(
+      '/installments/overdue',
+      { params: { clientId } }
+    );
+    return response.data.data!;
+  },
+
+  /**
+   * Get client statement
+   */
+  getClientStatement: async (
+    clientId: string
+  ): Promise<{
+    installments: InstallmentSchedule[];
+    summary: {
+      totalInstallments: number;
+      paidCount: number;
+      overdueCount: number;
+      totalDue: number;
+      totalPaid: number;
+      totalOutstanding: number;
+    };
+  }> => {
+    const response = await apiClient.get<
+      ApiResponse<{
+        installments: InstallmentSchedule[];
+        summary: any;
+      }>
+    >(`/installments/client/${clientId}/statement`);
+    return response.data.data!;
+  },
+
+  /**
+   * Delete installment
+   */
+  delete: async (id: string): Promise<void> => {
+    await apiClient.delete(`/installments/${id}`);
+  },
+};
+
+/**
+ * ========================================
+ * Receipts API Methods
+ * ========================================
+ */
+
+export const receiptsApi = {
+  /**
+   * Create receipt
+   */
+  create: async (data: {
+    clientId: string;
+    saleId: string;
+    stageId?: string;
+    installmentId?: string;
+    receiptType: ReceiptType;
+    amount: number;
+    method: PaymentMethod;
+    receiptDate?: string;
+    instrumentDetails?: InstrumentDetails;
+    notes?: string;
+  }): Promise<Receipt> => {
+    const response = await apiClient.post<ApiResponse<Receipt>>('/receipts', data);
+    return response.data.data!;
+  },
+
+  /**
+   * Get all receipts with pagination
+   */
+  getAll: async (params?: {
+    page?: number;
+    limit?: number;
+    approvalStatus?: ReceiptApprovalStatus;
+    clientId?: string;
+    saleId?: string;
+    search?: string;
+    isActive?: boolean;
+  }): Promise<ApiResponse<Receipt[]>> => {
+    const response = await apiClient.get<ApiResponse<Receipt[]>>('/receipts', { params });
+    return response.data;
+  },
+
+  /**
+   * Get receipt by ID
+   */
+  getById: async (id: string): Promise<Receipt> => {
+    const response = await apiClient.get<ApiResponse<Receipt>>(`/receipts/${id}`);
+    return response.data.data!;
+  },
+
+  /**
+   * Submit receipt for approval
+   */
+  submit: async (id: string): Promise<Receipt> => {
+    const response = await apiClient.post<ApiResponse<Receipt>>(`/receipts/${id}/submit`);
+    return response.data.data!;
+  },
+
+  /**
+   * Approve receipt
+   */
+  approve: async (id: string, remarks?: string): Promise<Receipt> => {
+    const response = await apiClient.post<ApiResponse<Receipt>>(`/receipts/${id}/approve`, {
+      remarks,
+    });
+    return response.data.data!;
+  },
+
+  /**
+   * Reject receipt
+   */
+  reject: async (id: string, remarks: string): Promise<Receipt> => {
+    const response = await apiClient.post<ApiResponse<Receipt>>(`/receipts/${id}/reject`, {
+      remarks,
+    });
+    return response.data.data!;
+  },
+
+  /**
+   * Get approval queue (role-based)
+   */
+  getApprovalQueue: async (): Promise<Receipt[]> => {
+    const response = await apiClient.get<ApiResponse<Receipt[]>>('/receipts/approval-queue');
+    return response.data.data!;
+  },
+
+  /**
+   * Delete receipt (draft only)
+   */
+  delete: async (id: string): Promise<void> => {
+    await apiClient.delete(`/receipts/${id}`);
+  },
 };
 
 export default apiClient;
