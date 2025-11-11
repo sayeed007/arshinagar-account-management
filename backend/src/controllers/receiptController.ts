@@ -5,6 +5,7 @@ import Client from '../models/Client';
 import Ledger from '../models/Ledger';
 import { ApiError, ErrorCode } from '../middlewares/error.middleware';
 import { UserRole } from '../types';
+import smsService from '../services/smsService';
 
 // Create receipt
 export const createReceipt = async (req: Request, res: Response, next: NextFunction) => {
@@ -229,6 +230,28 @@ export const approveReceipt = async (req: Request, res: Response, next: NextFunc
 
       // Post to ledger
       await postReceiptToLedger(receipt);
+
+      // Send payment confirmation SMS
+      try {
+        const client = await Client.findById(receipt.clientId);
+        if (client && client.phone) {
+          await smsService.sendPaymentConfirmation(
+            client.phone,
+            client.name,
+            receipt.amount,
+            receipt.receiptNumber,
+            {
+              clientId: client._id,
+              saleId: receipt.saleId,
+              receiptId: receipt._id,
+              sentBy: req.user!._id,
+            }
+          );
+        }
+      } catch (smsError: any) {
+        // Log error but don't fail the approval
+        console.error('Failed to send payment confirmation SMS:', smsError.message);
+      }
     } else {
       throw new ApiError(
         403,

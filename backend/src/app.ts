@@ -9,6 +9,7 @@ import { connectDB } from './config/db';
 import { errorHandler, notFoundHandler } from './middlewares/error.middleware';
 import { sanitizeInput } from './middlewares/validation.middleware';
 import { logger } from './utils/logger';
+import cronService from './services/cronService';
 
 // Import routes
 import authRoutes from './routes/auth.routes';
@@ -26,6 +27,9 @@ import refundRoutes from './routes/refund.routes';
 import bankAccountRoutes from './routes/bankAccount.routes';
 import cashAccountRoutes from './routes/cashAccount.routes';
 import chequeRoutes from './routes/cheque.routes';
+import smsRoutes from './routes/sms.routes';
+import reportRoutes from './routes/report.routes';
+import settingsRoutes from './routes/settings.routes';
 
 // Load environment variables
 dotenv.config();
@@ -35,6 +39,9 @@ const app: Application = express();
 
 // Connect to MongoDB
 connectDB();
+
+// Initialize cron jobs
+cronService.init();
 
 // Trust proxy (for deployment behind reverse proxy like nginx)
 app.set('trust proxy', 1);
@@ -131,6 +138,9 @@ app.use('/api/refunds', refundRoutes);
 app.use('/api/bank-accounts', bankAccountRoutes);
 app.use('/api/cash-accounts', cashAccountRoutes);
 app.use('/api/cheques', chequeRoutes);
+app.use('/api/sms', smsRoutes);
+app.use('/api/reports', reportRoutes);
+app.use('/api/settings', settingsRoutes);
 
 // Welcome Route
 app.get('/', (req, res) => {

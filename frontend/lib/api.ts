@@ -2204,4 +2204,215 @@ export const chequesApi = {
   },
 };
 
+// ============================================================================
+// SMS Types & API
+// ============================================================================
+
+export enum SMSCategory {
+  PAYMENT_CONFIRMATION = 'payment_confirmation',
+  INSTALLMENT_REMINDER = 'installment_reminder',
+  MISSED_INSTALLMENT = 'missed_installment',
+  CHEQUE_DUE = 'cheque_due',
+  BULK = 'bulk',
+  MANUAL = 'manual',
+}
+
+export enum SMSStatus {
+  PENDING = 'pending',
+  SENT = 'sent',
+  FAILED = 'failed',
+  DELIVERED = 'delivered',
+  BOUNCED = 'bounced',
+}
+
+export interface SMSTemplate {
+  _id: string;
+  templateCode: string;
+  name: string;
+  messageBN: string;
+  messageEN: string;
+  variables: string[];
+  category: SMSCategory;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SMSLog {
+  _id: string;
+  phone: string;
+  message: string;
+  templateCode?: string;
+  clientId?: string | Client;
+  saleId?: string | Sale;
+  receiptId?: string | Receipt;
+  chequeId?: string | Cheque;
+  category: SMSCategory;
+  status: SMSStatus;
+  deliveryStatus?: string;
+  gatewayResponse?: any;
+  errorMessage?: string;
+  sentAt?: string;
+  deliveredAt?: string;
+  sentBy?: string | User;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * SMS API Methods
+ */
+export const smsApi = {
+  // SMS Templates
+  getTemplates: async (filters?: { category?: string; isActive?: boolean }): Promise<SMSTemplate[]> => {
+    const response = await apiClient.get<ApiResponse<SMSTemplate[]>>('/sms/templates', {
+      params: filters,
+    });
+    return response.data.data!;
+  },
+
+  getTemplateById: async (id: string): Promise<SMSTemplate> => {
+    const response = await apiClient.get<ApiResponse<SMSTemplate>>(`/sms/templates/${id}`);
+    return response.data.data!;
+  },
+
+  createTemplate: async (data: {
+    templateCode: string;
+    name: string;
+    messageBN: string;
+    messageEN: string;
+    variables: string[];
+    category: SMSCategory;
+    isActive?: boolean;
+  }): Promise<SMSTemplate> => {
+    const response = await apiClient.post<ApiResponse<SMSTemplate>>('/sms/templates', data);
+    return response.data.data!;
+  },
+
+  updateTemplate: async (
+    id: string,
+    data: Partial<{
+      name: string;
+      messageBN: string;
+      messageEN: string;
+      variables: string[];
+      category: SMSCategory;
+      isActive: boolean;
+    }>
+  ): Promise<SMSTemplate> => {
+    const response = await apiClient.put<ApiResponse<SMSTemplate>>(`/sms/templates/${id}`, data);
+    return response.data.data!;
+  },
+
+  deleteTemplate: async (id: string): Promise<void> => {
+    await apiClient.delete(`/sms/templates/${id}`);
+  },
+
+  // SMS Logs
+  getLogs: async (filters?: {
+    phone?: string;
+    clientId?: string;
+    status?: SMSStatus;
+    category?: SMSCategory;
+    startDate?: string;
+    endDate?: string;
+    page?: number;
+    limit?: number;
+  }): Promise<{
+    logs: SMSLog[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+    };
+  }> => {
+    const response = await apiClient.get<
+      ApiResponse<
+        SMSLog[],
+        {
+          page: number;
+          limit: number;
+          total: number;
+          totalPages: number;
+        }
+      >
+    >('/sms/logs', { params: filters });
+    return {
+      logs: response.data.data!,
+      pagination: response.data.pagination!,
+    };
+  },
+
+  getStats: async (filters?: { startDate?: string; endDate?: string }): Promise<{
+    total: number;
+    sent: number;
+    failed: number;
+    byCategory: Record<string, number>;
+    byStatus: Record<string, number>;
+  }> => {
+    const response = await apiClient.get<
+      ApiResponse<{
+        total: number;
+        sent: number;
+        failed: number;
+        byCategory: Record<string, number>;
+        byStatus: Record<string, number>;
+      }>
+    >('/sms/stats', { params: filters });
+    return response.data.data!;
+  },
+
+  // Send SMS
+  sendTest: async (data: { phone: string; message: string }): Promise<any> => {
+    const response = await apiClient.post<ApiResponse>('/sms/send-test', data);
+    return response.data.data;
+  },
+
+  sendBulk: async (data: {
+    phones?: string[];
+    message: string;
+    templateCode?: string;
+    filters?: {
+      project?: string;
+      dueStatus?: string;
+      clientIds?: string[];
+    };
+  }): Promise<{
+    total: number;
+    sent: number;
+    failed: number;
+    results: any[];
+    errors: any[];
+  }> => {
+    const response = await apiClient.post<
+      ApiResponse<{
+        total: number;
+        sent: number;
+        failed: number;
+        results: any[];
+        errors: any[];
+      }>
+    >('/sms/send-bulk', data);
+    return response.data.data!;
+  },
+
+  previewRecipients: async (filters: {
+    project?: string;
+    dueStatus?: string;
+    clientIds?: string[];
+  }): Promise<{
+    count: number;
+    recipients: Array<{ _id: string; name: string; phone: string }>;
+  }> => {
+    const response = await apiClient.post<
+      ApiResponse<{
+        count: number;
+        recipients: Array<{ _id: string; name: string; phone: string }>;
+      }>
+    >('/sms/preview-recipients', { filters });
+    return response.data.data!;
+  },
+};
+
 export default apiClient;
