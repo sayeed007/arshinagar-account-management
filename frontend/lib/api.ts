@@ -1768,4 +1768,440 @@ export const refundsApi = {
   },
 };
 
+// ==================== Phase 6: Banking & Cheques ====================
+
+// Bank Account Types
+export enum AccountType {
+  SAVINGS = 'Savings',
+  CURRENT = 'Current',
+  FDR = 'FDR',
+  DPS = 'DPS',
+  OTHER = 'Other',
+}
+
+export interface BankAccount {
+  _id: string;
+  bankName: string;
+  branchName?: string;
+  accountNumber: string;
+  accountName: string;
+  accountType: AccountType;
+  openingBalance: number;
+  currentBalance: number;
+  isActive: boolean;
+  notes?: string;
+  createdBy: string | User;
+  isDeleted: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Cash Account Types
+export interface CashAccount {
+  _id: string;
+  name: string;
+  description?: string;
+  openingBalance: number;
+  currentBalance: number;
+  isActive: boolean;
+  notes?: string;
+  createdBy: string | User;
+  isDeleted: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Cheque Types
+export enum ChequeStatus {
+  PENDING = 'Pending',
+  DUE_TODAY = 'Due Today',
+  CLEARED = 'Cleared',
+  OVERDUE = 'Overdue',
+  BOUNCED = 'Bounced',
+  CANCELLED = 'Cancelled',
+}
+
+export enum ChequeType {
+  PDC = 'PDC',
+  CURRENT = 'Current',
+}
+
+export interface Cheque {
+  _id: string;
+  chequeNumber: string;
+  bankName: string;
+  branchName?: string;
+  chequeType: ChequeType;
+  issueDate: string;
+  dueDate: string;
+  amount: number;
+  clientId: string | Client;
+  saleId?: string | Sale;
+  receiptId?: string | Receipt;
+  refundId?: string | Refund;
+  status: ChequeStatus;
+  clearedDate?: string;
+  clearedBy?: string | User;
+  bounceDate?: string;
+  bounceReason?: string;
+  bouncedBy?: string | User;
+  cancelledDate?: string;
+  cancelledReason?: string;
+  cancelledBy?: string | User;
+  notes?: string;
+  createdBy: string | User;
+  isDeleted: boolean;
+  createdAt: string;
+  updatedAt: string;
+  // Virtual fields
+  isOverdue?: boolean;
+  isDueToday?: boolean;
+  daysUntilDue?: number;
+}
+
+// Bank Accounts API
+export const bankAccountsApi = {
+  /**
+   * Get all bank accounts
+   */
+  getAll: async (params?: {
+    page?: number;
+    limit?: number;
+    isActive?: boolean;
+    bankName?: string;
+    accountType?: AccountType;
+  }): Promise<PaginatedResponse<BankAccount>> => {
+    const response = await apiClient.get<PaginatedResponse<BankAccount>>('/bank-accounts', {
+      params,
+    });
+    return response.data;
+  },
+
+  /**
+   * Get bank account by ID
+   */
+  getById: async (id: string): Promise<BankAccount> => {
+    const response = await apiClient.get<ApiResponse<BankAccount>>(`/bank-accounts/${id}`);
+    return response.data.data!;
+  },
+
+  /**
+   * Create bank account
+   */
+  create: async (data: {
+    bankName: string;
+    branchName?: string;
+    accountNumber: string;
+    accountName: string;
+    accountType: AccountType;
+    openingBalance?: number;
+    notes?: string;
+  }): Promise<BankAccount> => {
+    const response = await apiClient.post<ApiResponse<BankAccount>>('/bank-accounts', data);
+    return response.data.data!;
+  },
+
+  /**
+   * Update bank account
+   */
+  update: async (
+    id: string,
+    data: {
+      bankName?: string;
+      branchName?: string;
+      accountName?: string;
+      accountType?: AccountType;
+      isActive?: boolean;
+      notes?: string;
+    }
+  ): Promise<BankAccount> => {
+    const response = await apiClient.put<ApiResponse<BankAccount>>(`/bank-accounts/${id}`, data);
+    return response.data.data!;
+  },
+
+  /**
+   * Delete bank account
+   */
+  delete: async (id: string): Promise<void> => {
+    await apiClient.delete(`/bank-accounts/${id}`);
+  },
+
+  /**
+   * Get bank account statistics
+   */
+  getStats: async (): Promise<{
+    totalAccounts: number;
+    activeAccounts: number;
+    totalBalance: number;
+    balanceByType: Array<{
+      _id: AccountType;
+      count: number;
+      totalBalance: number;
+    }>;
+  }> => {
+    const response = await apiClient.get<
+      ApiResponse<{
+        totalAccounts: number;
+        activeAccounts: number;
+        totalBalance: number;
+        balanceByType: Array<{
+          _id: AccountType;
+          count: number;
+          totalBalance: number;
+        }>;
+      }>
+    >('/bank-accounts/stats');
+    return response.data.data!;
+  },
+};
+
+// Cash Accounts API
+export const cashAccountsApi = {
+  /**
+   * Get all cash accounts
+   */
+  getAll: async (params?: {
+    page?: number;
+    limit?: number;
+    isActive?: boolean;
+    name?: string;
+  }): Promise<PaginatedResponse<CashAccount>> => {
+    const response = await apiClient.get<PaginatedResponse<CashAccount>>('/cash-accounts', {
+      params,
+    });
+    return response.data;
+  },
+
+  /**
+   * Get cash account by ID
+   */
+  getById: async (id: string): Promise<CashAccount> => {
+    const response = await apiClient.get<ApiResponse<CashAccount>>(`/cash-accounts/${id}`);
+    return response.data.data!;
+  },
+
+  /**
+   * Create cash account
+   */
+  create: async (data: {
+    name: string;
+    description?: string;
+    openingBalance?: number;
+    notes?: string;
+  }): Promise<CashAccount> => {
+    const response = await apiClient.post<ApiResponse<CashAccount>>('/cash-accounts', data);
+    return response.data.data!;
+  },
+
+  /**
+   * Update cash account
+   */
+  update: async (
+    id: string,
+    data: {
+      name?: string;
+      description?: string;
+      isActive?: boolean;
+      notes?: string;
+    }
+  ): Promise<CashAccount> => {
+    const response = await apiClient.put<ApiResponse<CashAccount>>(`/cash-accounts/${id}`, data);
+    return response.data.data!;
+  },
+
+  /**
+   * Delete cash account
+   */
+  delete: async (id: string): Promise<void> => {
+    await apiClient.delete(`/cash-accounts/${id}`);
+  },
+
+  /**
+   * Get cash account statistics
+   */
+  getStats: async (): Promise<{
+    totalAccounts: number;
+    activeAccounts: number;
+    totalBalance: number;
+  }> => {
+    const response = await apiClient.get<
+      ApiResponse<{
+        totalAccounts: number;
+        activeAccounts: number;
+        totalBalance: number;
+      }>
+    >('/cash-accounts/stats');
+    return response.data.data!;
+  },
+};
+
+// Cheques API
+export const chequesApi = {
+  /**
+   * Get all cheques
+   */
+  getAll: async (params?: {
+    page?: number;
+    limit?: number;
+    status?: ChequeStatus;
+    chequeType?: ChequeType;
+    clientId?: string;
+    saleId?: string;
+    bankName?: string;
+    dueDateFrom?: string;
+    dueDateTo?: string;
+  }): Promise<PaginatedResponse<Cheque>> => {
+    const response = await apiClient.get<PaginatedResponse<Cheque>>('/cheques', {
+      params,
+    });
+    return response.data;
+  },
+
+  /**
+   * Get cheque by ID
+   */
+  getById: async (id: string): Promise<Cheque> => {
+    const response = await apiClient.get<ApiResponse<Cheque>>(`/cheques/${id}`);
+    return response.data.data!;
+  },
+
+  /**
+   * Create cheque
+   */
+  create: async (data: {
+    chequeNumber: string;
+    bankName: string;
+    branchName?: string;
+    chequeType: ChequeType;
+    issueDate: string;
+    dueDate: string;
+    amount: number;
+    clientId: string;
+    saleId?: string;
+    receiptId?: string;
+    refundId?: string;
+    notes?: string;
+  }): Promise<Cheque> => {
+    const response = await apiClient.post<ApiResponse<Cheque>>('/cheques', data);
+    return response.data.data!;
+  },
+
+  /**
+   * Update cheque
+   */
+  update: async (
+    id: string,
+    data: {
+      chequeNumber?: string;
+      bankName?: string;
+      branchName?: string;
+      chequeType?: ChequeType;
+      issueDate?: string;
+      dueDate?: string;
+      amount?: number;
+      notes?: string;
+    }
+  ): Promise<Cheque> => {
+    const response = await apiClient.put<ApiResponse<Cheque>>(`/cheques/${id}`, data);
+    return response.data.data!;
+  },
+
+  /**
+   * Mark cheque as cleared
+   */
+  markAsCleared: async (id: string, clearedDate?: string): Promise<Cheque> => {
+    const response = await apiClient.post<ApiResponse<Cheque>>(`/cheques/${id}/clear`, {
+      clearedDate,
+    });
+    return response.data.data!;
+  },
+
+  /**
+   * Mark cheque as bounced
+   */
+  markAsBounced: async (id: string, bounceReason: string, bounceDate?: string): Promise<Cheque> => {
+    const response = await apiClient.post<ApiResponse<Cheque>>(`/cheques/${id}/bounce`, {
+      bounceReason,
+      bounceDate,
+    });
+    return response.data.data!;
+  },
+
+  /**
+   * Cancel cheque
+   */
+  cancel: async (id: string, cancelReason: string, cancelDate?: string): Promise<Cheque> => {
+    const response = await apiClient.post<ApiResponse<Cheque>>(`/cheques/${id}/cancel`, {
+      cancelReason,
+      cancelDate,
+    });
+    return response.data.data!;
+  },
+
+  /**
+   * Delete cheque
+   */
+  delete: async (id: string): Promise<void> => {
+    await apiClient.delete(`/cheques/${id}`);
+  },
+
+  /**
+   * Get due cheques
+   */
+  getDue: async (): Promise<Cheque[]> => {
+    const response = await apiClient.get<ApiResponse<Cheque[]>>('/cheques/due');
+    return response.data.data!;
+  },
+
+  /**
+   * Get upcoming cheques
+   */
+  getUpcoming: async (days?: number): Promise<Cheque[]> => {
+    const response = await apiClient.get<ApiResponse<Cheque[]>>('/cheques/upcoming', {
+      params: { days },
+    });
+    return response.data.data!;
+  },
+
+  /**
+   * Get cheque statistics
+   */
+  getStats: async (): Promise<{
+    totalCheques: number;
+    totalAmount: number;
+    pendingCheques: number;
+    dueTodayCheques: number;
+    overdueCheques: number;
+    clearedCheques: number;
+    bouncedCheques: number;
+    clearedAmount: number;
+    pendingAmount: number;
+    statsByStatus: Array<{
+      _id: ChequeStatus;
+      count: number;
+      totalAmount: number;
+    }>;
+  }> => {
+    const response = await apiClient.get<
+      ApiResponse<{
+        totalCheques: number;
+        totalAmount: number;
+        pendingCheques: number;
+        dueTodayCheques: number;
+        overdueCheques: number;
+        clearedCheques: number;
+        bouncedCheques: number;
+        clearedAmount: number;
+        pendingAmount: number;
+        statsByStatus: Array<{
+          _id: ChequeStatus;
+          count: number;
+          totalAmount: number;
+        }>;
+      }>
+    >('/cheques/stats');
+    return response.data.data!;
+  },
+};
+
 export default apiClient;
