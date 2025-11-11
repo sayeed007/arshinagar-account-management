@@ -1,9 +1,23 @@
-// Root layout - Not needed since all routes are under [locale]
-// This file can be removed or just return children
+import './globals.css';
+import { Inter } from 'next/font/google';
+
+const inter = Inter({ subsets: ['latin'] });
+
+export const metadata = {
+  title: 'Arshinagar Account Management',
+  description: 'Complete real estate and financial management system for Arshinagar',
+};
+
+// Root layout - Required by Next.js
+// Must have <html> and <body> tags
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return children;
+  return (
+    <html suppressHydrationWarning>
+      <body className={inter.className}>{children}</body>
+    </html>
+  );
 }

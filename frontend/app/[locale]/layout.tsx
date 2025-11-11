@@ -1,18 +1,9 @@
-import '../globals.css';
 import { NextIntlClientProvider } from 'next-intl';
-import { getMessages } from 'next-intl/server';
+import { getMessages, unstable_setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
-import { Inter } from 'next/font/google';
 import { ThemeProvider } from '@/lib/providers/theme-provider';
 import { AuthProvider } from '@/lib/auth-context';
 import { locales } from '@/lib/i18n/config';
-
-const inter = Inter({ subsets: ['latin'] });
-
-export const metadata = {
-  title: 'Arshinagar Account Management',
-  description: 'Complete real estate and financial management system for Arshinagar',
-};
 
 export default async function LocaleLayout({
   children,
@@ -28,20 +19,19 @@ export default async function LocaleLayout({
     notFound();
   }
 
+  // Enable static rendering
+  unstable_setRequestLocale(locale);
+
   // Providing all messages to the client
   const messages = await getMessages();
 
   return (
-    <html lang={locale} suppressHydrationWarning>
-      <body className={inter.className}>
-        <ThemeProvider>
-          <AuthProvider>
-            <NextIntlClientProvider messages={messages}>
-              {children}
-            </NextIntlClientProvider>
-          </AuthProvider>
-        </ThemeProvider>
-      </body>
-    </html>
+    <ThemeProvider>
+      <AuthProvider>
+        <NextIntlClientProvider messages={messages} locale={locale}>
+          {children}
+        </NextIntlClientProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
