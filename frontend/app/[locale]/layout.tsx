@@ -1,5 +1,5 @@
 import { NextIntlClientProvider } from 'next-intl';
-import { getMessages, unstable_setRequestLocale } from 'next-intl/server';
+import { getMessages } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { ThemeProvider } from '@/lib/providers/theme-provider';
 import { AuthProvider } from '@/lib/auth-context';
@@ -18,9 +18,6 @@ export default async function LocaleLayout({
   if (!locales.includes(locale as any)) {
     notFound();
   }
-
-  // Enable static rendering
-  unstable_setRequestLocale(locale);
 
   // Providing all messages to the client
   const messages = await getMessages();
