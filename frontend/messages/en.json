@@ -55,5 +55,52 @@
     "dark": "Dark",
     "system": "System",
     "toggle": "Toggle theme"
+  },
+  "landInventory": {
+    "title": "Land Inventory Management",
+    "description": "Manage your RS Numbers (Dag Numbers) and land plots. Track sold, allocated, and remaining land for each project.",
+    "stats": {
+      "totalRSNumbers": "Total RS Numbers",
+      "totalPlots": "Total Plots",
+      "availableLand": "Available Land",
+      "soldLand": "Sold Land",
+      "activeRecords": "Active records",
+      "allPlots": "All plots",
+      "inAcres": "In acres"
+    },
+    "rsNumbers": {
+      "title": "RS Numbers (Dag Numbers)",
+      "description": "Manage land parcels by RS Number",
+      "badge": "Primary",
+      "info": "Each RS Number represents a land parcel with its own total area. You can allocate plots to customers from each RS Number and track remaining land.",
+      "viewAll": "View All RS Numbers",
+      "addNew": "Add New RS Number",
+      "features": "Key Features",
+      "feature1": "Track total, sold, allocated, and remaining land area",
+      "feature2": "Manage multiple plots under each RS Number",
+      "feature3": "Monitor land utilization with visual progress indicators",
+      "feature4": "View all associated plots and sales for each RS Number"
+    },
+    "plots": {
+      "title": "Land Plots",
+      "description": "Individual plot management",
+      "badge": "Secondary",
+      "info": "Plots are managed under their respective RS Numbers. Each plot represents a portion of land from an RS Number allocated to a customer.",
+      "viewAll": "View All Plots",
+      "features": "Plot Features",
+      "feature1": "View plot details including area and status",
+      "feature2": "Track which customer owns each plot",
+      "feature3": "Monitor plot sale history and transactions"
+    },
+    "info": {
+      "title": "About Land Inventory System",
+      "paragraph1": "The Land Inventory System uses RS Numbers (Dag Numbers) as the primary way to organize land parcels. Each RS Number represents a specific piece of land with a defined total area.",
+      "paragraph2": "When you sell land to customers, you create plots under the relevant RS Number. The system automatically tracks how much land has been sold, allocated, and how much remains available.",
+      "workflowTitle": "Typical Workflow:",
+      "step1": "Create an RS Number with project details and total land area",
+      "step2": "When a customer purchases land, create a new plot under that RS Number",
+      "step3": "The system automatically calculates and updates the remaining available land",
+      "step4": "View comprehensive reports on land utilization and sales"
+    }
   }
 }
