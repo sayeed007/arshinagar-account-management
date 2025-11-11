@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "Admin Panel",
+    "appName": "Arshinagar Account Management",
     "welcome": "Welcome Back!",
     "logout": "Logout",
     "profile": "Profile",
@@ -14,16 +14,22 @@
   },
   "nav": {
     "dashboard": "Dashboard",
-    "users": "Users",
-    "roles": "Roles",
-    "products": "Products",
-    "documents": "Documents",
+    "masterData": "Master Data",
+    "clients": "Clients",
+    "landInventory": "Land Inventory",
+    "salesCollections": "Sales & Collections",
+    "sales": "Sales",
+    "collections": "Collections",
+    "expensesPayroll": "Expenses & Payroll",
+    "expenses": "Expenses",
+    "employees": "Employees",
+    "payroll": "Payroll",
+    "cancellationsRefunds": "Cancellations & Refunds",
+    "cancellations": "Cancellations",
+    "refunds": "Refunds",
+    "banking": "Banking",
     "reports": "Reports",
-    "statistics": "Statistics",
-    "settings": "Settings",
-    "userManagement": "User Management",
-    "content": "Content",
-    "analytics": "Analytics"
+    "settings": "Settings"
   },
   "dashboard": {
     "title": "Welcome Back!",

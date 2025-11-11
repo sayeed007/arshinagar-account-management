@@ -1,9 +1,13 @@
-// Root layout for next-intl
-// The locale layout will handle html/body tags and providers
+// Root layout - Required by Next.js
+// Must have html and body tags
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return children;
+  return (
+    <html suppressHydrationWarning>
+      <body>{children}</body>
+    </html>
+  );
 }
