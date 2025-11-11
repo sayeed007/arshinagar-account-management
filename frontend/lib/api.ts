@@ -906,4 +906,540 @@ export const receiptsApi = {
   },
 };
 
+/**
+ * ========================================
+ * PHASE 4: Expenses & Payroll Types
+ * ========================================
+ */
+
+/**
+ * Expense Category Types
+ */
+export interface ExpenseCategory {
+  _id: string;
+  name: string;
+  description?: string;
+  isActive: boolean;
+  createdBy: string | User;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * Expense Types
+ */
+export enum ExpenseStatus {
+  DRAFT = 'Draft',
+  PENDING_ACCOUNTS = 'Pending Accounts',
+  PENDING_HOF = 'Pending HOF',
+  APPROVED = 'Approved',
+  REJECTED = 'Rejected',
+}
+
+export interface ApprovalHistoryEntry {
+  approvedBy: string | User;
+  approvedAt: string;
+  remarks?: string;
+  action: 'Approved' | 'Rejected';
+}
+
+export interface Expense {
+  _id: string;
+  expenseNumber: string;
+  categoryId: string | ExpenseCategory;
+  amount: number;
+  expenseDate: string;
+  vendor?: string;
+  description: string;
+  paymentMethod: PaymentMethod;
+  instrumentDetails?: InstrumentDetails;
+  status: ExpenseStatus;
+  approvalHistory: ApprovalHistoryEntry[];
+  receiptAttachment?: string;
+  notes?: string;
+  isActive: boolean;
+  createdBy: string | User;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * Employee Types
+ */
+export interface BankAccount {
+  bankName: string;
+  accountNumber: string;
+  accountHolderName: string;
+}
+
+export interface Employee {
+  _id: string;
+  name: string;
+  designation: string;
+  phone: string;
+  email?: string;
+  nid?: string;
+  address?: string;
+  bankAccount?: BankAccount;
+  joinDate: string;
+  resignDate?: string;
+  baseSalary: number;
+  isActive: boolean;
+  createdBy: string | User;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * Employee Cost Types
+ */
+export interface EmployeeCost {
+  _id: string;
+  employeeId: string | Employee;
+  month: number;
+  year: number;
+  salary: number;
+  commission: number;
+  fuel: number;
+  entertainment: number;
+  advances: number;
+  deductions: number;
+  bonus: number;
+  overtime: number;
+  otherAllowances: number;
+  netPay: number;
+  paymentDate?: string;
+  paymentMethod?: string;
+  notes?: string;
+  isActive: boolean;
+  createdBy: string | User;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * ========================================
+ * Expense Categories API Methods
+ * ========================================
+ */
+
+export const expenseCategoryApi = {
+  /**
+   * Get all expense categories
+   */
+  getAll: async (params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    isActive?: boolean;
+  }): Promise<ApiResponse<ExpenseCategory[]>> => {
+    const response = await apiClient.get<ApiResponse<ExpenseCategory[]>>(
+      '/expense-categories',
+      { params }
+    );
+    return response.data;
+  },
+
+  /**
+   * Get expense category by ID
+   */
+  getById: async (id: string): Promise<ExpenseCategory> => {
+    const response = await apiClient.get<ApiResponse<ExpenseCategory>>(
+      `/expense-categories/${id}`
+    );
+    return response.data.data!;
+  },
+
+  /**
+   * Create expense category
+   */
+  create: async (data: {
+    name: string;
+    description?: string;
+  }): Promise<ExpenseCategory> => {
+    const response = await apiClient.post<ApiResponse<ExpenseCategory>>(
+      '/expense-categories',
+      data
+    );
+    return response.data.data!;
+  },
+
+  /**
+   * Update expense category
+   */
+  update: async (
+    id: string,
+    data: Partial<{ name: string; description: string; isActive: boolean }>
+  ): Promise<ExpenseCategory> => {
+    const response = await apiClient.put<ApiResponse<ExpenseCategory>>(
+      `/expense-categories/${id}`,
+      data
+    );
+    return response.data.data!;
+  },
+
+  /**
+   * Delete expense category
+   */
+  delete: async (id: string): Promise<void> => {
+    await apiClient.delete(`/expense-categories/${id}`);
+  },
+};
+
+/**
+ * ========================================
+ * Expenses API Methods
+ * ========================================
+ */
+
+export const expensesApi = {
+  /**
+   * Get all expenses
+   */
+  getAll: async (params?: {
+    page?: number;
+    limit?: number;
+    status?: ExpenseStatus;
+    categoryId?: string;
+    startDate?: string;
+    endDate?: string;
+    isActive?: boolean;
+  }): Promise<ApiResponse<Expense[]>> => {
+    const response = await apiClient.get<ApiResponse<Expense[]>>('/expenses', { params });
+    return response.data;
+  },
+
+  /**
+   * Get expense by ID
+   */
+  getById: async (id: string): Promise<Expense> => {
+    const response = await apiClient.get<ApiResponse<Expense>>(`/expenses/${id}`);
+    return response.data.data!;
+  },
+
+  /**
+   * Create expense
+   */
+  create: async (data: {
+    categoryId: string;
+    amount: number;
+    expenseDate?: string;
+    vendor?: string;
+    description: string;
+    paymentMethod: PaymentMethod;
+    instrumentDetails?: InstrumentDetails;
+    notes?: string;
+  }): Promise<Expense> => {
+    const response = await apiClient.post<ApiResponse<Expense>>('/expenses', data);
+    return response.data.data!;
+  },
+
+  /**
+   * Update expense (draft only)
+   */
+  update: async (id: string, data: Partial<Expense>): Promise<Expense> => {
+    const response = await apiClient.put<ApiResponse<Expense>>(`/expenses/${id}`, data);
+    return response.data.data!;
+  },
+
+  /**
+   * Submit expense for approval
+   */
+  submit: async (id: string): Promise<Expense> => {
+    const response = await apiClient.post<ApiResponse<Expense>>(`/expenses/${id}/submit`);
+    return response.data.data!;
+  },
+
+  /**
+   * Approve expense
+   */
+  approve: async (id: string, remarks?: string): Promise<Expense> => {
+    const response = await apiClient.post<ApiResponse<Expense>>(`/expenses/${id}/approve`, {
+      remarks,
+    });
+    return response.data.data!;
+  },
+
+  /**
+   * Reject expense
+   */
+  reject: async (id: string, remarks: string): Promise<Expense> => {
+    const response = await apiClient.post<ApiResponse<Expense>>(`/expenses/${id}/reject`, {
+      remarks,
+    });
+    return response.data.data!;
+  },
+
+  /**
+   * Get approval queue (role-based)
+   */
+  getApprovalQueue: async (): Promise<Expense[]> => {
+    const response = await apiClient.get<ApiResponse<Expense[]>>('/expenses/approval-queue');
+    return response.data.data!;
+  },
+
+  /**
+   * Delete expense (draft only)
+   */
+  delete: async (id: string): Promise<void> => {
+    await apiClient.delete(`/expenses/${id}`);
+  },
+
+  /**
+   * Get expense statistics
+   */
+  getStats: async (params?: { startDate?: string; endDate?: string }): Promise<{
+    totalExpenses: number;
+    totalAmount: number;
+    pendingApprovals: number;
+    categoryBreakdown: Array<{
+      categoryName: string;
+      count: number;
+      totalAmount: number;
+    }>;
+  }> => {
+    const response = await apiClient.get<
+      ApiResponse<{
+        totalExpenses: number;
+        totalAmount: number;
+        pendingApprovals: number;
+        categoryBreakdown: Array<{
+          categoryName: string;
+          count: number;
+          totalAmount: number;
+        }>;
+      }>
+    >('/expenses/stats', { params });
+    return response.data.data!;
+  },
+};
+
+/**
+ * ========================================
+ * Employees API Methods
+ * ========================================
+ */
+
+export const employeesApi = {
+  /**
+   * Get all employees
+   */
+  getAll: async (params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    isActive?: boolean;
+  }): Promise<ApiResponse<Employee[]>> => {
+    const response = await apiClient.get<ApiResponse<Employee[]>>('/employees', { params });
+    return response.data;
+  },
+
+  /**
+   * Get employee by ID
+   */
+  getById: async (id: string): Promise<Employee> => {
+    const response = await apiClient.get<ApiResponse<Employee>>(`/employees/${id}`);
+    return response.data.data!;
+  },
+
+  /**
+   * Create employee
+   */
+  create: async (data: {
+    name: string;
+    designation: string;
+    phone: string;
+    email?: string;
+    nid?: string;
+    address?: string;
+    bankAccount?: BankAccount;
+    joinDate: string;
+    baseSalary: number;
+  }): Promise<Employee> => {
+    const response = await apiClient.post<ApiResponse<Employee>>('/employees', data);
+    return response.data.data!;
+  },
+
+  /**
+   * Update employee
+   */
+  update: async (id: string, data: Partial<Employee>): Promise<Employee> => {
+    const response = await apiClient.put<ApiResponse<Employee>>(`/employees/${id}`, data);
+    return response.data.data!;
+  },
+
+  /**
+   * Delete employee
+   */
+  delete: async (id: string): Promise<void> => {
+    await apiClient.delete(`/employees/${id}`);
+  },
+
+  /**
+   * Get employee cost history
+   */
+  getCosts: async (
+    employeeId: string,
+    params?: { year?: number; month?: number }
+  ): Promise<EmployeeCost[]> => {
+    const response = await apiClient.get<ApiResponse<EmployeeCost[]>>(
+      `/employees/${employeeId}/costs`,
+      { params }
+    );
+    return response.data.data!;
+  },
+
+  /**
+   * Get employee statistics
+   */
+  getStats: async (): Promise<{
+    totalEmployees: number;
+    activeEmployees: number;
+    currentMonthPayroll: number;
+  }> => {
+    const response = await apiClient.get<
+      ApiResponse<{
+        totalEmployees: number;
+        activeEmployees: number;
+        currentMonthPayroll: number;
+      }>
+    >('/employees/stats');
+    return response.data.data!;
+  },
+};
+
+/**
+ * ========================================
+ * Employee Costs API Methods
+ * ========================================
+ */
+
+export const employeeCostsApi = {
+  /**
+   * Get all employee costs
+   */
+  getAll: async (params?: {
+    page?: number;
+    limit?: number;
+    employeeId?: string;
+    year?: number;
+    month?: number;
+    isActive?: boolean;
+  }): Promise<ApiResponse<EmployeeCost[]>> => {
+    const response = await apiClient.get<ApiResponse<EmployeeCost[]>>('/employee-costs', {
+      params,
+    });
+    return response.data;
+  },
+
+  /**
+   * Get employee cost by ID
+   */
+  getById: async (id: string): Promise<EmployeeCost> => {
+    const response = await apiClient.get<ApiResponse<EmployeeCost>>(`/employee-costs/${id}`);
+    return response.data.data!;
+  },
+
+  /**
+   * Create employee cost entry
+   */
+  create: async (data: {
+    employeeId: string;
+    month: number;
+    year: number;
+    salary?: number;
+    commission?: number;
+    fuel?: number;
+    entertainment?: number;
+    advances?: number;
+    deductions?: number;
+    bonus?: number;
+    overtime?: number;
+    otherAllowances?: number;
+    paymentDate?: string;
+    paymentMethod?: string;
+    notes?: string;
+  }): Promise<EmployeeCost> => {
+    const response = await apiClient.post<ApiResponse<EmployeeCost>>('/employee-costs', data);
+    return response.data.data!;
+  },
+
+  /**
+   * Update employee cost
+   */
+  update: async (id: string, data: Partial<EmployeeCost>): Promise<EmployeeCost> => {
+    const response = await apiClient.put<ApiResponse<EmployeeCost>>(`/employee-costs/${id}`, data);
+    return response.data.data!;
+  },
+
+  /**
+   * Delete employee cost
+   */
+  delete: async (id: string): Promise<void> => {
+    await apiClient.delete(`/employee-costs/${id}`);
+  },
+
+  /**
+   * Get payroll summary for a month
+   */
+  getPayrollSummary: async (year: number, month: number): Promise<{
+    totalEmployees: number;
+    totalSalary: number;
+    totalCommission: number;
+    totalFuel: number;
+    totalEntertainment: number;
+    totalBonus: number;
+    totalOvertime: number;
+    totalOtherAllowances: number;
+    totalAdvances: number;
+    totalDeductions: number;
+    totalNetPay: number;
+  }> => {
+    const response = await apiClient.get<
+      ApiResponse<{
+        totalEmployees: number;
+        totalSalary: number;
+        totalCommission: number;
+        totalFuel: number;
+        totalEntertainment: number;
+        totalBonus: number;
+        totalOvertime: number;
+        totalOtherAllowances: number;
+        totalAdvances: number;
+        totalDeductions: number;
+        totalNetPay: number;
+      }>
+    >('/employee-costs/payroll/summary', {
+      params: { year, month },
+    });
+    return response.data.data!;
+  },
+
+  /**
+   * Get employee cost statistics
+   */
+  getStats: async (): Promise<{
+    currentMonth: {
+      employeeCount: number;
+      totalPayroll: number;
+    };
+    yearToDate: {
+      totalPayroll: number;
+    };
+  }> => {
+    const response = await apiClient.get<
+      ApiResponse<{
+        currentMonth: {
+          employeeCount: number;
+          totalPayroll: number;
+        };
+        yearToDate: {
+          totalPayroll: number;
+        };
+      }>
+    >('/employee-costs/stats');
+    return response.data.data!;
+  },
+};
+
 export default apiClient;
