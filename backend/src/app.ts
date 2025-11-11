@@ -17,6 +17,10 @@ import landRoutes from './routes/land.routes';
 import saleRoutes from './routes/sale.routes';
 import installmentRoutes from './routes/installment.routes';
 import receiptRoutes from './routes/receipt.routes';
+import expenseCategoryRoutes from './routes/expenseCategory.routes';
+import expenseRoutes from './routes/expense.routes';
+import employeeRoutes from './routes/employee.routes';
+import employeeCostRoutes from './routes/employeeCost.routes';
 
 // Load environment variables
 dotenv.config();
@@ -113,6 +117,10 @@ app.use('/api/land', landRoutes);
 app.use('/api/sales', saleRoutes);
 app.use('/api/installments', installmentRoutes);
 app.use('/api/receipts', receiptRoutes);
+app.use('/api/expense-categories', expenseCategoryRoutes);
+app.use('/api/expenses', expenseRoutes);
+app.use('/api/employees', employeeRoutes);
+app.use('/api/employee-costs', employeeCostRoutes);
 
 // Welcome Route
 app.get('/', (req, res) => {
