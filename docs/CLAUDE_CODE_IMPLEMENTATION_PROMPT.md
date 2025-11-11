@@ -29,22 +29,25 @@
 - Frontend: Cancellations pages (list, detail, new), Refunds pages (list, detail, schedule, approval queue), Sales integration
 - Status: COMPLETE & COMMITTED (commit: 456fa97, fa843cd backend, 4ea595f API, 2a1da22 frontend)
 
-### 🚧 PENDING PHASES
+**Phase 6: Banking & Cheques** ✅
+- Backend: BankAccount, CashAccount, Cheque models with status management, automatic status updates, statistics endpoints
+- Frontend: Banking dashboard with stats, API client with 437 lines (types + methods)
+- Status: COMPLETE & COMMITTED (commit: 9484134, df34bfb backend, 35237e9 API, fa5af4c dashboard)
 
-**Phase 6:** Banking & Cheques ⏳
+### 🚧 PENDING PHASES
 **Phase 7:** SMS & Notifications ⏳
 **Phase 8:** Reports & Dashboards (Partial - basic dashboard done) ⏳
 **Phase 9:** Configuration & Settings ⏳
 **Phase 10:** Data Migration & Testing ⏳
 
 ### 📈 Progress Summary
-- **Modules Completed:** 5 out of 11 (45%)
-- **Backend Models:** 18 models created (User, Client, RSNumber, Plot, Sale, Receipt, InstallmentSchedule, Ledger, ExpenseCategory, Expense, Employee, EmployeeCost, Cancellation, Refund, etc.)
-- **API Endpoints:** 87+ endpoints functional
-- **Frontend Pages:** 39+ pages implemented
-- **Core Features Working:** Authentication, Client Management, Land Inventory, Sales Tracking, Receipt Management, Expense Management, Payroll Management, Cancellations & Refunds - All with Multi-Level Approval Workflows
+- **Modules Completed:** 6 out of 11 (55%)
+- **Backend Models:** 21 models created (User, Client, RSNumber, Plot, Sale, Receipt, InstallmentSchedule, Ledger, ExpenseCategory, Expense, Employee, EmployeeCost, Cancellation, Refund, BankAccount, CashAccount, Cheque)
+- **API Endpoints:** 104+ endpoints functional
+- **Frontend Pages:** 40+ pages implemented
+- **Core Features Working:** Authentication, Client Management, Land Inventory, Sales Tracking, Receipt Management, Expense Management, Payroll Management, Cancellations & Refunds, Banking & Cheques - All with Multi-Level Approval Workflows
 
-### 📂 Files Implemented (Phase 1-5)
+### 📂 Files Implemented (Phase 1-6)
 
 **Backend Files:**
 ```
@@ -64,7 +67,10 @@ backend/src/
 │   ├── Employee.ts ✅
 │   ├── EmployeeCost.ts ✅
 │   ├── Cancellation.ts ✅
-│   └── Refund.ts ✅
+│   ├── Refund.ts ✅
+│   ├── BankAccount.ts ✅
+│   ├── CashAccount.ts ✅
+│   └── Cheque.ts ✅
 ├── controllers/
 │   ├── authController.ts ✅
 │   ├── clientController.ts ✅
@@ -77,7 +83,10 @@ backend/src/
 │   ├── employeeController.ts ✅
 │   ├── employeeCostController.ts ✅
 │   ├── cancellationController.ts ✅
-│   └── refundController.ts ✅
+│   ├── refundController.ts ✅
+│   ├── bankAccountController.ts ✅
+│   ├── cashAccountController.ts ✅
+│   └── chequeController.ts ✅
 ├── routes/
 │   ├── auth.routes.ts ✅
 │   ├── client.routes.ts ✅
@@ -90,7 +99,10 @@ backend/src/
 │   ├── employee.routes.ts ✅
 │   ├── employeeCost.routes.ts ✅
 │   ├── cancellation.routes.ts ✅
-│   └── refund.routes.ts ✅
+│   ├── refund.routes.ts ✅
+│   ├── bankAccount.routes.ts ✅
+│   ├── cashAccount.routes.ts ✅
+│   └── cheque.routes.ts ✅
 ├── middlewares/
 │   ├── auth.middleware.ts ✅
 │   ├── rbac.middleware.ts ✅
@@ -147,13 +159,15 @@ frontend/app/
 │   │   ├── page.tsx ✅ (List)
 │   │   ├── [id]/page.tsx ✅ (Detail)
 │   │   └── new/page.tsx ✅ (Create)
-│   └── refunds/
-│       ├── page.tsx ✅ (List)
-│       ├── [id]/page.tsx ✅ (Detail)
-│       ├── approval-queue/page.tsx ✅
-│       └── schedule/page.tsx ✅ (Create schedule)
+│   ├── refunds/
+│   │   ├── page.tsx ✅ (List)
+│   │   ├── [id]/page.tsx ✅ (Detail)
+│   │   ├── approval-queue/page.tsx ✅
+│   │   └── schedule/page.tsx ✅ (Create schedule)
+│   └── banking/
+│       └── page.tsx ✅ (Dashboard with stats)
 └── lib/
-    └── api.ts ✅ (Complete API client with Phase 1-5 types)
+    └── api.ts ✅ (Complete API client with Phase 1-6 types)
 ```
 
 ### 🎯 Current Working Features
@@ -243,6 +257,22 @@ frontend/app/
 - ✅ Sale status restoration on rejection
 - ✅ Real-time refund calculation preview
 - ✅ Cancel button integration in sales detail page
+
+**Banking & Cheques Management:**
+- ✅ Bank account management (Savings, Current, FDR, DPS, Other)
+- ✅ Cash account management for petty cash tracking
+- ✅ Account balance tracking and statistics
+- ✅ Cheque management with status workflow:
+  - Pending → Due Today → Cleared/Bounced/Cancelled/Overdue
+- ✅ Cheque types: PDC (Post-Dated Cheque) and Current
+- ✅ Automatic status updates based on due dates
+- ✅ Mark cheques as cleared, bounced, or cancelled
+- ✅ Due cheques query (due today or overdue)
+- ✅ Upcoming cheques query (next N days)
+- ✅ Banking dashboard with consolidated stats
+- ✅ Total balance calculation across all accounts
+- ✅ Balance breakdown by account type
+- ✅ Cheque statistics (pending, cleared, bounced amounts)
 
 **Dashboard & Reporting:**
 - ✅ Executive dashboard with 8 KPI cards:
