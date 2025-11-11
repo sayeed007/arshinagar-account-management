@@ -21,6 +21,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { name: 'Expenses', href: '/dashboard/expenses', icon: '💳', roles: null },
     { name: 'Employees', href: '/dashboard/employees', icon: '👨‍💼', roles: null },
     { name: 'Payroll', href: '/dashboard/payroll', icon: '💵', roles: [UserRole.ACCOUNT_MANAGER, UserRole.HOF, UserRole.ADMIN] },
+    { name: 'Cancellations', href: '/dashboard/cancellations', icon: '❌', roles: null },
+    { name: 'Refunds', href: '/dashboard/refunds', icon: '↩️', roles: null },
     { name: 'Banking', href: '/dashboard/banking', icon: '🏦', roles: [UserRole.HOF, UserRole.ADMIN] },
     { name: 'Approvals', href: '/dashboard/approvals', icon: '✅', roles: [UserRole.HOF, UserRole.ADMIN] },
     { name: 'Reports', href: '/dashboard/reports', icon: '📈', roles: null },

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { salesApi, Sale, Client, Plot, RSNumber, SaleStageStatus } from '@/lib/api';
+import { salesApi, Sale, Client, Plot, RSNumber, SaleStageStatus, SaleStatus } from '@/lib/api';
 
 export default function SaleDetailPage() {
   const params = useParams();
@@ -303,6 +303,14 @@ export default function SaleDetailPage() {
               >
                 View Installments
               </Link>
+              {sale.status === SaleStatus.ACTIVE && (
+                <Link
+                  href={`/dashboard/cancellations/new?saleId=${sale._id}`}
+                  className="block w-full px-4 py-2 bg-red-600 text-white text-center rounded-md hover:bg-red-700"
+                >
+                  Cancel Booking
+                </Link>
+              )}
               <Link
                 href="/dashboard/sales"
                 className="block w-full px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-center rounded-md hover:bg-gray-300 dark:hover:bg-gray-600"
