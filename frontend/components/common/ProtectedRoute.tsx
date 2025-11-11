@@ -1,9 +1,17 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { UserRole } from '@/lib/api';
+
+/**
+ * Helper to get locale from pathname
+ */
+function getLocaleFromPathname(pathname: string): string {
+  const localeMatch = pathname.match(/^\/(bn|en)/);
+  return localeMatch ? localeMatch[1] : '';
+}
 
 /**
  * Protected Route Props
@@ -21,26 +29,31 @@ interface ProtectedRouteProps {
 export function ProtectedRoute({
   children,
   requiredRoles,
-  redirectTo = '/login',
+  redirectTo,
 }: ProtectedRouteProps) {
   const { user, isLoading, isAuthenticated, hasRole } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     if (!isLoading) {
+      const locale = getLocaleFromPathname(pathname);
+
       // Check if user is authenticated
       if (!isAuthenticated) {
-        router.push(redirectTo);
+        const loginPath = locale ? `/${locale}/login` : '/login';
+        router.push(redirectTo || loginPath);
         return;
       }
 
       // Check if user has required roles
       if (requiredRoles && !hasRole(requiredRoles)) {
         // User doesn't have required role, redirect to dashboard
-        router.push('/dashboard');
+        const dashboardPath = locale ? `/${locale}/dashboard` : '/dashboard';
+        router.push(dashboardPath);
       }
     }
-  }, [isLoading, isAuthenticated, requiredRoles, hasRole, router, redirectTo]);
+  }, [isLoading, isAuthenticated, requiredRoles, hasRole, router, redirectTo, pathname]);
 
   // Show loading state
   if (isLoading) {
