@@ -1442,4 +1442,330 @@ export const employeeCostsApi = {
   },
 };
 
+// ========================================
+// Phase 5: Cancellations & Refunds
+// ========================================
+
+/**
+ * Cancellation Status Enum
+ */
+export enum CancellationStatus {
+  PENDING = 'Pending',
+  APPROVED = 'Approved',
+  REJECTED = 'Rejected',
+  REFUNDED = 'Refunded',
+  PARTIAL_REFUND = 'Partial Refund',
+}
+
+/**
+ * Refund Status Enum
+ */
+export enum RefundStatus {
+  PENDING = 'Pending',
+  PAID = 'Paid',
+  CANCELLED = 'Cancelled',
+}
+
+/**
+ * Refund Approval Status Enum
+ */
+export enum RefundApprovalStatus {
+  DRAFT = 'Draft',
+  PENDING_ACCOUNTS = 'Pending Accounts',
+  PENDING_HOF = 'Pending HOF',
+  APPROVED = 'Approved',
+  REJECTED = 'Rejected',
+}
+
+/**
+ * Cancellation interface
+ */
+export interface Cancellation {
+  _id: string;
+  saleId: string | Sale;
+  cancellationDate: string;
+  reason: string;
+  totalPaid: number;
+  officeChargePercent: number;
+  officeChargeAmount: number;
+  otherDeductions: number;
+  refundableAmount: number;
+  refundedAmount: number;
+  remainingRefund: number;
+  status: CancellationStatus;
+  approvedBy?: string | User;
+  approvedAt?: string;
+  rejectionReason?: string;
+  notes?: string;
+  createdBy: string | User;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * Refund interface
+ */
+export interface Refund {
+  _id: string;
+  refundNumber: string;
+  cancellationId: string | Cancellation;
+  installmentNumber: number;
+  dueDate: string;
+  amount: number;
+  paidDate?: string;
+  status: RefundStatus;
+  approvalStatus: RefundApprovalStatus;
+  paymentMethod?: PaymentMethod;
+  instrumentDetails?: InstrumentDetails;
+  approvalHistory: ApprovalHistory[];
+  rejectionReason?: string;
+  notes?: string;
+  createdBy: string | User;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * Cancellation API
+ */
+export const cancellationsApi = {
+  /**
+   * Get all cancellations
+   */
+  getAll: async (params?: {
+    page?: number;
+    limit?: number;
+    status?: CancellationStatus;
+    saleId?: string;
+    fromDate?: string;
+    toDate?: string;
+  }): Promise<ApiPaginatedResponse<Cancellation>> => {
+    const response = await apiClient.get<ApiPaginatedResponse<Cancellation>>('/cancellations', {
+      params,
+    });
+    return response.data;
+  },
+
+  /**
+   * Get cancellation by ID
+   */
+  getById: async (id: string): Promise<Cancellation & { refunds: Refund[] }> => {
+    const response = await apiClient.get<ApiResponse<Cancellation & { refunds: Refund[] }>>(
+      `/cancellations/${id}`
+    );
+    return response.data.data!;
+  },
+
+  /**
+   * Create new cancellation
+   */
+  create: async (data: {
+    saleId: string;
+    reason: string;
+    officeChargePercent?: number;
+    otherDeductions?: number;
+    notes?: string;
+  }): Promise<Cancellation> => {
+    const response = await apiClient.post<ApiResponse<Cancellation>>('/cancellations', data);
+    return response.data.data!;
+  },
+
+  /**
+   * Update cancellation
+   */
+  update: async (
+    id: string,
+    data: {
+      reason?: string;
+      officeChargePercent?: number;
+      otherDeductions?: number;
+      notes?: string;
+    }
+  ): Promise<Cancellation> => {
+    const response = await apiClient.put<ApiResponse<Cancellation>>(`/cancellations/${id}`, data);
+    return response.data.data!;
+  },
+
+  /**
+   * Approve cancellation
+   */
+  approve: async (id: string, notes?: string): Promise<Cancellation> => {
+    const response = await apiClient.post<ApiResponse<Cancellation>>(
+      `/cancellations/${id}/approve`,
+      { notes }
+    );
+    return response.data.data!;
+  },
+
+  /**
+   * Reject cancellation
+   */
+  reject: async (id: string, reason: string): Promise<Cancellation> => {
+    const response = await apiClient.post<ApiResponse<Cancellation>>(
+      `/cancellations/${id}/reject`,
+      { reason }
+    );
+    return response.data.data!;
+  },
+
+  /**
+   * Delete cancellation
+   */
+  delete: async (id: string): Promise<void> => {
+    await apiClient.delete(`/cancellations/${id}`);
+  },
+
+  /**
+   * Get cancellation statistics
+   */
+  getStats: async (params?: {
+    fromDate?: string;
+    toDate?: string;
+  }): Promise<{
+    totalCancellations: number;
+    pendingCancellations: number;
+    approvedCancellations: number;
+    totalRefundable: number;
+    totalRefunded: number;
+    totalOfficeCharge: number;
+  }> => {
+    const response = await apiClient.get<
+      ApiResponse<{
+        totalCancellations: number;
+        pendingCancellations: number;
+        approvedCancellations: number;
+        totalRefundable: number;
+        totalRefunded: number;
+        totalOfficeCharge: number;
+      }>
+    >('/cancellations/stats', { params });
+    return response.data.data!;
+  },
+};
+
+/**
+ * Refund API
+ */
+export const refundsApi = {
+  /**
+   * Get all refunds
+   */
+  getAll: async (params?: {
+    page?: number;
+    limit?: number;
+    status?: RefundStatus;
+    approvalStatus?: RefundApprovalStatus;
+    cancellationId?: string;
+    fromDate?: string;
+    toDate?: string;
+  }): Promise<ApiPaginatedResponse<Refund>> => {
+    const response = await apiClient.get<ApiPaginatedResponse<Refund>>('/refunds', {
+      params,
+    });
+    return response.data;
+  },
+
+  /**
+   * Get refund by ID
+   */
+  getById: async (id: string): Promise<Refund> => {
+    const response = await apiClient.get<ApiResponse<Refund>>(`/refunds/${id}`);
+    return response.data.data!;
+  },
+
+  /**
+   * Create refund schedule
+   */
+  createSchedule: async (data: {
+    cancellationId: string;
+    numberOfInstallments: number;
+    startDate?: string;
+    notes?: string;
+  }): Promise<Refund[]> => {
+    const response = await apiClient.post<ApiResponse<Refund[]>>('/refunds', data);
+    return response.data.data!;
+  },
+
+  /**
+   * Submit refund for approval
+   */
+  submit: async (id: string): Promise<Refund> => {
+    const response = await apiClient.post<ApiResponse<Refund>>(`/refunds/${id}/submit`);
+    return response.data.data!;
+  },
+
+  /**
+   * Approve refund
+   */
+  approve: async (id: string, remarks?: string): Promise<Refund> => {
+    const response = await apiClient.post<ApiResponse<Refund>>(`/refunds/${id}/approve`, {
+      remarks,
+    });
+    return response.data.data!;
+  },
+
+  /**
+   * Reject refund
+   */
+  reject: async (id: string, remarks: string): Promise<Refund> => {
+    const response = await apiClient.post<ApiResponse<Refund>>(`/refunds/${id}/reject`, {
+      remarks,
+    });
+    return response.data.data!;
+  },
+
+  /**
+   * Get refund approval queue
+   */
+  getApprovalQueue: async (): Promise<Refund[]> => {
+    const response = await apiClient.get<ApiResponse<Refund[]>>('/refunds/approval-queue');
+    return response.data.data!;
+  },
+
+  /**
+   * Mark refund as paid
+   */
+  markAsPaid: async (
+    id: string,
+    data: {
+      paymentMethod: PaymentMethod;
+      paidDate?: string;
+      instrumentDetails?: InstrumentDetails;
+      notes?: string;
+    }
+  ): Promise<Refund> => {
+    const response = await apiClient.post<ApiResponse<Refund>>(`/refunds/${id}/mark-paid`, data);
+    return response.data.data!;
+  },
+
+  /**
+   * Get refund statistics
+   */
+  getStats: async (params?: {
+    fromDate?: string;
+    toDate?: string;
+  }): Promise<{
+    totalRefunds: number;
+    pendingRefunds: number;
+    paidRefunds: number;
+    totalAmount: number;
+    paidAmount: number;
+    pendingApprovals: number;
+  }> => {
+    const response = await apiClient.get<
+      ApiResponse<{
+        totalRefunds: number;
+        pendingRefunds: number;
+        paidRefunds: number;
+        totalAmount: number;
+        paidAmount: number;
+        pendingApprovals: number;
+      }>
+    >('/refunds/stats', { params });
+    return response.data.data!;
+  },
+};
+
 export default apiClient;
