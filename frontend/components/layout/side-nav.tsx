@@ -12,6 +12,16 @@ import {
   BarChart3,
   FileText,
   X,
+  MapPin,
+  ShoppingCart,
+  DollarSign,
+  CreditCard,
+  UserCheck,
+  Wallet,
+  XCircle,
+  RotateCcw,
+  Building2,
+  FileCheck,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -25,27 +35,37 @@ interface SideNavProps {
 const navigationConfig = [
   { key: 'dashboard', href: '/dashboard', icon: LayoutDashboard },
   {
-    key: 'userManagement',
+    key: 'masterData',
     items: [
-      { key: 'users', href: '/users', icon: Users },
-      { key: 'roles', href: '/roles', icon: Users },
+      { key: 'clients', href: '/dashboard/clients', icon: Users },
+      { key: 'landInventory', href: '/dashboard/land', icon: MapPin },
     ],
   },
   {
-    key: 'content',
+    key: 'salesCollections',
     items: [
-      { key: 'products', href: '/products', icon: Package },
-      { key: 'documents', href: '/documents', icon: FileText },
+      { key: 'sales', href: '/dashboard/sales', icon: ShoppingCart },
+      { key: 'collections', href: '/dashboard/collections', icon: DollarSign },
     ],
   },
   {
-    key: 'analytics',
+    key: 'expensesPayroll',
     items: [
-      { key: 'reports', href: '/reports', icon: BarChart3 },
-      { key: 'statistics', href: '/statistics', icon: BarChart3 },
+      { key: 'expenses', href: '/dashboard/expenses', icon: CreditCard },
+      { key: 'employees', href: '/dashboard/employees', icon: UserCheck },
+      { key: 'payroll', href: '/dashboard/payroll', icon: Wallet },
     ],
   },
-  { key: 'settings', href: '/settings', icon: Settings },
+  {
+    key: 'cancellationsRefunds',
+    items: [
+      { key: 'cancellations', href: '/dashboard/cancellations', icon: XCircle },
+      { key: 'refunds', href: '/dashboard/refunds', icon: RotateCcw },
+    ],
+  },
+  { key: 'banking', href: '/dashboard/banking', icon: Building2 },
+  { key: 'reports', href: '/dashboard/reports', icon: BarChart3 },
+  { key: 'settings', href: '/dashboard/settings', icon: Settings },
 ]
 
 export function SideNav({ open, onClose }: SideNavProps) {
