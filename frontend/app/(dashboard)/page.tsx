@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
-import { clientApi, landApi } from '@/lib/api';
+import { clientApi, landApi, salesApi, receiptsApi } from '@/lib/api';
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -17,6 +17,12 @@ export default function DashboardPage() {
     soldArea: 0,
     allocatedArea: 0,
     remainingArea: 0,
+    totalSales: 0,
+    activeSales: 0,
+    totalSalesAmount: 0,
+    totalPaidAmount: 0,
+    totalDueAmount: 0,
+    pendingReceipts: 0,
   });
 
   useEffect(() => {
@@ -27,15 +33,16 @@ export default function DashboardPage() {
     try {
       setLoading(true);
 
-      // Load client stats
-      const clientStats = await clientApi.getStats();
+      // Load all stats in parallel
+      const [clientStats, rsNumbersResponse, plotsResponse, salesStats, receiptsResponse] = await Promise.all([
+        clientApi.getStats(),
+        landApi.rsNumbers.getAll({ page: 1, limit: 1000 }),
+        landApi.getAllPlots({ page: 1, limit: 1000 }),
+        salesApi.getStats().catch(() => ({ totalSales: 0, activeSales: 0, totalAmount: 0, totalPaid: 0, totalDue: 0 })),
+        receiptsApi.getAll({ page: 1, limit: 1, approvalStatus: 'Pending Accounts' as any }).catch(() => ({ pagination: { total: 0 } })),
+      ]);
 
-      // Load RS Numbers
-      const rsNumbersResponse = await landApi.rsNumbers.getAll({ page: 1, limit: 1000 });
       const rsNumbers = rsNumbersResponse.data || [];
-
-      // Load plots
-      const plotsResponse = await landApi.plots.getAll({ page: 1, limit: 1000 });
       const plots = plotsResponse.data || [];
 
       // Calculate land area stats
@@ -58,12 +65,22 @@ export default function DashboardPage() {
         soldArea: landStats.soldArea,
         allocatedArea: landStats.allocatedArea,
         remainingArea: landStats.remainingArea,
+        totalSales: salesStats.totalSales || 0,
+        activeSales: salesStats.activeSales || 0,
+        totalSalesAmount: salesStats.totalAmount || 0,
+        totalPaidAmount: salesStats.totalPaid || 0,
+        totalDueAmount: salesStats.totalDue || 0,
+        pendingReceipts: receiptsResponse.pagination?.total || 0,
       });
     } catch (error: any) {
       console.error('Failed to load dashboard stats:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const formatCurrency = (amount: number) => {
+    return `৳${(amount / 1000000).toFixed(2)}M`;
   };
 
   const statCards = [
@@ -75,25 +92,39 @@ export default function DashboardPage() {
       color: 'bg-blue-500',
     },
     {
-      name: 'RS Numbers',
-      value: loading ? '...' : stats.totalRSNumbers.toString(),
-      icon: '🏞️',
-      subtext: loading ? '' : `${stats.totalPlots} plots`,
+      name: 'Active Sales',
+      value: loading ? '...' : stats.activeSales.toString(),
+      icon: '💼',
+      subtext: loading ? '' : `${stats.totalSales} total sales`,
       color: 'bg-green-500',
     },
     {
-      name: 'Total Land',
-      value: loading ? '...' : `${stats.totalLandArea.toFixed(1)}`,
-      icon: '📐',
-      subtext: loading ? '' : 'Total area (all units)',
+      name: 'Total Sales Value',
+      value: loading ? '...' : formatCurrency(stats.totalSalesAmount),
+      icon: '💰',
+      subtext: loading ? '' : 'Total revenue',
       color: 'bg-purple-500',
     },
     {
-      name: 'Remaining Area',
-      value: loading ? '...' : `${stats.remainingArea.toFixed(1)}`,
-      icon: '✅',
-      subtext: loading ? '' : 'Available for sale',
+      name: 'Amount Due',
+      value: loading ? '...' : formatCurrency(stats.totalDueAmount),
+      icon: '📊',
+      subtext: loading ? '' : `Paid: ${formatCurrency(stats.totalPaidAmount)}`,
+      color: 'bg-orange-500',
+    },
+    {
+      name: 'Land Inventory',
+      value: loading ? '...' : stats.totalRSNumbers.toString(),
+      icon: '🏞️',
+      subtext: loading ? '' : `${stats.totalPlots} plots`,
       color: 'bg-indigo-500',
+    },
+    {
+      name: 'Pending Approvals',
+      value: loading ? '...' : stats.pendingReceipts.toString(),
+      icon: '⏳',
+      subtext: loading ? '' : 'Receipts pending',
+      color: 'bg-yellow-500',
     },
   ];
 
@@ -181,25 +212,31 @@ export default function DashboardPage() {
             </div>
           </Link>
 
-          <div className="bg-white dark:bg-gray-800 p-6 shadow rounded-lg opacity-50 cursor-not-allowed">
+          <Link
+            href="/dashboard/sales/new"
+            className="bg-white dark:bg-gray-800 p-6 shadow rounded-lg hover:shadow-md transition-shadow"
+          >
             <div className="flex items-center">
               <span className="text-3xl mr-4">💼</span>
               <div className="text-left">
                 <p className="text-sm font-medium text-gray-900 dark:text-white">New Sale</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Coming in Phase 3</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Create sale booking</p>
               </div>
             </div>
-          </div>
+          </Link>
 
-          <div className="bg-white dark:bg-gray-800 p-6 shadow rounded-lg opacity-50 cursor-not-allowed">
+          <Link
+            href="/dashboard/receipts/new"
+            className="bg-white dark:bg-gray-800 p-6 shadow rounded-lg hover:shadow-md transition-shadow"
+          >
             <div className="flex items-center">
               <span className="text-3xl mr-4">💰</span>
               <div className="text-left">
                 <p className="text-sm font-medium text-gray-900 dark:text-white">Record Payment</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Coming in Phase 3</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Add new receipt</p>
               </div>
             </div>
-          </div>
+          </Link>
         </div>
       </div>
 
@@ -221,22 +258,23 @@ export default function DashboardPage() {
           </div>
           <div className="ml-3">
             <h3 className="text-sm font-medium text-green-800 dark:text-green-400">
-              Phase 2: Master Data Management Complete
+              Phase 3: Sales & Receipt Management Complete ✅
             </h3>
             <div className="mt-2 text-sm text-green-700 dark:text-green-300">
               <p>
-                Phase 1 & Phase 2 implementation complete. Active features:
+                All core phases complete! Active features:
               </p>
               <ul className="list-disc list-inside mt-2 space-y-1">
                 <li>Role-based authentication & user management</li>
-                <li>Client management with search and pagination</li>
-                <li>RS Number (land parcel) management</li>
-                <li>Plot management with automatic area calculation</li>
-                <li>Intelligent land inventory tracking</li>
-                <li>Comprehensive audit logging</li>
+                <li>Client & land inventory (RS Numbers, Plots)</li>
+                <li>Multi-stage sales tracking (Booking → Installments → Registration → Handover)</li>
+                <li>Payment receipt management with approval workflow</li>
+                <li>Automatic ledger posting (double-entry bookkeeping)</li>
+                <li>Installment scheduling and overdue tracking</li>
+                <li>Comprehensive audit logging & reporting</li>
               </ul>
-              <p className="mt-2">
-                Phase 3 will add sales management, payment tracking, and financial reports.
+              <p className="mt-2 font-semibold">
+                System is production-ready for land sales and account management!
               </p>
             </div>
           </div>
