@@ -37,6 +37,14 @@ export const handleValidationErrors = (
 };
 
 /**
+ * Validation Helper
+ * Combines validation chains with error handling
+ */
+export const validate = (validations: ValidationChain[]) => {
+  return [...validations, handleValidationErrors];
+};
+
+/**
  * Login Validation Rules
  */
 export const loginValidation: ValidationChain[] = [
