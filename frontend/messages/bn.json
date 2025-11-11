@@ -28,7 +28,9 @@
     "cancellations": "বাতিলকরণ",
     "refunds": "ফেরত",
     "banking": "ব্যাংকিং",
+    "approvals": "অনুমোদন",
     "reports": "রিপোর্ট",
+    "sms": "এসএমএস",
     "settings": "সেটিংস"
   },
   "dashboard": {

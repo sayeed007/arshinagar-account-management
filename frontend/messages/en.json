@@ -28,7 +28,9 @@
     "cancellations": "Cancellations",
     "refunds": "Refunds",
     "banking": "Banking",
+    "approvals": "Approvals",
     "reports": "Reports",
+    "sms": "SMS",
     "settings": "Settings"
   },
   "dashboard": {
