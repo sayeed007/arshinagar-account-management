@@ -21,6 +21,8 @@ import expenseCategoryRoutes from './routes/expenseCategory.routes';
 import expenseRoutes from './routes/expense.routes';
 import employeeRoutes from './routes/employee.routes';
 import employeeCostRoutes from './routes/employeeCost.routes';
+import cancellationRoutes from './routes/cancellation.routes';
+import refundRoutes from './routes/refund.routes';
 
 // Load environment variables
 dotenv.config();
@@ -121,6 +123,8 @@ app.use('/api/expense-categories', expenseCategoryRoutes);
 app.use('/api/expenses', expenseRoutes);
 app.use('/api/employees', employeeRoutes);
 app.use('/api/employee-costs', employeeCostRoutes);
+app.use('/api/cancellations', cancellationRoutes);
+app.use('/api/refunds', refundRoutes);
 
 // Welcome Route
 app.get('/', (req, res) => {
