@@ -12,6 +12,8 @@ import { logger } from './utils/logger';
 
 // Import routes
 import authRoutes from './routes/auth.routes';
+import clientRoutes from './routes/client.routes';
+import landRoutes from './routes/land.routes';
 
 // Load environment variables
 dotenv.config();
@@ -103,6 +105,8 @@ app.get('/health', (req, res) => {
 
 // API Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/clients', clientRoutes);
+app.use('/api/land', landRoutes);
 
 // Welcome Route
 app.get('/', (req, res) => {
