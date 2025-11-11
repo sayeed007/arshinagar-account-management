@@ -99,8 +99,8 @@ export default function LandInventoryPage() {
         </Card>
       </div>
 
-      {/* Main Section */}
-      <div className="grid gap-6">
+      {/* Main Sections - Side by Side */}
+      <div className="grid gap-6 md:grid-cols-2">
         {/* RS Numbers Section */}
         <Card className="hover:shadow-lg transition-shadow">
           <CardHeader>
@@ -144,6 +144,48 @@ export default function LandInventoryPage() {
                 <li>• {t('rsNumbers.feature2')}</li>
                 <li>• {t('rsNumbers.feature3')}</li>
                 <li>• {t('rsNumbers.feature4')}</li>
+              </ul>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Plots Section */}
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Grid3x3 className="h-6 w-6 text-primary" />
+                <div>
+                  <CardTitle>{t('plots.title')}</CardTitle>
+                  <CardDescription className="mt-1">
+                    {t('plots.description')}
+                  </CardDescription>
+                </div>
+              </div>
+              <Badge variant="outline">{t('plots.badge')}</Badge>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              {t('plots.info')}
+            </p>
+
+            <div className="flex flex-wrap gap-2">
+              <Link href={getLocalizedHref('/land/plots')}>
+                <Button variant="default">
+                  <Grid3x3 className="mr-2 h-4 w-4" />
+                  {t('plots.viewAll')}
+                </Button>
+              </Link>
+            </div>
+
+            <div className="pt-4 border-t space-y-2">
+              <h4 className="text-sm font-semibold">{t('plots.features')}</h4>
+              <ul className="text-sm text-muted-foreground space-y-1">
+                <li>• {t('plots.feature1')}</li>
+                <li>• {t('plots.feature2')}</li>
+                <li>• {t('plots.feature3')}</li>
+                <li>• {t('plots.feature4')}</li>
               </ul>
             </div>
           </CardContent>

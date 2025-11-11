@@ -98,7 +98,8 @@
       "features": "Plot Features",
       "feature1": "View plot details including area and status",
       "feature2": "Track which customer owns each plot",
-      "feature3": "Monitor plot sale history and transactions"
+      "feature3": "Monitor plot sale history and transactions",
+      "feature4": "Search and filter plots across all RS Numbers"
     },
     "info": {
       "title": "About Land Inventory System",
