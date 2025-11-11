@@ -23,6 +23,9 @@ import employeeRoutes from './routes/employee.routes';
 import employeeCostRoutes from './routes/employeeCost.routes';
 import cancellationRoutes from './routes/cancellation.routes';
 import refundRoutes from './routes/refund.routes';
+import bankAccountRoutes from './routes/bankAccount.routes';
+import cashAccountRoutes from './routes/cashAccount.routes';
+import chequeRoutes from './routes/cheque.routes';
 
 // Load environment variables
 dotenv.config();
@@ -125,6 +128,9 @@ app.use('/api/employees', employeeRoutes);
 app.use('/api/employee-costs', employeeCostRoutes);
 app.use('/api/cancellations', cancellationRoutes);
 app.use('/api/refunds', refundRoutes);
+app.use('/api/bank-accounts', bankAccountRoutes);
+app.use('/api/cash-accounts', cashAccountRoutes);
+app.use('/api/cheques', chequeRoutes);
 
 // Welcome Route
 app.get('/', (req, res) => {
