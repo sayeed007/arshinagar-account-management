@@ -42,7 +42,7 @@ const ExpenseCategorySchema = new Schema<IExpenseCategory>(
 );
 
 // Indexes
-ExpenseCategorySchema.index({ name: 1 });
+// Note: name already has unique index from schema definition
 ExpenseCategorySchema.index({ isActive: 1 });
 
 export default mongoose.model<IExpenseCategory>('ExpenseCategory', ExpenseCategorySchema);

@@ -10,13 +10,13 @@ import {
   markRefundAsPaid,
   getRefundStats,
 } from '../controllers/refundController';
-import { protect } from '../middlewares/auth.middleware';
+import { authenticate } from '../middlewares/auth.middleware';
 import { authorize } from '../middlewares/rbac.middleware';
 
 const router = express.Router();
 
 // All routes require authentication
-router.use(protect);
+router.use(authenticate);
 
 router.get('/approval-queue', authorize('Admin', 'AccountManager', 'HOF'), getApprovalQueue);
 router.get('/stats', getRefundStats);
