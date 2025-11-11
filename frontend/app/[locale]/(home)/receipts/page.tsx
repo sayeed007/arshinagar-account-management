@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { receiptsApi, Receipt, ReceiptApprovalStatus, Client, Sale } from '@/lib/api';
+import { ListQueryParams, getErrorMessage } from '@/lib/types';
 
 export default function ReceiptsPage() {
   const searchParams = useSearchParams();
@@ -24,7 +25,7 @@ export default function ReceiptsPage() {
   const loadReceipts = async () => {
     try {
       setLoading(true);
-      const params: any = { page, limit, isActive: true };
+      const params: ListQueryParams = { page, limit, isActive: true };
 
       if (statusFilter) {
         params.approvalStatus = statusFilter;
@@ -38,9 +39,9 @@ export default function ReceiptsPage() {
       setReceipts(response.data || []);
       setTotal(response.pagination?.total || 0);
       setTotalPages(response.pagination?.totalPages || 0);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Failed to load receipts:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load receipts');
+      alert(getErrorMessage(error));
     } finally {
       setLoading(false);
     }

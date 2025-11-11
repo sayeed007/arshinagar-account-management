@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { landApi, RSNumber, PlotStatus } from '@/lib/api';
+import { getErrorMessage } from '@/lib/types';
 
 export default function NewPlotPage() {
   const params = useParams();
@@ -29,9 +30,9 @@ export default function NewPlotPage() {
       setRsLoading(true);
       const data = await landApi.rsNumbers.getById(params.id as string);
       setRSNumber(data);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Failed to load RS Number:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load RS Number');
+      alert(getErrorMessage(error));
       router.push('/land/rs-numbers');
     } finally {
       setRsLoading(false);
@@ -64,7 +65,7 @@ export default function NewPlotPage() {
       }
 
       // Prepare data
-      const data: any = {
+      const data: Record<string, unknown> = {
         rsNumberId: params.id,
         plotNumber: formData.plotNumber.trim(),
         area: plotArea,
@@ -79,19 +80,9 @@ export default function NewPlotPage() {
       await landApi.plots.create(data);
       alert('Plot created successfully!');
       router.push(`/land/rs-numbers/${params.id}`);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Failed to create plot:', error);
-      const errorMessage = error.response?.data?.error?.message || 'Failed to create plot';
-      const details = error.response?.data?.error?.details;
-
-      if (details) {
-        const fieldErrors = Object.entries(details)
-          .map(([field, msg]) => `${field}: ${msg}`)
-          .join('\n');
-        alert(`Validation errors:\n${fieldErrors}`);
-      } else {
-        alert(errorMessage);
-      }
+      alert(getErrorMessage(error));
     } finally {
       setLoading(false);
     }

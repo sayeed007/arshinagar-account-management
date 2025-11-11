@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { refundsApi, Refund, RefundStatus, RefundApprovalStatus, Cancellation, Sale, Client } from '@/lib/api';
+import { ListQueryParams, getErrorMessage } from '@/lib/types';
 
 export default function RefundsPage() {
   const [loading, setLoading] = useState(true);
@@ -19,7 +20,7 @@ export default function RefundsPage() {
   const loadRefunds = async () => {
     try {
       setLoading(true);
-      const params: any = { page, limit: 20 };
+      const params: ListQueryParams = { page, limit: 20 };
       if (statusFilter) {
         params.status = statusFilter;
       }
@@ -30,9 +31,9 @@ export default function RefundsPage() {
       const response = await refundsApi.getAll(params);
       setRefunds(response.data);
       setTotalPages(response.pagination.totalPages);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Failed to load refunds:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load refunds');
+      alert(getErrorMessage(error));
     } finally {
       setLoading(false);
     }

@@ -3,15 +3,23 @@ import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'ax
 /**
  * API Response Types
  */
-export interface ApiResponse<T = any> {
+export interface ApiErrorDetails {
+  field?: string;
+  message?: string;
+  [key: string]: unknown;
+}
+
+export interface ApiError {
+  code: string;
+  message: string;
+  details?: ApiErrorDetails | ApiErrorDetails[];
+}
+
+export interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
   message?: string;
-  error?: {
-    code: string;
-    message: string;
-    details?: any;
-  };
+  error?: ApiError;
   pagination?: {
     page: number;
     limit: number;
@@ -798,7 +806,14 @@ export const installmentsApi = {
     const response = await apiClient.get<
       ApiResponse<{
         installments: InstallmentSchedule[];
-        summary: any;
+        summary: {
+          totalInstallments: number;
+          paidCount: number;
+          overdueCount: number;
+          totalDue: number;
+          totalPaid: number;
+          totalOutstanding: number;
+        };
       }>
     >(`/installments/client/${clientId}/statement`);
     return response.data.data!;
@@ -2250,13 +2265,35 @@ export interface SMSLog {
   category: SMSCategory;
   status: SMSStatus;
   deliveryStatus?: string;
-  gatewayResponse?: any;
+  gatewayResponse?: unknown;
   errorMessage?: string;
   sentAt?: string;
   deliveredAt?: string;
   sentBy?: string | User;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface SMSSendResult {
+  phone: string;
+  success: boolean;
+  result?: {
+    success: boolean;
+    message?: string;
+    log?: SMSLog;
+  };
+}
+
+export interface SMSSendError {
+  phone: string;
+  success: false;
+  error: string;
+}
+
+export interface SMSTestResponse {
+  success: boolean;
+  message?: string;
+  data?: unknown;
 }
 
 /**
@@ -2364,9 +2401,9 @@ export const smsApi = {
   },
 
   // Send SMS
-  sendTest: async (data: { phone: string; message: string }): Promise<any> => {
-    const response = await apiClient.post<ApiResponse>('/sms/send-test', data);
-    return response.data.data;
+  sendTest: async (data: { phone: string; message: string }): Promise<SMSTestResponse> => {
+    const response = await apiClient.post<ApiResponse<SMSTestResponse>>('/sms/send-test', data);
+    return response.data.data!;
   },
 
   sendBulk: async (data: {
@@ -2382,16 +2419,16 @@ export const smsApi = {
     total: number;
     sent: number;
     failed: number;
-    results: any[];
-    errors: any[];
+    results: SMSSendResult[];
+    errors: SMSSendError[];
   }> => {
     const response = await apiClient.post<
       ApiResponse<{
         total: number;
         sent: number;
         failed: number;
-        results: any[];
-        errors: any[];
+        results: SMSSendResult[];
+        errors: SMSSendError[];
       }>
     >('/sms/send-bulk', data);
     return response.data.data!;

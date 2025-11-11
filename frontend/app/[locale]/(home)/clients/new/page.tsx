@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { clientApi, Client } from '@/lib/api';
+import { getErrorMessage } from '@/lib/types';
 
 export default function NewClientPage() {
   const router = useRouter();
@@ -31,7 +32,7 @@ export default function NewClientPage() {
 
     try {
       // Remove empty optional fields
-      const data: any = { ...formData };
+      const data: Record<string, unknown> = { ...formData };
       if (!data.alternatePhone) delete data.alternatePhone;
       if (!data.email) delete data.email;
       if (!data.nid) delete data.nid;
@@ -40,19 +41,9 @@ export default function NewClientPage() {
       await clientApi.create(data);
       alert('Client created successfully!');
       router.push('/clients');
-    } catch (error: any) {
+    } catch (error) {
       console.error('Failed to create client:', error);
-      const errorMessage = error.response?.data?.error?.message || 'Failed to create client';
-      const details = error.response?.data?.error?.details;
-
-      if (details) {
-        const fieldErrors = Object.entries(details)
-          .map(([field, msg]) => `${field}: ${msg}`)
-          .join('\n');
-        alert(`Validation errors:\n${fieldErrors}`);
-      } else {
-        alert(errorMessage);
-      }
+      alert(getErrorMessage(error));
     } finally {
       setLoading(false);
     }

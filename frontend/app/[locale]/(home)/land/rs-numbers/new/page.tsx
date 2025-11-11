@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { landApi, UnitType } from '@/lib/api';
+import { getErrorMessage } from '@/lib/types';
 
 export default function NewRSNumberPage() {
   const router = useRouter();
@@ -42,7 +43,7 @@ export default function NewRSNumberPage() {
 
     try {
       // Prepare data
-      const data: any = {
+      const data: Record<string, unknown> = {
         rsNumber: formData.rsNumber.trim(),
         projectName: formData.projectName.trim(),
         location: formData.location.trim(),
@@ -58,19 +59,9 @@ export default function NewRSNumberPage() {
       await landApi.rsNumbers.create(data);
       alert('RS Number created successfully!');
       router.push('/land/rs-numbers');
-    } catch (error: any) {
+    } catch (error) {
       console.error('Failed to create RS Number:', error);
-      const errorMessage = error.response?.data?.error?.message || 'Failed to create RS Number';
-      const details = error.response?.data?.error?.details;
-
-      if (details) {
-        const fieldErrors = Object.entries(details)
-          .map(([field, msg]) => `${field}: ${msg}`)
-          .join('\n');
-        alert(`Validation errors:\n${fieldErrors}`);
-      } else {
-        alert(errorMessage);
-      }
+      alert(getErrorMessage(error));
     } finally {
       setLoading(false);
     }

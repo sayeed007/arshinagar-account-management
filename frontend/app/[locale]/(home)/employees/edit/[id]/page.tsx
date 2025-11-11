@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { employeesApi, Employee } from '@/lib/api';
+import { getErrorMessage } from '@/lib/types';
 
 export default function EditEmployeePage() {
   const router = useRouter();
@@ -53,9 +54,9 @@ export default function EditEmployeePage() {
         resignDate: data.resignDate ? data.resignDate.split('T')[0] : '',
         baseSalary: data.baseSalary.toString(),
       });
-    } catch (error: any) {
+    } catch (error) {
       console.error('Failed to load employee:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load employee');
+      alert(getErrorMessage(error));
       router.push('/employees');
     } finally {
       setLoadingData(false);
@@ -74,7 +75,7 @@ export default function EditEmployeePage() {
     setLoading(true);
 
     try {
-      const data: any = {
+      const data: Record<string, unknown> = {
         name: formData.name,
         designation: formData.designation,
         phone: formData.phone,
@@ -97,9 +98,9 @@ export default function EditEmployeePage() {
       await employeesApi.update(params.id as string, data);
       alert('Employee updated successfully!');
       router.push(`/employees/${params.id}`);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Failed to update employee:', error);
-      alert(error.response?.data?.error?.message || 'Failed to update employee');
+      alert(getErrorMessage(error));
     } finally {
       setLoading(false);
     }

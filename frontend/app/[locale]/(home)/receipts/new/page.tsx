@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { receiptsApi, salesApi, Sale, ReceiptType, PaymentMethod } from '@/lib/api';
+import { getErrorMessage } from '@/lib/types';
 
 export default function NewReceiptPage() {
   const router = useRouter();
@@ -42,9 +43,9 @@ export default function NewReceiptPage() {
       setLoadingData(true);
       const response = await salesApi.getAll({ page: 1, limit: 100, isActive: true });
       setSales(response.data || []);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Failed to load sales:', error);
-      alert('Failed to load sales');
+      alert(getErrorMessage(error));
     } finally {
       setLoadingData(false);
     }
@@ -69,13 +70,13 @@ export default function NewReceiptPage() {
         return;
       }
 
-      const data: any = {
+      const data: Record<string, unknown> = {
         clientId: typeof selectedSale.clientId === 'string' ? selectedSale.clientId : selectedSale.clientId._id,
         saleId: formData.saleId,
         receiptType: formData.receiptType,
         amount: parseFloat(formData.amount),
         method: formData.method,
-        receiptDate: formData.saleId,
+        receiptDate: formData.receiptDate,
       };
 
       if (formData.method === PaymentMethod.CHEQUE || formData.method === PaymentMethod.PDC) {
@@ -96,9 +97,9 @@ export default function NewReceiptPage() {
       const receipt = await receiptsApi.create(data);
       alert('Receipt created successfully!');
       router.push(`/receipts/${receipt._id}`);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Failed to create receipt:', error);
-      alert(error.response?.data?.error?.message || 'Failed to create receipt');
+      alert(getErrorMessage(error));
     } finally {
       setLoading(false);
     }

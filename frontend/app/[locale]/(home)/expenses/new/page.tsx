@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { expensesApi, expenseCategoryApi, ExpenseCategory, PaymentMethod } from '@/lib/api';
+import { getErrorMessage } from '@/lib/types';
 
 export default function NewExpensePage() {
   const router = useRouter();
@@ -32,9 +33,9 @@ export default function NewExpensePage() {
       setLoadingData(true);
       const response = await expenseCategoryApi.getAll({ page: 1, limit: 100, isActive: true });
       setCategories(response.data || []);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Failed to load categories:', error);
-      alert('Failed to load expense categories');
+      alert(getErrorMessage(error));
     } finally {
       setLoadingData(false);
     }
@@ -54,7 +55,7 @@ export default function NewExpensePage() {
     setLoading(true);
 
     try {
-      const data: any = {
+      const data: Record<string, unknown> = {
         categoryId: formData.categoryId,
         amount: parseFloat(formData.amount),
         expenseDate: formData.expenseDate,
@@ -81,9 +82,9 @@ export default function NewExpensePage() {
       const expense = await expensesApi.create(data);
       alert('Expense created successfully!');
       router.push(`/expenses/${expense._id}`);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Failed to create expense:', error);
-      alert(error.response?.data?.error?.message || 'Failed to create expense');
+      alert(getErrorMessage(error));
     } finally {
       setLoading(false);
     }

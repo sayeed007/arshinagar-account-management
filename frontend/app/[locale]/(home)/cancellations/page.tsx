@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { cancellationsApi, Cancellation, CancellationStatus, Sale, Client } from '@/lib/api';
+import { ListQueryParams, getErrorMessage } from '@/lib/types';
 
 export default function CancellationsPage() {
   const [loading, setLoading] = useState(true);
@@ -18,7 +19,7 @@ export default function CancellationsPage() {
   const loadCancellations = async () => {
     try {
       setLoading(true);
-      const params: any = { page, limit: 20 };
+      const params: ListQueryParams = { page, limit: 20 };
       if (statusFilter) {
         params.status = statusFilter;
       }
@@ -26,9 +27,9 @@ export default function CancellationsPage() {
       const response = await cancellationsApi.getAll(params);
       setCancellations(response.data);
       setTotalPages(response.pagination.totalPages);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Failed to load cancellations:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load cancellations');
+      alert(getErrorMessage(error));
     } finally {
       setLoading(false);
     }
