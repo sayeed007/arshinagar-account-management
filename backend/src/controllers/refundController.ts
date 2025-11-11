@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import Refund, { RefundStatus, RefundApprovalStatus } from '../models/Refund';
 import Cancellation, { CancellationStatus } from '../models/Cancellation';
 import { AuthRequest } from '../middlewares/auth.middleware';
-import { UserRole } from '../models/User';
+import { UserRole } from '../types';
 
 // Get all refunds
 export const getAllRefunds = async (req: Request, res: Response) => {

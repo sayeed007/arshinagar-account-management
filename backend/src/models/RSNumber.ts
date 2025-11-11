@@ -41,7 +41,6 @@ const rsNumberSchema = new Schema<IRSNumber>(
       unique: true,
       trim: true,
       uppercase: true,
-      index: true,
     },
     projectName: {
       type: String,
@@ -119,8 +118,8 @@ rsNumberSchema.methods.calculateRemainingArea = function (): void {
 
 /**
  * Indexes for better query performance
+ * Note: rsNumber already has unique index from schema definition
  */
-rsNumberSchema.index({ rsNumber: 1 });
 rsNumberSchema.index({ projectName: 1, location: 1 });
 rsNumberSchema.index({ isActive: 1, createdAt: -1 });
 rsNumberSchema.index({ projectName: 'text', location: 'text', rsNumber: 'text' });

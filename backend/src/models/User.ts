@@ -82,9 +82,8 @@ userSchema.methods.comparePassword = async function (
 
 /**
  * Indexes for better query performance
+ * Note: email and username already have unique indexes from schema definition
  */
-userSchema.index({ email: 1 });
-userSchema.index({ username: 1 });
 userSchema.index({ role: 1 });
 userSchema.index({ isActive: 1 });
 
