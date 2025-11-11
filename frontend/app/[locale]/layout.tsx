@@ -10,8 +10,8 @@ import { locales } from '@/lib/i18n/config';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
-  title: 'Admin Panel - Clean UI',
-  description: 'Modern admin panel with clean and minimal design',
+  title: 'Arshinagar Account Management',
+  description: 'Complete real estate and financial management system for Arshinagar',
 };
 
 export default async function LocaleLayout({

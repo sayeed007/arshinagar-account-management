@@ -1,13 +1,9 @@
-// Root layout - Required by Next.js
-// Must have html and body tags
+// Root layout - Not needed since all routes are under [locale]
+// This file can be removed or just return children
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <html suppressHydrationWarning>
-      <body>{children}</body>
-    </html>
-  );
+  return children;
 }
