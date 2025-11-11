@@ -121,7 +121,7 @@ export default function LoginPage() {
               <div className="mt-2 space-y-1 text-xs">
                 <p>Admin: admin@arshinagar.com / Admin@123</p>
                 <p>Manager: manager@arshinagar.com / Manager@123</p>
-                <p>HOF: hof@arshinagar.com / Hof@123</p>
+                <p>HOF: hof@arshinagar.com / Hof@1234</p>
               </div>
             </div>
           </div>

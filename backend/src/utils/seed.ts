@@ -60,14 +60,14 @@ async function seed() {
     const hofUser = await User.create({
       username: 'hof',
       email: 'hof@arshinagar.com',
-      password: 'Hof@123', // IMPORTANT: Change this in production!
+      password: 'Hof@1234', // IMPORTANT: Change this in production!
       role: UserRole.HOF,
       isActive: true,
     });
 
     logger.info('✓ Head of Finance user created successfully');
     logger.info(`  Email: ${hofUser.email}`);
-    logger.info(`  Password: Hof@123 (CHANGE THIS IN PRODUCTION!)`);
+    logger.info(`  Password: Hof@1234 (CHANGE THIS IN PRODUCTION!)`);
     logger.info(`  Role: ${hofUser.role}`);
 
     logger.info('\n===========================================');
@@ -83,7 +83,7 @@ async function seed() {
     logger.info('   Password: Manager@123');
     logger.info('\n3. Head of Finance:');
     logger.info('   Email: hof@arshinagar.com');
-    logger.info('   Password: Hof@123');
+    logger.info('   Password: Hof@1234');
     logger.info('===========================================\n');
 
     // Close connection
