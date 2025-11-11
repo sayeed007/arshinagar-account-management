@@ -11,7 +11,7 @@ import {
 } from '../controllers/receiptController';
 import { authenticate } from '../middlewares/auth.middleware';
 import { authorize } from '../middlewares/rbac.middleware';
-import { Role } from '../models/User';
+import { UserRole } from '../types';
 import { validate } from '../middlewares/validation.middleware';
 import { body } from 'express-validator';
 
@@ -38,7 +38,7 @@ const approvalValidation = [
 router.post(
   '/',
   authenticate,
-  authorize([Role.ADMIN, Role.ACCOUNT_MANAGER]),
+  authorize([UserRole.ADMIN, UserRole.ACCOUNT_MANAGER]),
   validate(createReceiptValidation),
   createReceipt
 );
@@ -52,14 +52,14 @@ router.get('/:id', authenticate, getReceiptById);
 router.post(
   '/:id/submit',
   authenticate,
-  authorize([Role.ADMIN, Role.ACCOUNT_MANAGER]),
+  authorize([UserRole.ADMIN, UserRole.ACCOUNT_MANAGER]),
   submitForApproval
 );
 
 router.post(
   '/:id/approve',
   authenticate,
-  authorize([Role.ADMIN, Role.ACCOUNT_MANAGER, Role.HOF]),
+  authorize([UserRole.ADMIN, UserRole.ACCOUNT_MANAGER, UserRole.HOF]),
   validate(approvalValidation),
   approveReceipt
 );
@@ -67,11 +67,11 @@ router.post(
 router.post(
   '/:id/reject',
   authenticate,
-  authorize([Role.ADMIN, Role.ACCOUNT_MANAGER, Role.HOF]),
+  authorize([UserRole.ADMIN, UserRole.ACCOUNT_MANAGER, UserRole.HOF]),
   validate(approvalValidation),
   rejectReceipt
 );
 
-router.delete('/:id', authenticate, authorize([Role.ADMIN]), deleteReceipt);
+router.delete('/:id', authenticate, authorize([UserRole.ADMIN]), deleteReceipt);
 
 export default router;

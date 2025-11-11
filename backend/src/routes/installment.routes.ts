@@ -11,7 +11,7 @@ import {
 } from '../controllers/installmentController';
 import { authenticate } from '../middlewares/auth.middleware';
 import { authorize } from '../middlewares/rbac.middleware';
-import { Role } from '../models/User';
+import { UserRole } from '../types';
 import { validate } from '../middlewares/validation.middleware';
 import { body, param } from 'express-validator';
 
@@ -39,7 +39,7 @@ const updateInstallmentValidation = [
 router.post(
   '/schedule',
   authenticate,
-  authorize([Role.ADMIN, Role.ACCOUNT_MANAGER]),
+  authorize([UserRole.ADMIN, UserRole.ACCOUNT_MANAGER]),
   validate(createScheduleValidation),
   createInstallmentSchedule
 );
@@ -55,17 +55,17 @@ router.get('/:id', authenticate, getInstallmentById);
 router.put(
   '/:id',
   authenticate,
-  authorize([Role.ADMIN, Role.ACCOUNT_MANAGER]),
+  authorize([UserRole.ADMIN, UserRole.ACCOUNT_MANAGER]),
   validate(updateInstallmentValidation),
   updateInstallment
 );
 
-router.delete('/:id', authenticate, authorize([Role.ADMIN]), deleteInstallment);
+router.delete('/:id', authenticate, authorize([UserRole.ADMIN]), deleteInstallment);
 
 router.post(
   '/update-overdue',
   authenticate,
-  authorize([Role.ADMIN]),
+  authorize([UserRole.ADMIN]),
   updateOverdueStatuses
 );
 

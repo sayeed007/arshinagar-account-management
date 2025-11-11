@@ -4,7 +4,7 @@ import Sale from '../models/Sale';
 import Client from '../models/Client';
 import Ledger from '../models/Ledger';
 import { ApiError, ErrorCode } from '../middlewares/error.middleware';
-import { Role } from '../models/User';
+import { UserRole } from '../types';
 
 // Create receipt
 export const createReceipt = async (req: Request, res: Response, next: NextFunction) => {
@@ -202,7 +202,7 @@ export const approveReceipt = async (req: Request, res: Response, next: NextFunc
     // Check approval workflow
     if (
       receipt.approvalStatus === ReceiptApprovalStatus.PENDING_ACCOUNTS &&
-      userRole === Role.ACCOUNT_MANAGER
+      userRole === UserRole.ACCOUNT_MANAGER
     ) {
       // Accounts Manager approval
       receipt.approvalHistory.push({
@@ -215,7 +215,7 @@ export const approveReceipt = async (req: Request, res: Response, next: NextFunc
       receipt.approvalStatus = ReceiptApprovalStatus.PENDING_HOF;
     } else if (
       receipt.approvalStatus === ReceiptApprovalStatus.PENDING_HOF &&
-      (userRole === Role.ADMIN || userRole === Role.HOF)
+      (userRole === UserRole.ADMIN || userRole === UserRole.HOF)
     ) {
       // HOF approval (Admin can also approve as HOF)
       receipt.approvalHistory.push({
@@ -262,7 +262,7 @@ export const rejectReceipt = async (req: Request, res: Response, next: NextFunct
 
     const userRole = req.user!.role;
     const approvalLevel =
-      userRole === Role.ACCOUNT_MANAGER ? 'Accounts Manager' : 'HOF';
+      userRole === UserRole.ACCOUNT_MANAGER ? 'Accounts Manager' : 'HOF';
 
     receipt.approvalHistory.push({
       approvedBy: req.user!._id,
@@ -365,9 +365,9 @@ export const getApprovalQueue = async (
 
     let query: any = { isActive: true };
 
-    if (userRole === Role.ACCOUNT_MANAGER) {
+    if (userRole === UserRole.ACCOUNT_MANAGER) {
       query.approvalStatus = ReceiptApprovalStatus.PENDING_ACCOUNTS;
-    } else if (userRole === Role.ADMIN || userRole === Role.HOF) {
+    } else if (userRole === UserRole.ADMIN || userRole === UserRole.HOF) {
       query.approvalStatus = ReceiptApprovalStatus.PENDING_HOF;
     }
 

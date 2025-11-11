@@ -10,7 +10,7 @@ import {
 } from '../controllers/saleController';
 import { authenticate } from '../middlewares/auth.middleware';
 import { authorize } from '../middlewares/rbac.middleware';
-import { Role } from '../models/User';
+import { UserRole } from '../types';
 import { validate } from '../middlewares/validation.middleware';
 import { body, param } from 'express-validator';
 
@@ -48,7 +48,7 @@ const updateStageValidation = [
 router.post(
   '/',
   authenticate,
-  authorize([Role.ADMIN, Role.ACCOUNT_MANAGER]),
+  authorize([UserRole.ADMIN, UserRole.ACCOUNT_MANAGER]),
   validate(createSaleValidation),
   createSale
 );
@@ -62,7 +62,7 @@ router.get('/:id', authenticate, getSaleById);
 router.put(
   '/:id',
   authenticate,
-  authorize([Role.ADMIN, Role.ACCOUNT_MANAGER]),
+  authorize([UserRole.ADMIN, UserRole.ACCOUNT_MANAGER]),
   validate(updateSaleValidation),
   updateSale
 );
@@ -70,11 +70,11 @@ router.put(
 router.put(
   '/:id/stages/:stageId',
   authenticate,
-  authorize([Role.ADMIN, Role.ACCOUNT_MANAGER]),
+  authorize([UserRole.ADMIN, UserRole.ACCOUNT_MANAGER]),
   validate(updateStageValidation),
   updateSaleStage
 );
 
-router.delete('/:id', authenticate, authorize([Role.ADMIN]), deleteSale);
+router.delete('/:id', authenticate, authorize([UserRole.ADMIN]), deleteSale);
 
 export default router;
