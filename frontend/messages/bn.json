@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "অ্যাডমিন প্যানেল",
+    "appName": "আর্শীনগর অ্যাকাউন্ট ম্যানেজমেন্ট",
     "welcome": "আবার স্বাগতম!",
     "logout": "লগআউট",
     "profile": "প্রোফাইল",
@@ -14,16 +14,24 @@
   },
   "nav": {
     "dashboard": "ড্যাশবোর্ড",
-    "users": "ব্যবহারকারীগণ",
-    "roles": "ভূমিকা",
-    "products": "পণ্য",
-    "documents": "ডকুমেন্ট",
+    "masterData": "মাস্টার ডেটা",
+    "clients": "ক্লায়েন্ট",
+    "landInventory": "জমির তালিকা",
+    "salesCollections": "বিক্রয় ও সংগ্রহ",
+    "sales": "বিক্রয়",
+    "collections": "সংগ্রহ",
+    "expensesPayroll": "ব্যয় ও বেতন",
+    "expenses": "ব্যয়",
+    "employees": "কর্মচারী",
+    "payroll": "বেতন",
+    "cancellationsRefunds": "বাতিলকরণ ও ফেরত",
+    "cancellations": "বাতিলকরণ",
+    "refunds": "ফেরত",
+    "banking": "ব্যাংকিং",
+    "approvals": "অনুমোদন",
     "reports": "রিপোর্ট",
-    "statistics": "পরিসংখ্যান",
-    "settings": "সেটিংস",
-    "userManagement": "ব্যবহারকারী ব্যবস্থাপনা",
-    "content": "কন্টেন্ট",
-    "analytics": "বিশ্লেষণ"
+    "sms": "এসএমএস",
+    "settings": "সেটিংস"
   },
   "dashboard": {
     "title": "আবার স্বাগতম!",
