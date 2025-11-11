@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
-import { clientApi, landApi, salesApi, receiptsApi } from '@/lib/api';
+import { clientApi, landApi, salesApi, receiptsApi, expensesApi, employeesApi, employeeCostsApi } from '@/lib/api';
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -23,6 +23,10 @@ export default function DashboardPage() {
     totalPaidAmount: 0,
     totalDueAmount: 0,
     pendingReceipts: 0,
+    totalExpenses: 0,
+    pendingExpenses: 0,
+    totalEmployees: 0,
+    currentMonthPayroll: 0,
   });
 
   useEffect(() => {
@@ -33,17 +37,36 @@ export default function DashboardPage() {
     try {
       setLoading(true);
 
+      const currentDate = new Date();
+      const currentMonth = currentDate.getMonth() + 1;
+      const currentYear = currentDate.getFullYear();
+
       // Load all stats in parallel
-      const [clientStats, rsNumbersResponse, plotsResponse, salesStats, receiptsResponse] = await Promise.all([
+      const [
+        clientStats,
+        rsNumbersResponse,
+        plotsResponse,
+        salesStats,
+        receiptsResponse,
+        expenseStats,
+        pendingExpensesResponse,
+        employeeStats,
+        currentMonthCostsResponse,
+      ] = await Promise.all([
         clientApi.getStats(),
         landApi.rsNumbers.getAll({ page: 1, limit: 1000 }),
         landApi.getAllPlots({ page: 1, limit: 1000 }),
         salesApi.getStats().catch(() => ({ totalSales: 0, activeSales: 0, totalAmount: 0, totalPaid: 0, totalDue: 0 })),
         receiptsApi.getAll({ page: 1, limit: 1, approvalStatus: 'Pending Accounts' as any }).catch(() => ({ pagination: { total: 0 } })),
+        expensesApi.getStats().catch(() => ({ totalExpenses: 0, totalAmount: 0 })),
+        expensesApi.getApprovalQueue().catch(() => []),
+        employeesApi.getStats().catch(() => ({ totalEmployees: 0 })),
+        employeeCostsApi.getAll({ page: 1, limit: 1000, month: currentMonth, year: currentYear }).catch(() => ({ data: [] })),
       ]);
 
       const rsNumbers = rsNumbersResponse.data || [];
       const plots = plotsResponse.data || [];
+      const currentMonthCosts = currentMonthCostsResponse.data || [];
 
       // Calculate land area stats
       const landStats = rsNumbers.reduce(
@@ -55,6 +78,9 @@ export default function DashboardPage() {
         }),
         { totalArea: 0, soldArea: 0, allocatedArea: 0, remainingArea: 0 }
       );
+
+      // Calculate current month payroll total
+      const currentMonthPayroll = currentMonthCosts.reduce((acc, cost) => acc + cost.netPay, 0);
 
       setStats({
         totalClients: clientStats.totalClients || 0,
@@ -71,6 +97,10 @@ export default function DashboardPage() {
         totalPaidAmount: salesStats.totalPaid || 0,
         totalDueAmount: salesStats.totalDue || 0,
         pendingReceipts: receiptsResponse.pagination?.total || 0,
+        totalExpenses: expenseStats.totalExpenses || 0,
+        pendingExpenses: pendingExpensesResponse.length || 0,
+        totalEmployees: employeeStats.totalEmployees || 0,
+        currentMonthPayroll,
       });
     } catch (error: any) {
       console.error('Failed to load dashboard stats:', error);
@@ -120,10 +150,24 @@ export default function DashboardPage() {
       color: 'bg-indigo-500',
     },
     {
+      name: 'Total Employees',
+      value: loading ? '...' : stats.totalEmployees.toString(),
+      icon: '👨‍💼',
+      subtext: loading ? '' : 'Active employees',
+      color: 'bg-teal-500',
+    },
+    {
+      name: 'Total Expenses',
+      value: loading ? '...' : stats.totalExpenses.toString(),
+      icon: '💳',
+      subtext: loading ? '' : 'Recorded expenses',
+      color: 'bg-red-500',
+    },
+    {
       name: 'Pending Approvals',
-      value: loading ? '...' : stats.pendingReceipts.toString(),
+      value: loading ? '...' : (stats.pendingReceipts + stats.pendingExpenses).toString(),
       icon: '⏳',
-      subtext: loading ? '' : 'Receipts pending',
+      subtext: loading ? '' : `${stats.pendingReceipts} receipts, ${stats.pendingExpenses} expenses`,
       color: 'bg-yellow-500',
     },
   ];
@@ -237,6 +281,58 @@ export default function DashboardPage() {
               </div>
             </div>
           </Link>
+
+          <Link
+            href="/dashboard/employees/new"
+            className="bg-white dark:bg-gray-800 p-6 shadow rounded-lg hover:shadow-md transition-shadow"
+          >
+            <div className="flex items-center">
+              <span className="text-3xl mr-4">👨‍💼</span>
+              <div className="text-left">
+                <p className="text-sm font-medium text-gray-900 dark:text-white">Add Employee</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Register new employee</p>
+              </div>
+            </div>
+          </Link>
+
+          <Link
+            href="/dashboard/expenses/new"
+            className="bg-white dark:bg-gray-800 p-6 shadow rounded-lg hover:shadow-md transition-shadow"
+          >
+            <div className="flex items-center">
+              <span className="text-3xl mr-4">💳</span>
+              <div className="text-left">
+                <p className="text-sm font-medium text-gray-900 dark:text-white">Add Expense</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Record new expense</p>
+              </div>
+            </div>
+          </Link>
+
+          <Link
+            href="/dashboard/payroll"
+            className="bg-white dark:bg-gray-800 p-6 shadow rounded-lg hover:shadow-md transition-shadow"
+          >
+            <div className="flex items-center">
+              <span className="text-3xl mr-4">📊</span>
+              <div className="text-left">
+                <p className="text-sm font-medium text-gray-900 dark:text-white">View Payroll</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Monthly summary</p>
+              </div>
+            </div>
+          </Link>
+
+          <Link
+            href="/dashboard/expenses/approval-queue"
+            className="bg-white dark:bg-gray-800 p-6 shadow rounded-lg hover:shadow-md transition-shadow"
+          >
+            <div className="flex items-center">
+              <span className="text-3xl mr-4">⏳</span>
+              <div className="text-left">
+                <p className="text-sm font-medium text-gray-900 dark:text-white">Approvals</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Pending expenses</p>
+              </div>
+            </div>
+          </Link>
         </div>
       </div>
 
@@ -258,7 +354,7 @@ export default function DashboardPage() {
           </div>
           <div className="ml-3">
             <h3 className="text-sm font-medium text-green-800 dark:text-green-400">
-              Phase 3: Sales & Receipt Management Complete ✅
+              Phase 4: Expenses & Payroll Management Complete ✅
             </h3>
             <div className="mt-2 text-sm text-green-700 dark:text-green-300">
               <p>
@@ -269,12 +365,16 @@ export default function DashboardPage() {
                 <li>Client & land inventory (RS Numbers, Plots)</li>
                 <li>Multi-stage sales tracking (Booking → Installments → Registration → Handover)</li>
                 <li>Payment receipt management with approval workflow</li>
+                <li>Expense tracking with approval workflow (Draft → Accounts → HOF → Approved)</li>
+                <li>Employee management with payroll tracking</li>
+                <li>Monthly payroll summary with breakdown by cost type</li>
+                <li>Expense categories for organized expense tracking</li>
                 <li>Automatic ledger posting (double-entry bookkeeping)</li>
                 <li>Installment scheduling and overdue tracking</li>
                 <li>Comprehensive audit logging & reporting</li>
               </ul>
               <p className="mt-2 font-semibold">
-                System is production-ready for land sales and account management!
+                System is production-ready for complete land sales, expense, and payroll management!
               </p>
             </div>
           </div>
