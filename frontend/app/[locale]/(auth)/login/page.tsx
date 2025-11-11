@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 
 export default function LoginPage() {
@@ -12,13 +12,18 @@ export default function LoginPage() {
 
   const { login, isAuthenticated } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
 
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      router.push('/dashboard');
+      // Get locale from pathname and redirect to dashboard with locale
+      const localeMatch = pathname.match(/^\/(bn|en)/);
+      const locale = localeMatch ? localeMatch[1] : '';
+      const dashboardPath = locale ? `/${locale}/dashboard` : '/dashboard';
+      router.push(dashboardPath);
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, router, pathname]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

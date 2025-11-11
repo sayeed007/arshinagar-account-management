@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { authApi, User, LoginRequest, UserRole } from './api';
 
 /**
@@ -23,12 +23,21 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 /**
+ * Helper to get locale from pathname
+ */
+function getLocaleFromPathname(pathname: string): string {
+  const localeMatch = pathname.match(/^\/(bn|en)/);
+  return localeMatch ? localeMatch[1] : '';
+}
+
+/**
  * Auth Provider Component
  */
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+  const pathname = usePathname();
 
   /**
    * Check if user has required role(s)
@@ -83,8 +92,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Set user
       setUser(response.user);
 
-      // Redirect to dashboard
-      router.push('/dashboard');
+      // Get current locale and redirect to dashboard with locale
+      const locale = getLocaleFromPathname(pathname);
+      const dashboardPath = locale ? `/${locale}/dashboard` : '/dashboard';
+      router.push(dashboardPath);
     } catch (error: any) {
       console.error('Login failed:', error);
       throw error;
@@ -106,8 +117,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       localStorage.removeItem('refreshToken');
       setUser(null);
 
-      // Redirect to login
-      router.push('/login');
+      // Get current locale and redirect to login with locale
+      const locale = getLocaleFromPathname(pathname);
+      const loginPath = locale ? `/${locale}/login` : '/login';
+      router.push(loginPath);
     }
   };
 
@@ -162,18 +175,23 @@ export function useAuth() {
 export function useRequireAuth(requiredRoles?: UserRole | UserRole[]) {
   const { user, isLoading, isAuthenticated, hasRole } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     if (!isLoading) {
+      const locale = getLocaleFromPathname(pathname);
+
       if (!isAuthenticated) {
-        // Not authenticated, redirect to login
-        router.push('/login');
+        // Not authenticated, redirect to login with locale
+        const loginPath = locale ? `/${locale}/login` : '/login';
+        router.push(loginPath);
       } else if (requiredRoles && !hasRole(requiredRoles)) {
-        // Authenticated but doesn't have required role
-        router.push('/dashboard');
+        // Authenticated but doesn't have required role, redirect to dashboard
+        const dashboardPath = locale ? `/${locale}/dashboard` : '/dashboard';
+        router.push(dashboardPath);
       }
     }
-  }, [isLoading, isAuthenticated, requiredRoles, hasRole, router]);
+  }, [isLoading, isAuthenticated, requiredRoles, hasRole, router, pathname]);
 
   return { user, isLoading, isAuthenticated };
 }
