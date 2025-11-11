@@ -1,0 +1,59 @@
+{
+  "common": {
+    "appName": "অ্যাডমিন প্যানেল",
+    "welcome": "আবার স্বাগতম!",
+    "logout": "লগআউট",
+    "profile": "প্রোফাইল",
+    "settings": "সেটিংস",
+    "switchLanguage": "ভাষা পরিবর্তন করুন"
+  },
+  "user": {
+    "adminUser": "অ্যাডমিন ব্যবহারকারী",
+    "administrator": "প্রশাসক",
+    "email": "admin@example.com"
+  },
+  "nav": {
+    "dashboard": "ড্যাশবোর্ড",
+    "users": "ব্যবহারকারীগণ",
+    "roles": "ভূমিকা",
+    "products": "পণ্য",
+    "documents": "ডকুমেন্ট",
+    "reports": "রিপোর্ট",
+    "statistics": "পরিসংখ্যান",
+    "settings": "সেটিংস",
+    "userManagement": "ব্যবহারকারী ব্যবস্থাপনা",
+    "content": "কন্টেন্ট",
+    "analytics": "বিশ্লেষণ"
+  },
+  "dashboard": {
+    "title": "আবার স্বাগতম!",
+    "subtitle": "আজ আপনার অ্যাপ্লিকেশনে যা ঘটছে।",
+    "totalUsers": "মোট ব্যবহারকারী",
+    "totalProducts": "মোট পণ্য",
+    "revenue": "আয়",
+    "activeSessions": "সক্রিয় সেশন",
+    "fromLastMonth": "গত মাস থেকে",
+    "fromLastHour": "গত ঘন্টা থেকে",
+    "overview": "সংক্ষিপ্ত বিবরণ",
+    "overviewDescription": "আপনার অ্যাপ্লিকেশন মেট্রিক্স সংক্ষিপ্ত বিবরণ",
+    "recentActivity": "সাম্প্রতিক কার্যকলাপ",
+    "recentActivityDescription": "আপনার অ্যাপ্লিকেশন থেকে সর্বশেষ আপডেট",
+    "chartPlaceholder": "চার্ট কম্পোনেন্ট এখানে যাবে",
+    "userSignedUp": "ব্যবহারকারী সাইন আপ করেছে",
+    "newProductAdded": "নতুন পণ্য যোগ করা হয়েছে",
+    "orderCompleted": "অর্ডার সম্পন্ন হয়েছে",
+    "minutesAgo": "মিনিট আগে",
+    "hourAgo": "ঘন্টা আগে"
+  },
+  "notifications": {
+    "title": "বিজ্ঞপ্তি",
+    "newMessage": "নতুন বার্তা",
+    "messageFrom": "জন ডো থেকে আপনার একটি নতুন বার্তা আছে"
+  },
+  "theme": {
+    "light": "হালকা",
+    "dark": "অন্ধকার",
+    "system": "সিস্টেম",
+    "toggle": "থিম পরিবর্তন করুন"
+  }
+}

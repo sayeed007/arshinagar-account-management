@@ -1,0 +1,59 @@
+{
+  "common": {
+    "appName": "Admin Panel",
+    "welcome": "Welcome Back!",
+    "logout": "Logout",
+    "profile": "Profile",
+    "settings": "Settings",
+    "switchLanguage": "Switch language"
+  },
+  "user": {
+    "adminUser": "Admin User",
+    "administrator": "Administrator",
+    "email": "admin@example.com"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "users": "Users",
+    "roles": "Roles",
+    "products": "Products",
+    "documents": "Documents",
+    "reports": "Reports",
+    "statistics": "Statistics",
+    "settings": "Settings",
+    "userManagement": "User Management",
+    "content": "Content",
+    "analytics": "Analytics"
+  },
+  "dashboard": {
+    "title": "Welcome Back!",
+    "subtitle": "Here's what's happening with your application today.",
+    "totalUsers": "Total Users",
+    "totalProducts": "Total Products",
+    "revenue": "Revenue",
+    "activeSessions": "Active Sessions",
+    "fromLastMonth": "from last month",
+    "fromLastHour": "from last hour",
+    "overview": "Overview",
+    "overviewDescription": "Your application metrics overview",
+    "recentActivity": "Recent Activity",
+    "recentActivityDescription": "Latest updates from your application",
+    "chartPlaceholder": "Chart component will go here",
+    "userSignedUp": "User signed up",
+    "newProductAdded": "New product added",
+    "orderCompleted": "Order completed",
+    "minutesAgo": "minutes ago",
+    "hourAgo": "hour ago"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "newMessage": "New Message",
+    "messageFrom": "You have a new message from John Doe"
+  },
+  "theme": {
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System",
+    "toggle": "Toggle theme"
+  }
+}
