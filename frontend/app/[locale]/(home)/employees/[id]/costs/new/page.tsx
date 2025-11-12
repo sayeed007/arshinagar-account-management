@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { employeesApi, employeeCostsApi, Employee } from '@/lib/api';
+import { showSuccess, showError } from '@/lib/toast';
 
 export default function NewEmployeeCostPage() {
   const router = useRouter();
@@ -84,7 +85,7 @@ export default function NewEmployeeCostPage() {
         paymentMethod: formData.paymentMethod,
         notes: formData.notes || undefined,
       });
-      alert('Employee cost entry created successfully!');
+      showSuccess('Employee cost entry created successfully!');
       router.push(`/employees/${params.id}`);
     } catch (error: any) {
       console.error('Failed to create cost entry:', error);

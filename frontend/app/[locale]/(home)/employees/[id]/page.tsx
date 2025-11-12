@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { employeesApi, Employee, EmployeeCost } from '@/lib/api';
+import { showSuccess, showError } from '@/lib/toast';
 
 export default function EmployeeDetailPage() {
   const params = useParams();

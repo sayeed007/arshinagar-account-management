@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { salesApi, Sale, SaleStatus, Client, Plot } from '@/lib/api';
 import { ListQueryParams, getErrorMessage } from '@/lib/types';
+import { showSuccess, showError } from '@/lib/toast';
 
 export default function SalesPage() {
   const [sales, setSales] = useState<Sale[]>([]);
@@ -38,7 +39,7 @@ export default function SalesPage() {
       setTotalPages(response.pagination?.totalPages || 0);
     } catch (error) {
       console.error('Failed to load sales:', error);
-      alert(getErrorMessage(error));
+      showError(getErrorMessage(error));
     } finally {
       setLoading(false);
     }

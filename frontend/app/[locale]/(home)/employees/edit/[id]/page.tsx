@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { employeesApi, Employee } from '@/lib/api';
 import { getErrorMessage } from '@/lib/types';
+import { showSuccess, showError } from '@/lib/toast';
 
 export default function EditEmployeePage() {
   const router = useRouter();
@@ -56,7 +57,7 @@ export default function EditEmployeePage() {
       });
     } catch (error) {
       console.error('Failed to load employee:', error);
-      alert(getErrorMessage(error));
+      showError(getErrorMessage(error));
       router.push('/employees');
     } finally {
       setLoadingData(false);
@@ -96,11 +97,11 @@ export default function EditEmployeePage() {
       }
 
       await employeesApi.update(params.id as string, data);
-      alert('Employee updated successfully!');
+      showSuccess('Employee updated successfully!');
       router.push(`/employees/${params.id}`);
     } catch (error) {
       console.error('Failed to update employee:', error);
-      alert(getErrorMessage(error));
+      showError(getErrorMessage(error));
     } finally {
       setLoading(false);
     }

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { refundsApi, Refund, RefundStatus, RefundApprovalStatus, Cancellation, Sale, Client } from '@/lib/api';
 import { ListQueryParams, getErrorMessage } from '@/lib/types';
+import { showSuccess, showError } from '@/lib/toast';
 
 export default function RefundsPage() {
   const [loading, setLoading] = useState(true);
@@ -33,7 +34,7 @@ export default function RefundsPage() {
       setTotalPages(response.pagination.totalPages);
     } catch (error) {
       console.error('Failed to load refunds:', error);
-      alert(getErrorMessage(error));
+      showError(getErrorMessage(error));
     } finally {
       setLoading(false);
     }

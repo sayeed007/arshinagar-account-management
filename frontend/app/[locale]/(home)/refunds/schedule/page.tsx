@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { cancellationsApi, refundsApi, Cancellation, Sale, Client } from '@/lib/api';
+import { showSuccess, showError } from '@/lib/toast';
 
 export default function RefundSchedulePage() {
   const router = useRouter();
@@ -66,7 +67,7 @@ export default function RefundSchedulePage() {
         startDate: formData.startDate,
       });
 
-      alert('Refund schedule created successfully');
+      showSuccess('Refund schedule created successfully');
       router.push(`/cancellations/${cancellationId}`);
     } catch (error: any) {
       console.error('Failed to create refund schedule:', error);

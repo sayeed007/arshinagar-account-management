@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { expensesApi, Expense, ExpenseCategory } from '@/lib/api';
+import { showSuccess, showError } from '@/lib/toast';
 
 export default function ExpenseApprovalQueuePage() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -31,7 +32,7 @@ export default function ExpenseApprovalQueuePage() {
 
     try {
       await expensesApi.approve(id, remarks || undefined);
-      alert('Expense approved successfully');
+      showSuccess('Expense approved successfully');
       loadQueue();
     } catch (error: any) {
       console.error('Failed to approve expense:', error);

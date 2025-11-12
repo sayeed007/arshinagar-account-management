@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { landApi, RSNumber, UnitType } from '@/lib/api';
+import { showSuccess, showError } from '@/lib/toast';
 
 export default function EditRSNumberPage() {
   const params = useParams();
@@ -98,7 +99,7 @@ export default function EditRSNumberPage() {
       }
 
       await landApi.rsNumbers.update(params.id as string, data);
-      alert('RS Number updated successfully!');
+      showSuccess('RS Number updated successfully!');
       router.push(`/land/rs-numbers/${params.id}`);
     } catch (error: any) {
       console.error('Failed to update RS Number:', error);

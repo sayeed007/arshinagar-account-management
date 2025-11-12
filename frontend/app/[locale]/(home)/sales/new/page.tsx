@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { salesApi, clientApi, landApi, Client, Plot, PlotStatus } from '@/lib/api';
+import { showSuccess, showError } from '@/lib/toast';
 
 export default function NewSalePage() {
   const router = useRouter();
@@ -35,7 +36,7 @@ export default function NewSalePage() {
       setPlots(plotsRes.data || []);
     } catch (error: any) {
       console.error('Failed to load data:', error);
-      alert('Failed to load clients and plots');
+      showError('Failed to load clients and plots');
     } finally {
       setLoadingData(false);
     }
@@ -94,7 +95,7 @@ export default function NewSalePage() {
       };
 
       const sale = await salesApi.create(data);
-      alert('Sale created successfully!');
+      showSuccess('Sale created successfully!');
       router.push(`/sales/${sale._id}`);
     } catch (error: any) {
       console.error('Failed to create sale:', error);

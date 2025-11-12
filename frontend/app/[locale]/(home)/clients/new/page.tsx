@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { clientApi, Client } from '@/lib/api';
 import { getErrorMessage } from '@/lib/types';
+import { showSuccess, showError } from '@/lib/toast';
 
 export default function NewClientPage() {
   const router = useRouter();
@@ -39,11 +40,11 @@ export default function NewClientPage() {
       if (!data.notes) delete data.notes;
 
       await clientApi.create(data);
-      alert('Client created successfully!');
+      showSuccess('Client created successfully!');
       router.push('/clients');
     } catch (error) {
       console.error('Failed to create client:', error);
-      alert(getErrorMessage(error));
+      showError(getErrorMessage(error));
     } finally {
       setLoading(false);
     }

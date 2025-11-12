@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { expensesApi, expenseCategoryApi, ExpenseCategory, PaymentMethod } from '@/lib/api';
 import { getErrorMessage } from '@/lib/types';
+import { showSuccess, showError } from '@/lib/toast';
 
 export default function NewExpensePage() {
   const router = useRouter();
@@ -35,7 +36,7 @@ export default function NewExpensePage() {
       setCategories(response.data || []);
     } catch (error) {
       console.error('Failed to load categories:', error);
-      alert(getErrorMessage(error));
+      showError(getErrorMessage(error));
     } finally {
       setLoadingData(false);
     }
@@ -80,11 +81,11 @@ export default function NewExpensePage() {
       }
 
       const expense = await expensesApi.create(data);
-      alert('Expense created successfully!');
+      showSuccess('Expense created successfully!');
       router.push(`/expenses/${expense._id}`);
     } catch (error) {
       console.error('Failed to create expense:', error);
-      alert(getErrorMessage(error));
+      showError(getErrorMessage(error));
     } finally {
       setLoading(false);
     }

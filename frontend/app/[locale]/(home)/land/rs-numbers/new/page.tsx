@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { landApi, UnitType } from '@/lib/api';
 import { getErrorMessage } from '@/lib/types';
+import { showSuccess, showError } from '@/lib/toast';
 
 export default function NewRSNumberPage() {
   const router = useRouter();
@@ -57,11 +58,11 @@ export default function NewRSNumberPage() {
       }
 
       await landApi.rsNumbers.create(data);
-      alert('RS Number created successfully!');
+      showSuccess('RS Number created successfully!');
       router.push('/land/rs-numbers');
     } catch (error) {
       console.error('Failed to create RS Number:', error);
-      alert(getErrorMessage(error));
+      showError(getErrorMessage(error));
     } finally {
       setLoading(false);
     }

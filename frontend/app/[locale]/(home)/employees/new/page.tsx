@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { employeesApi } from '@/lib/api';
 import { getErrorMessage } from '@/lib/types';
+import { showSuccess, showError } from '@/lib/toast';
 
 export default function NewEmployeePage() {
   const router = useRouter();
@@ -55,11 +56,11 @@ export default function NewEmployeePage() {
       }
 
       const employee = await employeesApi.create(data);
-      alert('Employee created successfully!');
+      showSuccess('Employee created successfully!');
       router.push(`/employees/${employee._id}`);
     } catch (error) {
       console.error('Failed to create employee:', error);
-      alert(getErrorMessage(error));
+      showError(getErrorMessage(error));
     } finally {
       setLoading(false);
     }

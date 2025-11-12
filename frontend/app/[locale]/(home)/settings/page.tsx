@@ -1,4 +1,5 @@
 'use client';
+nimport { showSuccess, showError } from '@/lib/toast';
 
 import { useState } from 'react';
 
@@ -22,7 +23,7 @@ export default function SettingsPage() {
       );
 
       if (response.ok) {
-        alert('Lock date saved successfully');
+        showSuccess('Lock date saved successfully');
       }
     } catch (error) {
       console.error('Failed to save lock date:', error);
@@ -59,7 +60,7 @@ export default function SettingsPage() {
         });
       }
 
-      alert('Settings saved successfully');
+      showSuccess('Settings saved successfully');
     } catch (error) {
       console.error('Failed to save settings:', error);
     }

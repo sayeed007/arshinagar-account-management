@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { clientApi, Client } from '@/lib/api';
+import { showSuccess, showError } from '@/lib/toast';
 
 export default function EditClientPage() {
   const params = useParams();
@@ -83,7 +84,7 @@ export default function EditClientPage() {
       }
 
       await clientApi.update(params.id as string, data);
-      alert('Client updated successfully!');
+      showSuccess('Client updated successfully!');
       router.push(`/clients/${params.id}`);
     } catch (error: any) {
       console.error('Failed to update client:', error);

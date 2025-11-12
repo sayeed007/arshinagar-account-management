@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { receiptsApi, Receipt, ReceiptApprovalStatus, Client, Sale } from '@/lib/api';
 import { ListQueryParams, getErrorMessage } from '@/lib/types';
+import { showSuccess, showError } from '@/lib/toast';
 
 export default function ReceiptsPage() {
   const searchParams = useSearchParams();
@@ -41,7 +42,7 @@ export default function ReceiptsPage() {
       setTotalPages(response.pagination?.totalPages || 0);
     } catch (error) {
       console.error('Failed to load receipts:', error);
-      alert(getErrorMessage(error));
+      showError(getErrorMessage(error));
     } finally {
       setLoading(false);
     }

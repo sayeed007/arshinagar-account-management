@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { salesApi, cancellationsApi, Sale, Client, Land, RSNumber } from '@/lib/api';
+import { showSuccess, showError } from '@/lib/toast';
 
 export default function NewCancellationPage() {
   const router = useRouter();
@@ -78,7 +79,7 @@ export default function NewCancellationPage() {
         ...formData,
       });
 
-      alert('Cancellation created successfully');
+      showSuccess('Cancellation created successfully');
       router.push(`/cancellations/${response.data._id}`);
     } catch (error: any) {
       console.error('Failed to create cancellation:', error);

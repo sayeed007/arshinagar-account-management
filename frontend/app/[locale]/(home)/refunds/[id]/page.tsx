@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { refundsApi, Refund, RefundStatus, RefundApprovalStatus, Cancellation, Sale, Client, Land, RSNumber } from '@/lib/api';
+import { showSuccess, showError } from '@/lib/toast';
 
 export default function RefundDetailPage({ params }: { params: { id: string } }) {
   const router = useRouter();
@@ -43,7 +44,7 @@ export default function RefundDetailPage({ params }: { params: { id: string } })
     try {
       setActionLoading(true);
       await refundsApi.submit(params.id);
-      alert('Refund submitted for approval successfully');
+      showSuccess('Refund submitted for approval successfully');
       setShowSubmitModal(false);
       loadRefund();
     } catch (error: any) {
@@ -58,7 +59,7 @@ export default function RefundDetailPage({ params }: { params: { id: string } })
     try {
       setActionLoading(true);
       await refundsApi.approve(params.id, actionRemarks || undefined);
-      alert('Refund approved successfully');
+      showSuccess('Refund approved successfully');
       setShowApproveModal(false);
       setActionRemarks('');
       loadRefund();
@@ -79,7 +80,7 @@ export default function RefundDetailPage({ params }: { params: { id: string } })
     try {
       setActionLoading(true);
       await refundsApi.reject(params.id, actionRemarks);
-      alert('Refund rejected successfully');
+      showSuccess('Refund rejected successfully');
       setShowRejectModal(false);
       setActionRemarks('');
       loadRefund();
@@ -100,7 +101,7 @@ export default function RefundDetailPage({ params }: { params: { id: string } })
     try {
       setActionLoading(true);
       await refundsApi.markAsPaid(params.id, paymentData);
-      alert('Refund marked as paid successfully');
+      showSuccess('Refund marked as paid successfully');
       setShowPaymentModal(false);
       setPaymentData({
         paymentMethod: 'Cash',

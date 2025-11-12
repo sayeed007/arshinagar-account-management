@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { employeesApi, Employee } from '@/lib/api';
+import { showSuccess, showError } from '@/lib/toast';
 
 export default function EmployeesPage() {
   const [employees, setEmployees] = useState<Employee[]>([]);

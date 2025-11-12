@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { receiptsApi, Receipt, Client, Sale } from '@/lib/api';
+import { showSuccess, showError } from '@/lib/toast';
 
 export default function ApprovalQueuePage() {
   const [receipts, setReceipts] = useState<Receipt[]>([]);
@@ -31,7 +32,7 @@ export default function ApprovalQueuePage() {
 
     try {
       await receiptsApi.approve(id, remarks || undefined);
-      alert('Receipt approved successfully');
+      showSuccess('Receipt approved successfully');
       loadQueue();
     } catch (error: any) {
       console.error('Failed to approve receipt:', error);

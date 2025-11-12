@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { landApi, RSNumber, Plot, PlotStatus } from '@/lib/api';
+import { showSuccess, showError } from '@/lib/toast';
 
 export default function RSNumberDetailPage() {
   const params = useParams();
@@ -57,7 +58,7 @@ export default function RSNumberDetailPage() {
 
     try {
       await landApi.rsNumbers.delete(params.id as string);
-      alert('RS Number deleted successfully');
+      showSuccess('RS Number deleted successfully');
       router.push('/land/rs-numbers');
     } catch (error: any) {
       console.error('Failed to delete RS Number:', error);

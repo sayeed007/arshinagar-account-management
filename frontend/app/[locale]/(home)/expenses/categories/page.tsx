@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { expenseCategoryApi, ExpenseCategory } from '@/lib/api';
+import { showSuccess, showError } from '@/lib/toast';
 
 export default function ExpenseCategoriesPage() {
   const [categories, setCategories] = useState<ExpenseCategory[]>([]);
@@ -38,7 +39,7 @@ export default function ExpenseCategoriesPage() {
 
     try {
       await expenseCategoryApi.update(id, { isActive: !currentStatus });
-      alert('Category updated successfully');
+      showSuccess('Category updated successfully');
       loadCategories();
     } catch (error: any) {
       console.error('Failed to update category:', error);

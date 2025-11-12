@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { landApi, Plot, RSNumber, PlotStatus } from '@/lib/api';
+import { showSuccess, showError } from '@/lib/toast';
 
 export default function PlotDetailPage() {
   const params = useParams();
@@ -45,7 +46,7 @@ export default function PlotDetailPage() {
 
     try {
       await landApi.plots.delete(params.id as string);
-      alert('Plot deleted successfully');
+      showSuccess('Plot deleted successfully');
       if (rsNumber) {
         router.push(`/land/rs-numbers/${rsNumber._id}`);
       } else {

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { landApi, Plot, RSNumber, PlotStatus } from '@/lib/api';
+import { showSuccess, showError } from '@/lib/toast';
 
 export default function EditPlotPage() {
   const params = useParams();
@@ -96,7 +97,7 @@ export default function EditPlotPage() {
       }
 
       await landApi.plots.update(params.id as string, data);
-      alert('Plot updated successfully!');
+      showSuccess('Plot updated successfully!');
 
       // Navigate back based on where we came from
       if (rsNumber) {

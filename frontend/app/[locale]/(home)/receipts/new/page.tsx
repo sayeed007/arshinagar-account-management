@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { receiptsApi, salesApi, Sale, ReceiptType, PaymentMethod } from '@/lib/api';
 import { getErrorMessage } from '@/lib/types';
+import { showSuccess, showError } from '@/lib/toast';
 
 export default function NewReceiptPage() {
   const router = useRouter();
@@ -45,7 +46,7 @@ export default function NewReceiptPage() {
       setSales(response.data || []);
     } catch (error) {
       console.error('Failed to load sales:', error);
-      alert(getErrorMessage(error));
+      showError(getErrorMessage(error));
     } finally {
       setLoadingData(false);
     }
@@ -95,11 +96,11 @@ export default function NewReceiptPage() {
       }
 
       const receipt = await receiptsApi.create(data);
-      alert('Receipt created successfully!');
+      showSuccess('Receipt created successfully!');
       router.push(`/receipts/${receipt._id}`);
     } catch (error) {
       console.error('Failed to create receipt:', error);
-      alert(getErrorMessage(error));
+      showError(getErrorMessage(error));
     } finally {
       setLoading(false);
     }

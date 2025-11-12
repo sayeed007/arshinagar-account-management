@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { landApi, RSNumber, PlotStatus } from '@/lib/api';
 import { getErrorMessage } from '@/lib/types';
+import { showSuccess, showError } from '@/lib/toast';
 
 export default function NewPlotPage() {
   const params = useParams();
@@ -32,7 +33,7 @@ export default function NewPlotPage() {
       setRSNumber(data);
     } catch (error) {
       console.error('Failed to load RS Number:', error);
-      alert(getErrorMessage(error));
+      showError(getErrorMessage(error));
       router.push('/land/rs-numbers');
     } finally {
       setRsLoading(false);
@@ -78,11 +79,11 @@ export default function NewPlotPage() {
       }
 
       await landApi.plots.create(data);
-      alert('Plot created successfully!');
+      showSuccess('Plot created successfully!');
       router.push(`/land/rs-numbers/${params.id}`);
     } catch (error) {
       console.error('Failed to create plot:', error);
-      alert(getErrorMessage(error));
+      showError(getErrorMessage(error));
     } finally {
       setLoading(false);
     }

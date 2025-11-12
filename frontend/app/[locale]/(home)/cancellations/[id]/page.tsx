@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { cancellationsApi, refundsApi, Cancellation, CancellationStatus, Refund, Sale, Client, Land, RSNumber } from '@/lib/api';
+import { showSuccess, showError } from '@/lib/toast';
 
 interface CancellationWithRefunds extends Cancellation {
   refunds: Refund[];
@@ -39,7 +40,7 @@ export default function CancellationDetailPage({ params }: { params: { id: strin
     try {
       setActionLoading(true);
       await cancellationsApi.approve(params.id, actionNotes || undefined);
-      alert('Cancellation approved successfully');
+      showSuccess('Cancellation approved successfully');
       setShowApproveModal(false);
       setActionNotes('');
       loadCancellation();
@@ -60,7 +61,7 @@ export default function CancellationDetailPage({ params }: { params: { id: strin
     try {
       setActionLoading(true);
       await cancellationsApi.reject(params.id, actionNotes);
-      alert('Cancellation rejected successfully');
+      showSuccess('Cancellation rejected successfully');
       setShowRejectModal(false);
       setActionNotes('');
       loadCancellation();

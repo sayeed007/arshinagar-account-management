@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { expensesApi, Expense, ExpenseStatus, ExpenseCategory } from '@/lib/api';
 import { ListQueryParams, getErrorMessage } from '@/lib/types';
+import { showSuccess, showError } from '@/lib/toast';
 
 export default function ExpensesPage() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -33,7 +34,7 @@ export default function ExpensesPage() {
       setTotalPages(response.pagination?.totalPages || 0);
     } catch (error) {
       console.error('Failed to load expenses:', error);
-      alert(getErrorMessage(error));
+      showError(getErrorMessage(error));
     } finally {
       setLoading(false);
     }

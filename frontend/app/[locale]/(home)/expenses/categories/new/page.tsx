@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { expenseCategoryApi } from '@/lib/api';
+import { showSuccess, showError } from '@/lib/toast';
 
 export default function NewExpenseCategoryPage() {
   const router = useRouter();
@@ -29,7 +30,7 @@ export default function NewExpenseCategoryPage() {
         name: formData.name,
         description: formData.description || undefined,
       });
-      alert('Expense category created successfully!');
+      showSuccess('Expense category created successfully!');
       router.push('/expenses/categories');
     } catch (error: any) {
       console.error('Failed to create category:', error);

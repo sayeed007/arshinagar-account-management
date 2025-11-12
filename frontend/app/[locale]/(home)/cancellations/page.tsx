@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { cancellationsApi, Cancellation, CancellationStatus, Sale, Client } from '@/lib/api';
 import { ListQueryParams, getErrorMessage } from '@/lib/types';
+import { showSuccess, showError } from '@/lib/toast';
 
 export default function CancellationsPage() {
   const [loading, setLoading] = useState(true);
@@ -29,7 +30,7 @@ export default function CancellationsPage() {
       setTotalPages(response.pagination.totalPages);
     } catch (error) {
       console.error('Failed to load cancellations:', error);
-      alert(getErrorMessage(error));
+      showError(getErrorMessage(error));
     } finally {
       setLoading(false);
     }

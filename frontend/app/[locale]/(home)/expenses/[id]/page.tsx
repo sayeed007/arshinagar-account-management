@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { expensesApi, Expense, ExpenseCategory, User, ExpenseStatus } from '@/lib/api';
+import { showSuccess, showError } from '@/lib/toast';
 
 export default function ExpenseDetailPage() {
   const params = useParams();
