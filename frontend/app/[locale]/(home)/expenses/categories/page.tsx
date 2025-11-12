@@ -4,11 +4,15 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { expenseCategoryApi, ExpenseCategory } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 
 export default function ExpenseCategoriesPage() {
   const [categories, setCategories] = useState<ExpenseCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [showToggleConfirm, setShowToggleConfirm] = useState(false);
+  const [toggling, setToggling] = useState(false);
+  const [categoryToToggle, setCategoryToToggle] = useState<{ id: string; name: string; currentStatus: boolean } | null>(null);
 
   useEffect(() => {
     loadCategories();
@@ -32,18 +36,27 @@ export default function ExpenseCategoriesPage() {
     }
   };
 
-  const handleToggleActive = async (id: string, currentStatus: boolean) => {
-    if (!confirm(`Are you sure you want to ${currentStatus ? 'deactivate' : 'activate'} this category?`)) {
-      return;
-    }
+  const handleToggleClick = (id: string, name: string, currentStatus: boolean) => {
+    setCategoryToToggle({ id, name, currentStatus });
+    setShowToggleConfirm(true);
+  };
 
+  const handleToggleConfirm = async () => {
+    if (!categoryToToggle) return;
+
+    setToggling(true);
     try {
-      await expenseCategoryApi.update(id, { isActive: !currentStatus });
+      await expenseCategoryApi.update(categoryToToggle.id, { isActive: !categoryToToggle.currentStatus });
       showSuccess('Category updated successfully');
+      setShowToggleConfirm(false);
+      setCategoryToToggle(null);
       loadCategories();
     } catch (error: any) {
       console.error('Failed to update category:', error);
       showError(error.response?.data?.error?.message || 'Failed to update category');
+      setShowToggleConfirm(false);
+    } finally {
+      setToggling(false);
     }
   };
 
@@ -145,7 +158,7 @@ export default function ExpenseCategoriesPage() {
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap text-sm space-x-2">
                       <button
-                        onClick={() => handleToggleActive(category._id, category.isActive)}
+                        onClick={() => handleToggleClick(category._id, category.name, category.isActive)}
                         className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300"
                       >
                         {category.isActive ? 'Deactivate' : 'Activate'}
@@ -158,6 +171,24 @@ export default function ExpenseCategoriesPage() {
           </div>
         )}
       </div>
+
+      {/* Toggle Status Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={showToggleConfirm}
+        onClose={() => {
+          setShowToggleConfirm(false);
+          setCategoryToToggle(null);
+        }}
+        onConfirm={handleToggleConfirm}
+        title={`${categoryToToggle?.currentStatus ? 'Deactivate' : 'Activate'} Category`}
+        message={`Are you sure you want to ${categoryToToggle?.currentStatus ? 'deactivate' : 'activate'} "${categoryToToggle?.name}"?${
+          categoryToToggle?.currentStatus ? '\n\nDeactivated categories will not be available for new expenses.' : ''
+        }`}
+        confirmText={categoryToToggle?.currentStatus ? 'Deactivate' : 'Activate'}
+        cancelText="Cancel"
+        variant={categoryToToggle?.currentStatus ? 'warning' : 'info'}
+        isLoading={toggling}
+      />
     </div>
   );
 }

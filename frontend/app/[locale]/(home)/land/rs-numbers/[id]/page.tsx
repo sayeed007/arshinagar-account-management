@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { landApi, RSNumber, Plot, PlotStatus } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 
 export default function RSNumberDetailPage() {
   const params = useParams();
@@ -13,6 +14,8 @@ export default function RSNumberDetailPage() {
   const [plots, setPlots] = useState<Plot[]>([]);
   const [loading, setLoading] = useState(true);
   const [plotsLoading, setPlotsLoading] = useState(true);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     if (params.id) {
@@ -51,11 +54,12 @@ export default function RSNumberDetailPage() {
     }
   };
 
-  const handleDelete = async () => {
-    if (!confirm('Are you sure you want to delete this RS Number? This will also delete all associated plots.')) {
-      return;
-    }
+  const handleDeleteClick = () => {
+    setShowDeleteConfirm(true);
+  };
 
+  const handleDeleteConfirm = async () => {
+    setDeleting(true);
     try {
       await landApi.rsNumbers.delete(params.id as string);
       showSuccess('RS Number deleted successfully');
@@ -63,6 +67,9 @@ export default function RSNumberDetailPage() {
     } catch (error: any) {
       console.error('Failed to delete RS Number:', error);
       showError(error.response?.data?.error?.message || 'Failed to delete RS Number');
+      setShowDeleteConfirm(false);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -358,7 +365,7 @@ export default function RSNumberDetailPage() {
                 Edit RS Number
               </Link>
               <button
-                onClick={handleDelete}
+                onClick={handleDeleteClick}
                 className="w-full px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
               >
                 Delete RS Number
@@ -373,6 +380,19 @@ export default function RSNumberDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={handleDeleteConfirm}
+        title="Delete RS Number"
+        message={`Are you sure you want to delete RS Number "${rsNumber?.rsNumber}"?\n\nThis will also delete all ${plots.length} associated plot${plots.length !== 1 ? 's' : ''}. This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+        isLoading={deleting}
+      />
     </div>
   );
 }
