@@ -1,13 +1,13 @@
 import mongoose from 'mongoose';
-import bcrypt from 'bcrypt';
-import dotenv from 'dotenv';
+import * as bcrypt from 'bcryptjs';
+import * as dotenv from 'dotenv';
 import { connectDB } from '../config/db';
 
 // Import all models
-import User from '../models/User';
-import Client from '../models/Client';
-import RSNumber from '../models/RSNumber';
-import Plot from '../models/Plot';
+import { User } from '../models/User';
+import { Client } from '../models/Client';
+import { RSNumber } from '../models/RSNumber';
+import { Plot } from '../models/Plot';
 import Sale from '../models/Sale';
 import Receipt from '../models/Receipt';
 import InstallmentSchedule from '../models/InstallmentSchedule';
@@ -215,7 +215,7 @@ async function seedBankAccounts() {
   return { bankAccounts: createdAccounts, cashAccount };
 }
 
-async function seedSalesAndReceipts(clients: any[], plots: any[], users: any[], bankAccounts: any[]) {
+async function seedSalesAndReceipts(clients: any[], plots: any[], users: any[], _bankAccounts: any[]) {
   console.log('💼 Seeding sales, receipts, and installments...');
 
   const startDate = new Date('2024-01-01');
@@ -261,10 +261,10 @@ async function seedSalesAndReceipts(clients: any[], plots: any[], users: any[], 
       paidAmount: 0,
       saleStatus: 'Active',
       stages: [
-        { stageName: 'Booking', plannedAmount: bookingAmount, receivedAmount: 0, dueAmount: bookingAmount, status: 'Pending' },
-        { stageName: 'Installments', plannedAmount: installmentAmount, receivedAmount: 0, dueAmount: installmentAmount, status: 'Pending' },
-        { stageName: 'Registration', plannedAmount: registrationAmount, receivedAmount: 0, dueAmount: registrationAmount, status: 'Pending' },
-        { stageName: 'Handover', plannedAmount: handoverAmount, receivedAmount: 0, dueAmount: handoverAmount, status: 'Pending' },
+        { _id: new mongoose.Types.ObjectId(), stageName: 'Booking', plannedAmount: bookingAmount, receivedAmount: 0, dueAmount: bookingAmount, status: 'Pending' },
+        { _id: new mongoose.Types.ObjectId(), stageName: 'Installments', plannedAmount: installmentAmount, receivedAmount: 0, dueAmount: installmentAmount, status: 'Pending' },
+        { _id: new mongoose.Types.ObjectId(), stageName: 'Registration', plannedAmount: registrationAmount, receivedAmount: 0, dueAmount: registrationAmount, status: 'Pending' },
+        { _id: new mongoose.Types.ObjectId(), stageName: 'Handover', plannedAmount: handoverAmount, receivedAmount: 0, dueAmount: handoverAmount, status: 'Pending' },
       ],
       isActive: true,
     };
@@ -460,7 +460,7 @@ async function seedSalesAndReceipts(clients: any[], plots: any[], users: any[], 
   return { sales: createdSales, receipts: createdReceipts, installments: createdInstallments, cheques: createdCheques };
 }
 
-async function seedExpenses(categories: any[], employees: any[], users: any[]) {
+async function seedExpenses(categories: any[], _employees: any[], users: any[]) {
   console.log('💸 Seeding expenses...');
 
   const expenses = [];
@@ -637,7 +637,7 @@ async function seedEmployeeCosts(employees: any[]) {
   return createdCosts;
 }
 
-async function seedCancellationsAndRefunds(sales: any[], clients: any[], users: any[]) {
+async function seedCancellationsAndRefunds(sales: any[], _clients: any[], users: any[]) {
   console.log('❌ Seeding cancellations and refunds...');
 
   const cancellations = [];
@@ -790,7 +790,7 @@ async function main() {
     const clients = await seedClients();
     const { rsNumbers, plots } = await seedLandInventory();
     const employees = await seedEmployees();
-    const { bankAccounts, cashAccount } = await seedBankAccounts();
+    const { bankAccounts, cashAccount: _cashAccount } = await seedBankAccounts();
     const { sales, receipts, installments, cheques } = await seedSalesAndReceipts(clients, plots, users, bankAccounts);
     const expenses = await seedExpenses(categories, employees, users);
     const employeeCosts = await seedEmployeeCosts(employees);
