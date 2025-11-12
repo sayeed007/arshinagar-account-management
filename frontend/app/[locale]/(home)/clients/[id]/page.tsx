@@ -3,13 +3,15 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { clientApi, Client } from '@/lib/api';
+import { clientApi, Client, salesApi, Sale, SaleStatus } from '@/lib/api';
 
 export default function ClientDetailPage() {
   const params = useParams();
   const router = useRouter();
   const [client, setClient] = useState<Client | null>(null);
+  const [sales, setSales] = useState<Sale[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingSales, setLoadingSales] = useState(true);
 
   useEffect(() => {
     if (params.id) {
@@ -22,12 +24,26 @@ export default function ClientDetailPage() {
       setLoading(true);
       const data = await clientApi.getById(params.id as string);
       setClient(data);
+      // Load sales for this client
+      loadSales(params.id as string);
     } catch (error: any) {
       console.error('Failed to load client:', error);
       alert(error.response?.data?.error?.message || 'Failed to load client');
       router.push('/clients');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadSales = async (clientId: string) => {
+    try {
+      setLoadingSales(true);
+      const response = await salesApi.getAll({ clientId, page: 1, limit: 100 });
+      setSales(response.data || []);
+    } catch (error: any) {
+      console.error('Failed to load sales:', error);
+    } finally {
+      setLoadingSales(false);
     }
   };
 
@@ -178,14 +194,137 @@ export default function ClientDetailPage() {
             </dl>
           </div>
 
-          {/* Purchase History - Phase 3 */}
+          {/* Purchase History */}
           <div className="mt-6 bg-white dark:bg-gray-800 rounded-lg shadow p-6">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
               Purchase History
             </h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Purchase history will be available in Phase 3 (Sales module)
-            </p>
+
+            {loadingSales ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
+                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Loading sales...</p>
+              </div>
+            ) : sales.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  No purchase history found for this client.
+                </p>
+                <Link
+                  href="/sales/new"
+                  className="mt-4 inline-block text-indigo-600 hover:text-indigo-700 text-sm font-medium"
+                >
+                  Create New Sale
+                </Link>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                  <thead className="bg-gray-50 dark:bg-gray-900">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Sale #
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Plot
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Total Price
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Paid
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Due
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Status
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Date
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    {sales.map((sale) => {
+                      const plotInfo = typeof sale.plotId === 'object' ? sale.plotId : null;
+                      return (
+                        <tr key={sale._id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                          <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                            {sale.saleNumber}
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                            {plotInfo ? `${plotInfo.plotNumber}` : 'N/A'}
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                            ৳{sale.totalPrice.toLocaleString()}
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-green-600 dark:text-green-400">
+                            ৳{sale.totalPaid.toLocaleString()}
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-orange-600 dark:text-orange-400">
+                            ৳{sale.totalDue.toLocaleString()}
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap">
+                            <span
+                              className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                                sale.status === SaleStatus.COMPLETED
+                                  ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                                  : sale.status === SaleStatus.ACTIVE
+                                  ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                                  : sale.status === SaleStatus.CANCELLED
+                                  ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                                  : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
+                              }`}
+                            >
+                              {sale.status}
+                            </span>
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                            {new Date(sale.saleDate).toLocaleDateString()}
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap text-sm">
+                            <Link
+                              href={`/sales/${sale._id}`}
+                              className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300"
+                            >
+                              View Details
+                            </Link>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+
+                {/* Summary */}
+                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                  <div className="grid grid-cols-3 gap-4 text-sm">
+                    <div>
+                      <p className="text-gray-500 dark:text-gray-400">Total Sales</p>
+                      <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                        {sales.length}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500 dark:text-gray-400">Total Value</p>
+                      <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                        ৳{sales.reduce((sum, sale) => sum + sale.totalPrice, 0).toLocaleString()}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500 dark:text-gray-400">Total Due</p>
+                      <p className="text-lg font-semibold text-orange-600 dark:text-orange-400">
+                        ৳{sales.reduce((sum, sale) => sum + sale.totalDue, 0).toLocaleString()}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
