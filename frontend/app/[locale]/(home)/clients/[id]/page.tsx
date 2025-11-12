@@ -5,6 +5,8 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { clientApi, Client, salesApi, Sale, SaleStatus } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
+import { Modal, ModalContent, ModalFooter } from '@/components/ui/modal';
+import { getErrorMessage } from '@/lib/types';
 
 export default function ClientDetailPage() {
   const params = useParams();
@@ -13,6 +15,17 @@ export default function ClientDetailPage() {
   const [sales, setSales] = useState<Sale[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingSales, setLoadingSales] = useState(true);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [updating, setUpdating] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    phone: '',
+    alternatePhone: '',
+    email: '',
+    address: '',
+    nid: '',
+    notes: '',
+  });
 
   useEffect(() => {
     if (params.id) {
@@ -25,6 +38,16 @@ export default function ClientDetailPage() {
       setLoading(true);
       const data = await clientApi.getById(params.id as string);
       setClient(data);
+      // Pre-fill form data for editing
+      setFormData({
+        name: data.name,
+        phone: data.phone,
+        alternatePhone: data.alternatePhone || '',
+        email: data.email || '',
+        address: data.address,
+        nid: data.nid || '',
+        notes: data.notes || '',
+      });
       // Load sales for this client
       loadSales(params.id as string);
     } catch (error: any) {
@@ -45,6 +68,56 @@ export default function ClientDetailPage() {
       console.error('Failed to load sales:', error);
     } finally {
       setLoadingSales(false);
+    }
+  };
+
+  const handleOpenEditModal = () => {
+    if (client) {
+      setFormData({
+        name: client.name,
+        phone: client.phone,
+        alternatePhone: client.alternatePhone || '',
+        email: client.email || '',
+        address: client.address,
+        nid: client.nid || '',
+        notes: client.notes || '',
+      });
+      setShowEditModal(true);
+    }
+  };
+
+  const handleCloseEditModal = () => {
+    setShowEditModal(false);
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setUpdating(true);
+
+    try {
+      // Remove empty optional fields
+      const data: Record<string, unknown> = { ...formData };
+      if (!data.alternatePhone) delete data.alternatePhone;
+      if (!data.email) delete data.email;
+      if (!data.nid) delete data.nid;
+      if (!data.notes) delete data.notes;
+
+      await clientApi.update(params.id as string, data);
+      showSuccess('Client updated successfully!');
+      handleCloseEditModal();
+      loadClient(); // Refresh the client data
+    } catch (error) {
+      console.error('Failed to update client:', error);
+      showError(getErrorMessage(error));
+    } finally {
+      setUpdating(false);
     }
   };
 
@@ -336,12 +409,12 @@ export default function ClientDetailPage() {
               Actions
             </h2>
             <div className="space-y-3">
-              <Link
-                href={`/clients/${client._id}/edit`}
+              <button
+                onClick={handleOpenEditModal}
                 className="block w-full px-4 py-2 bg-indigo-600 text-white text-center rounded-md hover:bg-indigo-700"
               >
                 Edit Client
-              </Link>
+              </button>
               <button
                 onClick={handleDelete}
                 className="w-full px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
@@ -358,6 +431,159 @@ export default function ClientDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Edit Client Modal */}
+      <Modal
+        isOpen={showEditModal}
+        onClose={handleCloseEditModal}
+        title="Edit Client"
+        size="lg"
+      >
+        <form onSubmit={handleSubmit}>
+          <ModalContent>
+            <div className="space-y-4">
+              {/* Name */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  required
+                  minLength={2}
+                  maxLength={100}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  placeholder="Enter client name"
+                />
+              </div>
+
+              {/* Phone */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Phone <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  required
+                  pattern="^(\+8801|01)[3-9]\d{8}$"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  placeholder="01712345678"
+                />
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  Format: 01XXXXXXXXX or +8801XXXXXXXXX
+                </p>
+              </div>
+
+              {/* Alternate Phone */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Alternate Phone
+                </label>
+                <input
+                  type="tel"
+                  name="alternatePhone"
+                  value={formData.alternatePhone}
+                  onChange={handleChange}
+                  pattern="^(\+8801|01)[3-9]\d{8}$"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  placeholder="01712345678"
+                />
+              </div>
+
+              {/* Email */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  placeholder="client@example.com"
+                />
+              </div>
+
+              {/* Address */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Address <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  name="address"
+                  value={formData.address}
+                  onChange={handleChange}
+                  required
+                  minLength={5}
+                  maxLength={500}
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  placeholder="Enter full address"
+                />
+              </div>
+
+              {/* NID */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  NID Number
+                </label>
+                <input
+                  type="text"
+                  name="nid"
+                  value={formData.nid}
+                  onChange={handleChange}
+                  pattern="^\d{10,17}$"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  placeholder="10-17 digits"
+                />
+              </div>
+
+              {/* Notes */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Notes
+                </label>
+                <textarea
+                  name="notes"
+                  value={formData.notes}
+                  onChange={handleChange}
+                  maxLength={1000}
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  placeholder="Additional notes (optional)"
+                />
+              </div>
+            </div>
+          </ModalContent>
+
+          <ModalFooter>
+            <div className="flex gap-3">
+              <button
+                type="submit"
+                disabled={updating}
+                className="flex-1 px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {updating ? 'Updating...' : 'Update Client'}
+              </button>
+              <button
+                type="button"
+                onClick={handleCloseEditModal}
+                disabled={updating}
+                className="flex-1 px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Cancel
+              </button>
+            </div>
+          </ModalFooter>
+        </form>
+      </Modal>
     </div>
   );
 }
