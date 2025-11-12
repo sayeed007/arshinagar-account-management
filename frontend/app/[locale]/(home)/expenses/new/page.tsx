@@ -56,34 +56,36 @@ export default function NewExpensePage() {
     setLoading(true);
 
     try {
-      const data: Record<string, unknown> = {
+      if (formData.paymentMethod === PaymentMethod.CHEQUE) {
+        if (!formData.bankName || !formData.chequeNumber) {
+          showError('Bank name and cheque number are required for cheque payments');
+          setLoading(false);
+          return;
+        }
+      }
+
+      const data = {
         categoryId: formData.categoryId,
         amount: parseFloat(formData.amount),
         expenseDate: formData.expenseDate,
         vendor: formData.vendor || undefined,
         description: formData.description,
         paymentMethod: formData.paymentMethod,
+        ...(formData.paymentMethod === PaymentMethod.CHEQUE && formData.bankName && formData.chequeNumber
+          ? {
+              instrumentDetails: {
+                bankName: formData.bankName,
+                chequeNumber: formData.chequeNumber,
+              },
+            }
+          : {}),
+        ...(formData.notes.trim() ? { notes: formData.notes.trim() } : {}),
       };
-
-      if (formData.paymentMethod === PaymentMethod.CHEQUE) {
-        if (!formData.bankName || !formData.chequeNumber) {
-          showError('Bank name and cheque number are required for cheque payments');
-          return;
-        }
-        data.instrumentDetails = {
-          bankName: formData.bankName,
-          chequeNumber: formData.chequeNumber,
-        };
-      }
-
-      if (formData.notes.trim()) {
-        data.notes = formData.notes.trim();
-      }
 
       const expense = await expensesApi.create(data);
       showSuccess('Expense created successfully!');
       router.push(`/expenses/${expense._id}`);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Failed to create expense:', error);
       showError(getErrorMessage(error));
     } finally {

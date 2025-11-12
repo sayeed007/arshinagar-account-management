@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { refundsApi, Refund, RefundStatus, RefundApprovalStatus, Cancellation, Sale, Client, Land, RSNumber } from '@/lib/api';
+import { refundsApi, Refund, RefundStatus, RefundApprovalStatus, Cancellation, Sale, Client, Plot, RSNumber, PaymentMethod } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
 import { getErrorMessage } from '@/lib/types';
 
@@ -17,7 +17,7 @@ export default function RefundDetailPage({ params }: { params: { id: string } })
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [actionRemarks, setActionRemarks] = useState('');
   const [paymentData, setPaymentData] = useState({
-    paymentMethod: 'Cash',
+    paymentMethod: PaymentMethod.CASH,
     paymentDate: new Date().toISOString().split('T')[0],
     transactionRef: '',
     remarks: '',
@@ -31,8 +31,8 @@ export default function RefundDetailPage({ params }: { params: { id: string } })
   const loadRefund = async () => {
     try {
       setLoading(true);
-      const response = await refundsApi.getById(params.id);
-      setRefund(response.data);
+      const refund = await refundsApi.getById(params.id);
+      setRefund(refund);
     } catch (error: unknown) {
       console.error('Failed to load refund:', error);
       showError(getErrorMessage(error));
@@ -105,7 +105,7 @@ export default function RefundDetailPage({ params }: { params: { id: string } })
       showSuccess('Refund marked as paid successfully');
       setShowPaymentModal(false);
       setPaymentData({
-        paymentMethod: 'Cash',
+        paymentMethod: PaymentMethod.CASH,
         paymentDate: new Date().toISOString().split('T')[0],
         transactionRef: '',
         remarks: '',
@@ -185,7 +185,7 @@ export default function RefundDetailPage({ params }: { params: { id: string } })
   const cancellation = refund.cancellationId as Cancellation;
   const sale = cancellation.saleId as Sale;
   const client = sale.clientId as Client;
-  const plot = sale.plotId as Land;
+  const plot = sale.plotId as Plot;
   const rsNumber = sale.rsNumberId as RSNumber;
 
   return (
@@ -364,89 +364,56 @@ export default function RefundDetailPage({ params }: { params: { id: string } })
       </div>
 
       {/* Approval History */}
-      {(refund.accountsApprovedBy || refund.hofApprovedBy) && (
+      {refund.approvalHistory && refund.approvalHistory.length > 0 && (
         <div className="mt-6 bg-white dark:bg-gray-800 rounded-lg shadow p-6">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             Approval History
           </h2>
           <div className="space-y-4">
-            {refund.accountsApprovedBy && (
-              <div className="flex items-start">
-                <div className="flex-shrink-0">
-                  <svg
-                    className="h-6 w-6 text-green-500"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </div>
-                <div className="ml-3">
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">
-                    Accounts Manager Approval
-                  </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Approved by{' '}
-                    {typeof refund.accountsApprovedBy === 'object'
-                      ? refund.accountsApprovedBy.username
-                      : 'N/A'}
-                  </p>
-                  {refund.accountsApprovedAt && (
+            {refund.approvalHistory.map((entry, index) => {
+              const approver = typeof entry.approvedBy === 'object' ? entry.approvedBy : null;
+              return (
+                <div key={index} className="flex items-start">
+                  <div className="flex-shrink-0">
+                    <svg
+                      className={`h-6 w-6 ${entry.action === 'Approved' ? 'text-green-500' : 'text-red-500'}`}
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      {entry.action === 'Approved' ? (
+                        <path
+                          fillRule="evenodd"
+                          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                          clipRule="evenodd"
+                        />
+                      ) : (
+                        <path
+                          fillRule="evenodd"
+                          d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                          clipRule="evenodd"
+                        />
+                      )}
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">
+                      {entry.approvalLevel} - {entry.action}
+                    </p>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                      {new Date(refund.accountsApprovedAt).toLocaleString()}
+                      {entry.action} by {approver ? approver.username : 'N/A'}
                     </p>
-                  )}
-                  {refund.accountsRemarks && (
-                    <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-                      Remarks: {refund.accountsRemarks}
-                    </p>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {refund.hofApprovedBy && (
-              <div className="flex items-start">
-                <div className="flex-shrink-0">
-                  <svg
-                    className="h-6 w-6 text-green-500"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </div>
-                <div className="ml-3">
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">
-                    HOF (Head of Finance) Approval
-                  </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Approved by{' '}
-                    {typeof refund.hofApprovedBy === 'object'
-                      ? refund.hofApprovedBy.username
-                      : 'N/A'}
-                  </p>
-                  {refund.hofApprovedAt && (
                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                      {new Date(refund.hofApprovedAt).toLocaleString()}
+                      {new Date(entry.approvedAt).toLocaleString()}
                     </p>
-                  )}
-                  {refund.hofRemarks && (
-                    <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-                      Remarks: {refund.hofRemarks}
-                    </p>
-                  )}
+                    {entry.remarks && (
+                      <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                        Remarks: {entry.remarks}
+                      </p>
+                    )}
+                  </div>
                 </div>
-              </div>
-            )}
+              );
+            })}
           </div>
         </div>
       )}
@@ -467,43 +434,19 @@ export default function RefundDetailPage({ params }: { params: { id: string } })
             <div>
               <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Payment Date</dt>
               <dd className="mt-1 text-sm text-gray-900 dark:text-white">
-                {refund.paymentDate
-                  ? new Date(refund.paymentDate).toLocaleDateString()
+                {refund.paidDate
+                  ? new Date(refund.paidDate).toLocaleDateString()
                   : 'N/A'}
               </dd>
             </div>
-            {refund.transactionRef && (
-              <div>
-                <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                  Transaction Reference
-                </dt>
-                <dd className="mt-1 text-sm text-gray-900 dark:text-white">
-                  {refund.transactionRef}
-                </dd>
-              </div>
-            )}
-            {refund.paymentRemarks && (
+            {refund.notes && (
               <div className="md:col-span-2">
                 <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Remarks</dt>
                 <dd className="mt-1 text-sm text-gray-900 dark:text-white">
-                  {refund.paymentRemarks}
+                  {refund.notes}
                 </dd>
               </div>
             )}
-            <div>
-              <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Paid By</dt>
-              <dd className="mt-1 text-sm text-gray-900 dark:text-white">
-                {refund.paidBy && typeof refund.paidBy === 'object'
-                  ? refund.paidBy.username
-                  : 'N/A'}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Paid At</dt>
-              <dd className="mt-1 text-sm text-gray-900 dark:text-white">
-                {refund.paidAt ? new Date(refund.paidAt).toLocaleString() : 'N/A'}
-              </dd>
-            </div>
           </dl>
         </div>
       )}
@@ -652,7 +595,7 @@ export default function RefundDetailPage({ params }: { params: { id: string } })
                   <select
                     value={paymentData.paymentMethod}
                     onChange={(e) =>
-                      setPaymentData({ ...paymentData, paymentMethod: e.target.value })
+                      setPaymentData({ ...paymentData, paymentMethod: e.target.value as PaymentMethod })
                     }
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
                   >
@@ -710,7 +653,7 @@ export default function RefundDetailPage({ params }: { params: { id: string } })
                   onClick={() => {
                     setShowPaymentModal(false);
                     setPaymentData({
-                      paymentMethod: 'Cash',
+                      paymentMethod: PaymentMethod.CASH,
                       paymentDate: new Date().toISOString().split('T')[0],
                       transactionRef: '',
                       remarks: '',

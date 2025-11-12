@@ -981,7 +981,7 @@ export interface Expense {
 /**
  * Employee Types
  */
-export interface BankAccount {
+export interface EmployeeBankAccount {
   bankName: string;
   accountNumber: string;
   accountHolderName: string;
@@ -995,7 +995,7 @@ export interface Employee {
   email?: string;
   nid?: string;
   address?: string;
-  bankAccount?: BankAccount;
+  bankAccount?: EmployeeBankAccount;
   joinDate: string;
   resignDate?: string;
   baseSalary: number;
@@ -1267,7 +1267,7 @@ export const employeesApi = {
     email?: string;
     nid?: string;
     address?: string;
-    bankAccount?: BankAccount;
+    bankAccount?: EmployeeBankAccount;
     joinDate: string;
     baseSalary: number;
   }): Promise<Employee> => {

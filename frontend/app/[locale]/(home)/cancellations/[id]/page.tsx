@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { cancellationsApi, refundsApi, Cancellation, CancellationStatus, Refund, Sale, Client, Land, RSNumber } from '@/lib/api';
+import { cancellationsApi, refundsApi, Cancellation, CancellationStatus, Refund, Sale, Client, Plot, RSNumber } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
 import { getErrorMessage } from '@/lib/types';
 
@@ -27,8 +27,8 @@ export default function CancellationDetailPage({ params }: { params: { id: strin
   const loadCancellation = async () => {
     try {
       setLoading(true);
-      const response = await cancellationsApi.getById(params.id);
-      setCancellation(response.data);
+      const data = await cancellationsApi.getById(params.id);
+      setCancellation(data);
     } catch (error: unknown) {
       console.error('Failed to load cancellation:', error);
       showError(getErrorMessage(error));
@@ -126,7 +126,7 @@ export default function CancellationDetailPage({ params }: { params: { id: strin
 
   const sale = cancellation.saleId as Sale;
   const client = sale.clientId as Client;
-  const plot = sale.plotId as Land;
+  const plot = sale.plotId as Plot;
   const rsNumber = sale.rsNumberId as RSNumber;
 
   return (

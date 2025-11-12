@@ -28,7 +28,7 @@ export default function PayrollPage() {
         month: selectedMonth,
         year: selectedYear,
       });
-      setCosts(data.data);
+      setCosts(data.data || []);
     } catch (error: unknown) {
       console.error('Failed to load payroll:', error);
       showError(getErrorMessage(error));

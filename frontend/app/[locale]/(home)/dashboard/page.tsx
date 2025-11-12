@@ -170,7 +170,7 @@ export default function DashboardPage() {
       color: 'bg-orange-500',
     },
     {
-      name: 'Land Inventory',
+      name: 'Plot Inventory',
       value: loading ? '...' : stats.totalRSNumbers.toString(),
       icon: '🏞️',
       subtext: loading ? '' : `${stats.totalPlots} plots`,
@@ -277,7 +277,7 @@ export default function DashboardPage() {
             <div className="flex items-center">
               <span className="text-3xl mr-4">🏞️</span>
               <div className="text-left">
-                <p className="text-sm font-medium text-gray-900 dark:text-white">Add Land</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-white">Add Plot</p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">Register RS number</p>
               </div>
             </div>

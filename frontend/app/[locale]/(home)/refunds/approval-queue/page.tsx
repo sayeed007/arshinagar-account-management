@@ -17,8 +17,8 @@ export default function ApprovalQueuePage() {
   const loadApprovalQueue = async () => {
     try {
       setLoading(true);
-      const response = await refundsApi.getApprovalQueue();
-      setRefunds(response.data);
+      const refunds = await refundsApi.getApprovalQueue();
+      setRefunds(refunds);
     } catch (error: unknown) {
       console.error('Failed to load approval queue:', error);
       showError(getErrorMessage(error));

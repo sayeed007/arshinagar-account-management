@@ -36,7 +36,7 @@ export default function NewEmployeePage() {
     setLoading(true);
 
     try {
-      const data: Record<string, unknown> = {
+      const data = {
         name: formData.name,
         designation: formData.designation,
         phone: formData.phone,
@@ -45,20 +45,21 @@ export default function NewEmployeePage() {
         address: formData.address || undefined,
         joinDate: formData.joinDate,
         baseSalary: parseFloat(formData.baseSalary),
+        ...(formData.bankName && formData.accountNumber
+          ? {
+              bankAccount: {
+                bankName: formData.bankName,
+                accountNumber: formData.accountNumber,
+                accountHolderName: formData.accountHolderName || formData.name,
+              },
+            }
+          : {}),
       };
-
-      if (formData.bankName && formData.accountNumber) {
-        data.bankAccount = {
-          bankName: formData.bankName,
-          accountNumber: formData.accountNumber,
-          accountHolderName: formData.accountHolderName || formData.name,
-        };
-      }
 
       const employee = await employeesApi.create(data);
       showSuccess('Employee created successfully!');
       router.push(`/employees/${employee._id}`);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Failed to create employee:', error);
       showError(getErrorMessage(error));
     } finally {

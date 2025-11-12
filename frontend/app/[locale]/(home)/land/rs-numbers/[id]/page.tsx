@@ -42,7 +42,7 @@ export default function RSNumberDetailPage() {
   const loadPlots = async () => {
     try {
       setPlotsLoading(true);
-      const response = await landApi.plots.getAll({
+      const response = await landApi.getAllPlots({
         rsNumberId: params.id as string,
         page: 1,
         limit: 100,
@@ -147,7 +147,7 @@ export default function RSNumberDetailPage() {
         <div className="lg:col-span-3 space-y-6">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-              Land Information
+              Plot Information
             </h2>
 
             <dl className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-4">

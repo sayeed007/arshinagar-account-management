@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
-import { landApi, Plot, RSNumber } from '@/lib/api'
+import { landApi, Plot, RSNumber, PlotStatus, Client } from '@/lib/api'
 import { showSuccess, showError } from '@/lib/toast';
 import { getErrorMessage } from '@/lib/types';
 import { Grid3x3, MapPin, User, Calendar, Search, Filter, ChevronRight } from 'lucide-react'
@@ -36,11 +36,10 @@ export default function AllPlotsPage() {
   const loadPlots = async () => {
     try {
       setLoading(true)
-      const response = await landApi.plots.getAll({
+      const response = await landApi.getAllPlots({
         page,
         limit: 20,
-        search: search || undefined,
-        status: statusFilter !== 'all' ? statusFilter : undefined,
+        status: statusFilter !== 'all' ? (statusFilter as PlotStatus) : undefined,
       })
 
       setPlots(response.data || [])
@@ -50,7 +49,9 @@ export default function AllPlotsPage() {
       }
 
       // Load RS Number details for each plot
-      const rsNumberIds = [...new Set(response.data?.map(p => p.rsNumberId) || [])]
+      const rsNumberIds = [...new Set(
+        response.data?.map(p => typeof p.rsNumberId === 'string' ? p.rsNumberId : p.rsNumberId._id) || []
+      )]
       const rsMap = new Map<string, RSNumber>()
 
       for (const rsId of rsNumberIds) {
@@ -102,14 +103,14 @@ export default function AllPlotsPage() {
       <div>
         <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
           <Link href={getLocalizedHref('/land')} className="hover:text-foreground">
-            Land Inventory
+            Plot Inventory
           </Link>
           <ChevronRight className="h-4 w-4" />
           <span className="text-foreground">All Plots</span>
         </div>
         <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
           <Grid3x3 className="h-8 w-8" />
-          All Land Plots
+          All Plot Plots
         </h1>
         <p className="text-muted-foreground mt-2">
           View all plots across all RS Numbers with search and filtering
@@ -215,7 +216,8 @@ export default function AllPlotsPage() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {plots.map((plot) => {
-            const rsNumber = rsNumbers.get(plot.rsNumberId)
+            const rsId = typeof plot.rsNumberId === 'string' ? plot.rsNumberId : plot.rsNumberId._id
+            const rsNumber = rsNumbers.get(rsId)
             return (
               <Link key={plot._id} href={getLocalizedHref(`/land/plots/${plot._id}`)}>
                 <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
@@ -255,7 +257,7 @@ export default function AllPlotsPage() {
                           Client:
                         </span>
                         <span className="font-medium truncate max-w-[150px]">
-                          {plot.clientId}
+                          {typeof plot.clientId === 'string' ? plot.clientId : plot.clientId.name}
                         </span>
                       </div>
                     )}

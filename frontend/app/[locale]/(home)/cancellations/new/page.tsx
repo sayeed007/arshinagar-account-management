@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { salesApi, cancellationsApi, Sale, Client, Land, RSNumber } from '@/lib/api';
+import { salesApi, cancellationsApi, Sale, Client, Plot, RSNumber } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
 import { getErrorMessage } from '@/lib/types';
 
@@ -34,8 +34,8 @@ export default function NewCancellationPage() {
   const loadSale = async () => {
     try {
       setLoading(true);
-      const response = await salesApi.getById(saleId!);
-      setSale(response.data);
+      const data = await salesApi.getById(saleId!);
+      setSale(data);
     } catch (error: unknown) {
       console.error('Failed to load sale:', error);
       showError(getErrorMessage(error));
@@ -75,13 +75,13 @@ export default function NewCancellationPage() {
 
     try {
       setSubmitting(true);
-      const response = await cancellationsApi.create({
+      const data = await cancellationsApi.create({
         saleId,
         ...formData,
       });
 
       showSuccess('Cancellation created successfully');
-      router.push(`/cancellations/${response.data._id}`);
+      router.push(`/cancellations/${data._id}`);
     } catch (error: unknown) {
       console.error('Failed to create cancellation:', error);
       showError(getErrorMessage(error));
@@ -140,7 +140,7 @@ export default function NewCancellationPage() {
   }
 
   const client = sale.clientId as Client;
-  const plot = sale.plotId as Land;
+  const plot = sale.plotId as Plot;
   const rsNumber = sale.rsNumberId as RSNumber;
   const officeChargeAmount = (sale.paidAmount * formData.officeChargePercent) / 100;
   const refundableAmount = calculateRefundableAmount();

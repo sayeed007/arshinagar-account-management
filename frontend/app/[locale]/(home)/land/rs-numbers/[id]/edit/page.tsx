@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { landApi, RSNumber, UnitType } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
-import { getErrorMessage } from '@/lib/types';
+import { getErrorMessage, AppError } from '@/lib/types';
 
 export default function EditRSNumberPage() {
   const params = useParams();
@@ -105,7 +105,7 @@ export default function EditRSNumberPage() {
     } catch (error: unknown) {
       console.error('Failed to update RS Number:', error);
       const errorMessage = getErrorMessage(error);
-      const details = error.response?.data?.error?.details;
+      const details = (error as AppError).response?.data?.error?.details;
 
       if (details) {
         const fieldErrors = Object.entries(details)

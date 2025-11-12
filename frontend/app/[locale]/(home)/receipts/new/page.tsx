@@ -68,37 +68,40 @@ export default function NewReceiptPage() {
     try {
       if (!selectedSale) {
         showError('Please select a sale');
+        setLoading(false);
         return;
       }
 
-      const data: Record<string, unknown> = {
+      if (formData.method === PaymentMethod.CHEQUE || formData.method === PaymentMethod.PDC) {
+        if (!formData.bankName || !formData.chequeNumber) {
+          showError('Bank name and cheque number are required for cheque/PDC payments');
+          setLoading(false);
+          return;
+        }
+      }
+
+      const data = {
         clientId: typeof selectedSale.clientId === 'string' ? selectedSale.clientId : selectedSale.clientId._id,
         saleId: formData.saleId,
         receiptType: formData.receiptType,
         amount: parseFloat(formData.amount),
         method: formData.method,
         receiptDate: formData.receiptDate,
+        ...((formData.method === PaymentMethod.CHEQUE || formData.method === PaymentMethod.PDC) && formData.bankName && formData.chequeNumber
+          ? {
+              instrumentDetails: {
+                bankName: formData.bankName,
+                chequeNumber: formData.chequeNumber,
+              },
+            }
+          : {}),
+        ...(formData.notes.trim() ? { notes: formData.notes.trim() } : {}),
       };
-
-      if (formData.method === PaymentMethod.CHEQUE || formData.method === PaymentMethod.PDC) {
-        if (!formData.bankName || !formData.chequeNumber) {
-          showError('Bank name and cheque number are required for cheque/PDC payments');
-          return;
-        }
-        data.instrumentDetails = {
-          bankName: formData.bankName,
-          chequeNumber: formData.chequeNumber,
-        };
-      }
-
-      if (formData.notes.trim()) {
-        data.notes = formData.notes.trim();
-      }
 
       const receipt = await receiptsApi.create(data);
       showSuccess('Receipt created successfully!');
       router.push(`/receipts/${receipt._id}`);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Failed to create receipt:', error);
       showError(getErrorMessage(error));
     } finally {

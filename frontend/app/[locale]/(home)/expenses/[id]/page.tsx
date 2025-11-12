@@ -211,7 +211,7 @@ export default function ExpenseDetailPage() {
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="text-sm font-medium text-gray-900 dark:text-white">
-                            {approver.name || approver.email}
+                            {approver.username || approver.email}
                           </p>
                           <p className="text-xs text-gray-500 dark:text-gray-400">
                             {approver.role}
@@ -252,7 +252,7 @@ export default function ExpenseDetailPage() {
               <div>
                 <span className="text-gray-500 dark:text-gray-400">Created By:</span>
                 <p className="font-semibold text-gray-900 dark:text-white">
-                  {createdBy.name || createdBy.email}
+                  {createdBy.username || createdBy.email}
                 </p>
               </div>
               <div>

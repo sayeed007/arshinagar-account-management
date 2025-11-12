@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { landApi, Plot, RSNumber, PlotStatus } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
-import { getErrorMessage } from '@/lib/types';
+import { getErrorMessage, AppError } from '@/lib/types';
 
 export default function EditPlotPage() {
   const params = useParams();
@@ -109,7 +109,7 @@ export default function EditPlotPage() {
     } catch (error: unknown) {
       console.error('Failed to update plot:', error);
       const errorMessage = getErrorMessage(error);
-      const details = error.response?.data?.error?.details;
+      const details = (error as AppError).response?.data?.error?.details;
 
       if (details) {
         const fieldErrors = Object.entries(details)

@@ -24,6 +24,7 @@ export interface AppError extends Error {
       error?: {
         message?: string;
         code?: string;
+        details?: Record<string, string>;
       };
     };
   };
