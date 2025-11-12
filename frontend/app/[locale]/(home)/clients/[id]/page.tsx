@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { clientApi, Client, salesApi, Sale, SaleStatus } from '@/lib/api';
+import { showSuccess, showError } from '@/lib/toast';
 
 export default function ClientDetailPage() {
   const params = useParams();
@@ -28,7 +29,7 @@ export default function ClientDetailPage() {
       loadSales(params.id as string);
     } catch (error: any) {
       console.error('Failed to load client:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load client');
+      showError(error.response?.data?.error?.message || 'Failed to load client');
       router.push('/clients');
     } finally {
       setLoading(false);
@@ -52,11 +53,11 @@ export default function ClientDetailPage() {
 
     try {
       await clientApi.delete(params.id as string);
-      alert('Client deleted successfully');
+      showSuccess('Client deleted successfully');
       router.push('/clients');
     } catch (error: any) {
       console.error('Failed to delete client:', error);
-      alert(error.response?.data?.error?.message || 'Failed to delete client');
+      showError(error.response?.data?.error?.message || 'Failed to delete client');
     }
   };
 

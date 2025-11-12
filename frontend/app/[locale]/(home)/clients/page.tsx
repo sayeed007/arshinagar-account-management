@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { clientApi, Client } from '@/lib/api';
 import { getErrorMessage } from '@/lib/types';
 import { Modal, ModalContent, ModalFooter } from '@/components/ui/modal';
+import { showSuccess, showError } from '@/lib/toast';
 
 export default function ClientsPage() {
   const [clients, setClients] = useState<Client[]>([]);
@@ -46,7 +47,7 @@ export default function ClientsPage() {
       }
     } catch (error: any) {
       console.error('Failed to load clients:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load clients');
+      showError(error.response?.data?.error?.message || 'Failed to load clients');
     } finally {
       setLoading(false);
     }
@@ -104,12 +105,12 @@ export default function ClientsPage() {
       if (!data.notes) delete data.notes;
 
       await clientApi.create(data);
-      alert('Client created successfully!');
+      showSuccess('Client created successfully!');
       handleCloseModal();
       loadClients(); // Refresh the list
     } catch (error) {
       console.error('Failed to create client:', error);
-      alert(getErrorMessage(error));
+      showError(getErrorMessage(error));
     } finally {
       setCreating(false);
     }
