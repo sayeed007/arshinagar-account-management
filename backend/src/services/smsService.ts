@@ -106,7 +106,7 @@ class SMSService {
       await smsLog.save();
 
       return { success: true, data: response.data, log: smsLog };
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Update log with failure
       smsLog.status = 'failed';
       smsLog.errorMessage = error.message;
@@ -178,7 +178,7 @@ class SMSService {
           sentBy: options.sentBy,
         });
         results.push({ phone, success: true, result });
-      } catch (error: any) {
+      } catch (error: unknown) {
         errors.push({ phone, success: false, error: error.message });
       }
     }

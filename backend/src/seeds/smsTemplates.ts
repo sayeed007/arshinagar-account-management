@@ -73,7 +73,7 @@ async function seedSMSTemplates() {
 
     console.log('SMS templates seeded successfully');
     process.exit(0);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error seeding SMS templates:', error.message);
     process.exit(1);
   }

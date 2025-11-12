@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { Error as MongooseError } from 'mongoose';
 import { ErrorCode } from '../types';
 import { logger } from '../utils/logger';
+import { isMongoDBDuplicateError } from '../utils/typeGuards';
 
 /**
  * Custom API Error Class
@@ -48,7 +49,7 @@ const handleValidationError = (error: MongooseError.ValidationError) => {
 /**
  * Handle Mongoose Duplicate Key Errors
  */
-const handleDuplicateKeyError = (error: any) => {
+const handleDuplicateKeyError = (error: { code: number; keyValue: Record<string, unknown> }) => {
   const field = Object.keys(error.keyValue)[0];
   const value = error.keyValue[field];
 
@@ -96,7 +97,7 @@ export const errorHandler = (
     apiError = error;
   } else if (error.name === 'ValidationError') {
     apiError = handleValidationError(error);
-  } else if (error.code === 11000) {
+  } else if (isMongoDBDuplicateError(error)) {
     apiError = handleDuplicateKeyError(error);
   } else if (error.name === 'CastError') {
     apiError = handleCastError(error);

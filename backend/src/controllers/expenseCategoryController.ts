@@ -47,7 +47,7 @@ export const getAllCategories = async (req: Request, res: Response): Promise<voi
         totalPages: Math.ceil(total / limitNum),
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error in getAllCategories:', error);
     res.status(500).json({
       success: false,
@@ -84,7 +84,7 @@ export const getCategoryById = async (req: Request, res: Response): Promise<void
       success: true,
       data: category,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error in getCategoryById:', error);
     res.status(500).json({
       success: false,
@@ -127,7 +127,7 @@ export const createCategory = async (req: Request, res: Response): Promise<void>
       data: category,
       message: 'Expense category created successfully',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error in createCategory:', error);
     res.status(500).json({
       success: false,
@@ -186,7 +186,7 @@ export const updateCategory = async (req: Request, res: Response): Promise<void>
       data: category,
       message: 'Expense category updated successfully',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error in updateCategory:', error);
     res.status(500).json({
       success: false,
@@ -223,7 +223,7 @@ export const deleteCategory = async (req: Request, res: Response): Promise<void>
       success: true,
       message: 'Expense category deleted successfully',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error in deleteCategory:', error);
     res.status(500).json({
       success: false,

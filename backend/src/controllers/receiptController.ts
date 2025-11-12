@@ -248,7 +248,7 @@ export const approveReceipt = async (req: Request, res: Response, next: NextFunc
             }
           );
         }
-      } catch (smsError: any) {
+      } catch (smsError: unknown) {
         // Log error but don't fail the approval
         console.error('Failed to send payment confirmation SMS:', smsError.message);
       }

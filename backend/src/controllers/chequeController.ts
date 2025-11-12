@@ -68,7 +68,7 @@ export const getAllCheques = async (req: Request, res: Response) => {
         totalPages: Math.ceil(total / limit),
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Get all cheques error:', error);
     res.status(500).json({
       success: false,
@@ -111,7 +111,7 @@ export const getChequeById = async (req: Request, res: Response) => {
       success: true,
       data: cheque,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Get cheque by ID error:', error);
     res.status(500).json({
       success: false,
@@ -195,7 +195,7 @@ export const createCheque = async (req: AuthRequest, res: Response) => {
       data: populatedCheque,
       message: 'Cheque created successfully',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Create cheque error:', error);
     res.status(500).json({
       success: false,
@@ -283,7 +283,7 @@ export const updateCheque = async (req: AuthRequest, res: Response) => {
       data: populatedCheque,
       message: 'Cheque updated successfully',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Update cheque error:', error);
     res.status(500).json({
       success: false,
@@ -350,7 +350,7 @@ export const markChequeAsCleared = async (req: AuthRequest, res: Response) => {
       data: populatedCheque,
       message: 'Cheque marked as cleared successfully',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Mark cheque as cleared error:', error);
     res.status(500).json({
       success: false,
@@ -431,7 +431,7 @@ export const markChequeAsBounced = async (req: AuthRequest, res: Response) => {
       data: populatedCheque,
       message: 'Cheque marked as bounced successfully',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Mark cheque as bounced error:', error);
     res.status(500).json({
       success: false,
@@ -508,7 +508,7 @@ export const cancelCheque = async (req: AuthRequest, res: Response) => {
       data: populatedCheque,
       message: 'Cheque cancelled successfully',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Cancel cheque error:', error);
     res.status(500).json({
       success: false,
@@ -558,7 +558,7 @@ export const deleteCheque = async (req: Request, res: Response) => {
       success: true,
       message: 'Cheque deleted successfully',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Delete cheque error:', error);
     res.status(500).json({
       success: false,
@@ -593,7 +593,7 @@ export const getDueCheques = async (req: Request, res: Response) => {
       success: true,
       data: cheques,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Get due cheques error:', error);
     res.status(500).json({
       success: false,
@@ -633,7 +633,7 @@ export const getUpcomingCheques = async (req: Request, res: Response) => {
       success: true,
       data: cheques,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Get upcoming cheques error:', error);
     res.status(500).json({
       success: false,
@@ -720,7 +720,7 @@ export const getChequeStats = async (req: Request, res: Response) => {
         statsByStatus,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Get cheque stats error:', error);
     res.status(500).json({
       success: false,

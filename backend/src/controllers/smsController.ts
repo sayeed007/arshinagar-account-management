@@ -34,7 +34,7 @@ export const getSMSTemplates = async (req: Request, res: Response) => {
       success: true,
       data: templates,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
       error: {
@@ -66,7 +66,7 @@ export const getSMSTemplateById = async (req: Request, res: Response) => {
       success: true,
       data: template,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
       error: {
@@ -90,7 +90,7 @@ export const createSMSTemplate = async (req: Request, res: Response) => {
       data: template,
       message: 'SMS template created successfully',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error.code === 11000) {
       return res.status(400).json({
         success: false,
@@ -136,7 +136,7 @@ export const updateSMSTemplate = async (req: Request, res: Response) => {
       data: template,
       message: 'SMS template updated successfully',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
       error: {
@@ -168,7 +168,7 @@ export const deleteSMSTemplate = async (req: Request, res: Response) => {
       success: true,
       message: 'SMS template deleted successfully',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
       error: {
@@ -204,7 +204,7 @@ export const getSMSLogs = async (req: Request, res: Response) => {
       data: result.logs,
       pagination: result.pagination,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
       error: {
@@ -232,7 +232,7 @@ export const getSMSStats = async (req: Request, res: Response) => {
       success: true,
       data: stats,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
       error: {
@@ -272,7 +272,7 @@ export const sendTestSMS = async (req: AuthRequest, res: Response) => {
       data: result,
       message: 'Test SMS sent successfully',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
       error: {
@@ -340,7 +340,7 @@ export const sendBulkSMS = async (req: AuthRequest, res: Response) => {
       data: result,
       message: `Bulk SMS sent to ${result.sent} recipients`,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
       error: {
@@ -380,7 +380,7 @@ export const previewBulkSMSRecipients = async (req: Request, res: Response) => {
         recipients: clients,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
       error: {

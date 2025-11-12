@@ -59,7 +59,7 @@ export const getAllCancellations = async (req: Request, res: Response) => {
         totalPages: Math.ceil(total / limit),
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Get all cancellations error:', error);
     res.status(500).json({
       success: false,
@@ -114,7 +114,7 @@ export const getCancellationById = async (req: Request, res: Response) => {
         refunds,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Get cancellation by ID error:', error);
     res.status(500).json({
       success: false,
@@ -226,7 +226,7 @@ export const createCancellation = async (req: AuthRequest, res: Response) => {
       data: populatedCancellation,
       message: 'Cancellation created successfully',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Create cancellation error:', error);
     res.status(500).json({
       success: false,
@@ -295,7 +295,7 @@ export const updateCancellation = async (req: AuthRequest, res: Response) => {
       data: populatedCancellation,
       message: 'Cancellation updated successfully',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Update cancellation error:', error);
     res.status(500).json({
       success: false,
@@ -365,7 +365,7 @@ export const approveCancellation = async (req: AuthRequest, res: Response) => {
       data: populatedCancellation,
       message: 'Cancellation approved successfully',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Approve cancellation error:', error);
     res.status(500).json({
       success: false,
@@ -450,7 +450,7 @@ export const rejectCancellation = async (req: AuthRequest, res: Response) => {
       data: populatedCancellation,
       message: 'Cancellation rejected successfully',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Reject cancellation error:', error);
     res.status(500).json({
       success: false,
@@ -507,7 +507,7 @@ export const deleteCancellation = async (req: Request, res: Response) => {
       success: true,
       message: 'Cancellation deleted successfully',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Delete cancellation error:', error);
     res.status(500).json({
       success: false,
@@ -565,7 +565,7 @@ export const getCancellationStats = async (req: Request, res: Response) => {
         totalOfficeCharge: 0,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Get cancellation stats error:', error);
     res.status(500).json({
       success: false,

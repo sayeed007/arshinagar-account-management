@@ -103,13 +103,13 @@ class CronService {
           );
 
           console.log(`[CRON] Sent installment reminder to ${client.name} (${client.phone})`);
-        } catch (error: any) {
+        } catch (error: unknown) {
           console.error(`[CRON] Failed to send installment reminder:`, error.message);
         }
       }
 
       console.log('[CRON] Installment reminders completed');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('[CRON] Error in installment reminders:', error.message);
     }
   }
@@ -198,13 +198,13 @@ class CronService {
             { _id: { $in: installments.map((i: any) => i._id) } },
             { $set: { status: 'overdue' } }
           );
-        } catch (error: any) {
+        } catch (error: unknown) {
           console.error(`[CRON] Failed to send missed installment alert:`, error.message);
         }
       }
 
       console.log('[CRON] Missed installment alerts completed');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('[CRON] Error in missed installment alerts:', error.message);
     }
   }
@@ -260,13 +260,13 @@ class CronService {
 
           // Update cheque status to "Due Today"
           await Cheque.findByIdAndUpdate(cheque._id, { status: 'Due Today' });
-        } catch (error: any) {
+        } catch (error: unknown) {
           console.error(`[CRON] Failed to send cheque due reminder:`, error.message);
         }
       }
 
       console.log('[CRON] Cheque due reminders completed');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('[CRON] Error in cheque due reminders:', error.message);
     }
   }
@@ -293,7 +293,7 @@ class CronService {
       console.log(`[CRON] Marked ${overdueResult.modifiedCount} cheques as overdue`);
 
       console.log('[CRON] Cheque status update completed');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('[CRON] Error updating cheque statuses:', error.message);
     }
   }

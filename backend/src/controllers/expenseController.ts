@@ -63,7 +63,7 @@ export const getAllExpenses = async (req: Request, res: Response): Promise<void>
         totalPages: Math.ceil(total / limitNum),
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error in getAllExpenses:', error);
     res.status(500).json({
       success: false,
@@ -100,7 +100,7 @@ export const getExpenseById = async (req: Request, res: Response): Promise<void>
       success: true,
       data: expense,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error in getExpenseById:', error);
     res.status(500).json({
       success: false,
@@ -165,7 +165,7 @@ export const createExpense = async (req: Request, res: Response): Promise<void> 
       data: expense,
       message: 'Expense created successfully',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error in createExpense:', error);
     res.status(500).json({
       success: false,
@@ -240,7 +240,7 @@ export const updateExpense = async (req: Request, res: Response): Promise<void> 
       data: expense,
       message: 'Expense updated successfully',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error in updateExpense:', error);
     res.status(500).json({
       success: false,
@@ -294,7 +294,7 @@ export const submitExpense = async (req: Request, res: Response): Promise<void> 
       data: expense,
       message: 'Expense submitted for approval',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error in submitExpense:', error);
     res.status(500).json({
       success: false,
@@ -398,7 +398,7 @@ export const approveExpense = async (req: Request, res: Response): Promise<void>
       data: expense,
       message: 'Expense approved successfully',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error in approveExpense:', error);
     res.status(500).json({
       success: false,
@@ -462,7 +462,7 @@ export const rejectExpense = async (req: Request, res: Response): Promise<void> 
       data: expense,
       message: 'Expense rejected',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error in rejectExpense:', error);
     res.status(500).json({
       success: false,
@@ -504,7 +504,7 @@ export const getApprovalQueue = async (req: Request, res: Response): Promise<voi
       success: true,
       data: expenses,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error in getApprovalQueue:', error);
     res.status(500).json({
       success: false,
@@ -553,7 +553,7 @@ export const deleteExpense = async (req: Request, res: Response): Promise<void> 
       success: true,
       message: 'Expense deleted successfully',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error in deleteExpense:', error);
     res.status(500).json({
       success: false,
@@ -636,7 +636,7 @@ export const getExpenseStats = async (req: Request, res: Response): Promise<void
         categoryBreakdown: categoryStats,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error in getExpenseStats:', error);
     res.status(500).json({
       success: false,

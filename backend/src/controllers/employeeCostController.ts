@@ -41,7 +41,7 @@ export const getAllEmployeeCosts = async (req: Request, res: Response): Promise<
         totalPages: Math.ceil(total / limitNum),
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error in getAllEmployeeCosts:', error);
     res.status(500).json({
       success: false,
@@ -77,7 +77,7 @@ export const getEmployeeCostById = async (req: Request, res: Response): Promise<
       success: true,
       data: cost,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error in getEmployeeCostById:', error);
     res.status(500).json({
       success: false,
@@ -172,7 +172,7 @@ export const createEmployeeCost = async (req: Request, res: Response): Promise<v
       data: cost,
       message: 'Employee cost entry created successfully',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error in createEmployeeCost:', error);
     res.status(500).json({
       success: false,
@@ -243,7 +243,7 @@ export const updateEmployeeCost = async (req: Request, res: Response): Promise<v
       data: cost,
       message: 'Employee cost updated successfully',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error in updateEmployeeCost:', error);
     res.status(500).json({
       success: false,
@@ -280,7 +280,7 @@ export const deleteEmployeeCost = async (req: Request, res: Response): Promise<v
       success: true,
       message: 'Employee cost deleted successfully',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error in deleteEmployeeCost:', error);
     res.status(500).json({
       success: false,
@@ -352,7 +352,7 @@ export const getPayrollSummary = async (req: Request, res: Response): Promise<vo
         totalNetPay: 0,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error in getPayrollSummary:', error);
     res.status(500).json({
       success: false,
@@ -419,7 +419,7 @@ export const getEmployeeCostStats = async (req: Request, res: Response): Promise
         },
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error in getEmployeeCostStats:', error);
     res.status(500).json({
       success: false,

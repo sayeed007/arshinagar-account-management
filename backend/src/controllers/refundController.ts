@@ -66,7 +66,7 @@ export const getAllRefunds = async (req: Request, res: Response) => {
         totalPages: Math.ceil(total / limit),
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Get all refunds error:', error);
     res.status(500).json({
       success: false,
@@ -115,7 +115,7 @@ export const getRefundById = async (req: Request, res: Response) => {
       success: true,
       data: refund,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Get refund by ID error:', error);
     res.status(500).json({
       success: false,
@@ -221,7 +221,7 @@ export const createRefundSchedule = async (req: AuthRequest, res: Response) => {
       data: refunds,
       message: `${numberOfInstallments} refund installments created successfully`,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Create refund schedule error:', error);
     res.status(500).json({
       success: false,
@@ -275,7 +275,7 @@ export const submitRefund = async (req: AuthRequest, res: Response) => {
       data: populatedRefund,
       message: 'Refund submitted for approval',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Submit refund error:', error);
     res.status(500).json({
       success: false,
@@ -371,7 +371,7 @@ export const approveRefund = async (req: AuthRequest, res: Response) => {
       data: populatedRefund,
       message: 'Refund approved successfully',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Approve refund error:', error);
     res.status(500).json({
       success: false,
@@ -449,7 +449,7 @@ export const rejectRefund = async (req: AuthRequest, res: Response) => {
       data: populatedRefund,
       message: 'Refund rejected',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Reject refund error:', error);
     res.status(500).json({
       success: false,
@@ -514,7 +514,7 @@ export const getApprovalQueue = async (req: AuthRequest, res: Response) => {
       success: true,
       data: refunds,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Get approval queue error:', error);
     res.status(500).json({
       success: false,
@@ -588,7 +588,7 @@ export const markRefundAsPaid = async (req: AuthRequest, res: Response) => {
       data: populatedRefund,
       message: 'Refund marked as paid successfully',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Mark refund as paid error:', error);
     res.status(500).json({
       success: false,
@@ -661,7 +661,7 @@ export const getRefundStats = async (req: Request, res: Response) => {
         pendingApprovals: 0,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Get refund stats error:', error);
     res.status(500).json({
       success: false,

@@ -38,7 +38,7 @@ export const getAllCashAccounts = async (req: Request, res: Response) => {
         totalPages: Math.ceil(total / limit),
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Get all cash accounts error:', error);
     res.status(500).json({
       success: false,
@@ -73,7 +73,7 @@ export const getCashAccountById = async (req: Request, res: Response) => {
       success: true,
       data: cashAccount,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Get cash account by ID error:', error);
     res.status(500).json({
       success: false,
@@ -135,7 +135,7 @@ export const createCashAccount = async (req: AuthRequest, res: Response) => {
       data: populatedCashAccount,
       message: 'Cash account created successfully',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Create cash account error:', error);
     res.status(500).json({
       success: false,
@@ -200,7 +200,7 @@ export const updateCashAccount = async (req: AuthRequest, res: Response) => {
       data: populatedCashAccount,
       message: 'Cash account updated successfully',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Update cash account error:', error);
     res.status(500).json({
       success: false,
@@ -240,7 +240,7 @@ export const deleteCashAccount = async (req: Request, res: Response) => {
       success: true,
       message: 'Cash account deleted successfully',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Delete cash account error:', error);
     res.status(500).json({
       success: false,
@@ -283,7 +283,7 @@ export const getCashAccountStats = async (req: Request, res: Response) => {
               totalBalance: 0,
             },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Get cash account stats error:', error);
     res.status(500).json({
       success: false,

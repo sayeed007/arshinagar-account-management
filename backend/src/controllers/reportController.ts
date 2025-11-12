@@ -31,7 +31,7 @@ export const getDayBook = async (req: Request, res: Response) => {
       success: true,
       data: report,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
       error: {
@@ -68,7 +68,7 @@ export const getCashBook = async (req: Request, res: Response) => {
       success: true,
       data: report,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
       error: {
@@ -106,7 +106,7 @@ export const getBankBook = async (req: Request, res: Response) => {
       success: true,
       data: report,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
       error: {
@@ -143,7 +143,7 @@ export const getReceiptPaymentRegister = async (req: Request, res: Response) => 
       success: true,
       data: report,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
       error: {
@@ -172,7 +172,7 @@ export const getCustomerStatement = async (req: Request, res: Response) => {
       success: true,
       data: report,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
       error: {
@@ -194,7 +194,7 @@ export const getAgingReport = async (req: Request, res: Response) => {
       success: true,
       data: report,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
       error: {
@@ -221,7 +221,7 @@ export const getStageWiseCollectionReport = async (req: Request, res: Response) 
       success: true,
       data: report,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
       error: {
@@ -258,7 +258,7 @@ export const getExpenseByCategoryReport = async (req: Request, res: Response) =>
       success: true,
       data: report,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
       error: {
@@ -295,7 +295,7 @@ export const getEmployeeCostSummaryReport = async (req: Request, res: Response) 
       success: true,
       data: report,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
       error: {
@@ -349,7 +349,7 @@ export const getDashboardStats = async (req: Request, res: Response) => {
         totalExpenses,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
       error: {

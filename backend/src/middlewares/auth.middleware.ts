@@ -2,6 +2,7 @@ import { Response, NextFunction } from 'express';
 import { verifyAccessToken } from '../config/jwt';
 import { AuthRequest, ErrorCode } from '../types';
 import { logger } from '../utils/logger';
+import { isTokenExpiredError, isJWTError, isError } from '../utils/typeGuards';
 
 /**
  * Authentication Middleware
@@ -56,9 +57,9 @@ export const authenticate = async (
         'unknown';
 
       next();
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Token verification failed
-      if (error.name === 'TokenExpiredError') {
+      if (isTokenExpiredError(error)) {
         res.status(401).json({
           success: false,
           error: {
@@ -69,7 +70,7 @@ export const authenticate = async (
         return;
       }
 
-      if (error.name === 'JsonWebTokenError') {
+      if (isJWTError(error)) {
         res.status(401).json({
           success: false,
           error: {

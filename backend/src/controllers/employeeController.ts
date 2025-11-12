@@ -49,7 +49,7 @@ export const getAllEmployees = async (req: Request, res: Response): Promise<void
         totalPages: Math.ceil(total / limitNum),
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error in getAllEmployees:', error);
     res.status(500).json({
       success: false,
@@ -83,7 +83,7 @@ export const getEmployeeById = async (req: Request, res: Response): Promise<void
       success: true,
       data: employee,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error in getEmployeeById:', error);
     res.status(500).json({
       success: false,
@@ -143,7 +143,7 @@ export const createEmployee = async (req: Request, res: Response): Promise<void>
       data: employee,
       message: 'Employee created successfully',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error in createEmployee:', error);
     res.status(500).json({
       success: false,
@@ -222,7 +222,7 @@ export const updateEmployee = async (req: Request, res: Response): Promise<void>
       data: employee,
       message: 'Employee updated successfully',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error in updateEmployee:', error);
     res.status(500).json({
       success: false,
@@ -259,7 +259,7 @@ export const deleteEmployee = async (req: Request, res: Response): Promise<void>
       success: true,
       message: 'Employee deleted successfully',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error in deleteEmployee:', error);
     res.status(500).json({
       success: false,
@@ -294,7 +294,7 @@ export const getEmployeeCosts = async (req: Request, res: Response): Promise<voi
       success: true,
       data: costs,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error in getEmployeeCosts:', error);
     res.status(500).json({
       success: false,
@@ -347,7 +347,7 @@ export const getEmployeeStats = async (req: Request, res: Response): Promise<voi
           currentMonthPayroll.length > 0 ? currentMonthPayroll[0].totalPayroll : 0,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error in getEmployeeStats:', error);
     res.status(500).json({
       success: false,

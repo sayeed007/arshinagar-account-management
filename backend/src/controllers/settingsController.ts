@@ -22,7 +22,7 @@ export const getAllSettings = async (req: Request, res: Response) => {
       success: true,
       data: settings,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
       error: {
@@ -55,7 +55,7 @@ export const getSettingByKey = async (req: Request, res: Response) => {
       success: true,
       data: setting,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
       error: {
@@ -94,7 +94,7 @@ export const upsertSetting = async (req: Request, res: Response) => {
       data: setting,
       message: 'Setting saved successfully',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
       error: {
@@ -153,7 +153,7 @@ export const updateSettingValue = async (req: Request, res: Response) => {
       data: setting,
       message: 'Setting updated successfully',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
       error: {
@@ -199,7 +199,7 @@ export const deleteSetting = async (req: Request, res: Response) => {
       success: true,
       message: 'Setting deleted successfully',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
       error: {
@@ -224,7 +224,7 @@ export const getLockDate = async (req: Request, res: Response) => {
         isActive: setting?.isActive || false,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
       error: {
@@ -270,7 +270,7 @@ export const setLockDate = async (req: Request, res: Response) => {
       data: setting,
       message: 'Lock date set successfully',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
       error: {

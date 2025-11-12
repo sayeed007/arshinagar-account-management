@@ -12,6 +12,7 @@ import {
 import { generateTokens, verifyRefreshToken, getTokenExpiryTime } from '../config/jwt';
 import { ApiError } from '../middlewares/error.middleware';
 import { logger } from '../utils/logger';
+import { isTokenExpiredError } from '../utils/typeGuards';
 
 /**
  * Login Controller
@@ -194,8 +195,8 @@ export const refreshToken = async (
     let decoded;
     try {
       decoded = verifyRefreshToken(refreshToken);
-    } catch (error: any) {
-      if (error.name === 'TokenExpiredError') {
+    } catch (error: unknown) {
+      if (isTokenExpiredError(error)) {
         throw new ApiError(
           401,
           ErrorCode.TOKEN_EXPIRED,

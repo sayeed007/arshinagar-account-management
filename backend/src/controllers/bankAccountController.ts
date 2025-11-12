@@ -42,7 +42,7 @@ export const getAllBankAccounts = async (req: Request, res: Response) => {
         totalPages: Math.ceil(total / limit),
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Get all bank accounts error:', error);
     res.status(500).json({
       success: false,
@@ -77,7 +77,7 @@ export const getBankAccountById = async (req: Request, res: Response) => {
       success: true,
       data: bankAccount,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Get bank account by ID error:', error);
     res.status(500).json({
       success: false,
@@ -150,7 +150,7 @@ export const createBankAccount = async (req: AuthRequest, res: Response) => {
       data: populatedBankAccount,
       message: 'Bank account created successfully',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Create bank account error:', error);
     res.status(500).json({
       success: false,
@@ -210,7 +210,7 @@ export const updateBankAccount = async (req: AuthRequest, res: Response) => {
       data: populatedBankAccount,
       message: 'Bank account updated successfully',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Update bank account error:', error);
     res.status(500).json({
       success: false,
@@ -250,7 +250,7 @@ export const deleteBankAccount = async (req: Request, res: Response) => {
       success: true,
       message: 'Bank account deleted successfully',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Delete bank account error:', error);
     res.status(500).json({
       success: false,
@@ -307,7 +307,7 @@ export const getBankAccountStats = async (req: Request, res: Response) => {
         balanceByType,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Get bank account stats error:', error);
     res.status(500).json({
       success: false,

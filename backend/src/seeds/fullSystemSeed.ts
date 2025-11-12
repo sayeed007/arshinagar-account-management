@@ -971,7 +971,7 @@ async function main() {
     console.log('   HOF: hof@arshinagar.com / Hof@1234');
 
     process.exit(0);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Error seeding database:', error);
     process.exit(1);
   }
