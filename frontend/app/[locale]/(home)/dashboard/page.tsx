@@ -53,15 +53,42 @@ export default function DashboardPage() {
         employeeStats,
         currentMonthCostsResponse,
       ] = await Promise.all([
-        clientApi.getStats(),
-        landApi.rsNumbers.getAll({ page: 1, limit: 1000 }),
-        landApi.getAllPlots({ page: 1, limit: 1000 }),
-        salesApi.getStats().catch(() => ({ totalSales: 0, activeSales: 0, totalAmount: 0, totalPaid: 0, totalDue: 0 })),
-        receiptsApi.getAll({ page: 1, limit: 1, approvalStatus: 'Pending Accounts' as any }).catch(() => ({ pagination: { total: 0 } })),
-        expensesApi.getStats().catch(() => ({ totalExpenses: 0, totalAmount: 0 })),
-        expensesApi.getApprovalQueue().catch(() => []),
-        employeesApi.getStats().catch(() => ({ totalEmployees: 0 })),
-        employeeCostsApi.getAll({ page: 1, limit: 1000, month: currentMonth, year: currentYear }).catch(() => ({ data: [] })),
+        clientApi.getStats().catch((err) => {
+          console.error('Failed to load client stats:', err);
+          return { totalClients: 0, clientsThisMonth: 0 };
+        }),
+        landApi.rsNumbers.getAll({ page: 1, limit: 1000 }).catch((err) => {
+          console.error('Failed to load RS numbers:', err);
+          return { data: [] };
+        }),
+        landApi.getAllPlots({ page: 1, limit: 1000 }).catch((err) => {
+          console.error('Failed to load plots:', err);
+          return { data: [] };
+        }),
+        salesApi.getStats().catch((err) => {
+          console.error('Failed to load sales stats:', err);
+          return { totalSales: 0, activeSales: 0, totalAmount: 0, totalPaid: 0, totalDue: 0 };
+        }),
+        receiptsApi.getAll({ page: 1, limit: 1, approvalStatus: 'Pending Accounts' as any }).catch((err) => {
+          console.error('Failed to load receipts:', err);
+          return { pagination: { total: 0 } };
+        }),
+        expensesApi.getStats().catch((err) => {
+          console.error('Failed to load expense stats:', err);
+          return { totalExpenses: 0, totalAmount: 0 };
+        }),
+        expensesApi.getApprovalQueue().catch((err) => {
+          console.error('Failed to load pending expenses:', err);
+          return [];
+        }),
+        employeesApi.getStats().catch((err) => {
+          console.error('Failed to load employee stats:', err);
+          return { totalEmployees: 0 };
+        }),
+        employeeCostsApi.getAll({ page: 1, limit: 1000, month: currentMonth, year: currentYear }).catch((err) => {
+          console.error('Failed to load employee costs:', err);
+          return { data: [] };
+        }),
       ]);
 
       const rsNumbers = rsNumbersResponse.data || [];
@@ -336,50 +363,6 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* System Info */}
-      <div className="mt-8 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
-        <div className="flex">
-          <div className="flex-shrink-0">
-            <svg
-              className="h-5 w-5 text-green-400"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </div>
-          <div className="ml-3">
-            <h3 className="text-sm font-medium text-green-800 dark:text-green-400">
-              Phase 4: Expenses & Payroll Management Complete ✅
-            </h3>
-            <div className="mt-2 text-sm text-green-700 dark:text-green-300">
-              <p>
-                All core phases complete! Active features:
-              </p>
-              <ul className="list-disc list-inside mt-2 space-y-1">
-                <li>Role-based authentication & user management</li>
-                <li>Client & land inventory (RS Numbers, Plots)</li>
-                <li>Multi-stage sales tracking (Booking → Installments → Registration → Handover)</li>
-                <li>Payment receipt management with approval workflow</li>
-                <li>Expense tracking with approval workflow (Draft → Accounts → HOF → Approved)</li>
-                <li>Employee management with payroll tracking</li>
-                <li>Monthly payroll summary with breakdown by cost type</li>
-                <li>Expense categories for organized expense tracking</li>
-                <li>Automatic ledger posting (double-entry bookkeeping)</li>
-                <li>Installment scheduling and overdue tracking</li>
-                <li>Comprehensive audit logging & reporting</li>
-              </ul>
-              <p className="mt-2 font-semibold">
-                System is production-ready for complete land sales, expense, and payroll management!
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
