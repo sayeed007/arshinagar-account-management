@@ -105,15 +105,7 @@ export default function LandInventoryPage() {
               {loading ? '--' : stats?.totalPlots || 0}
             </div>
             <p className="text-xs text-muted-foreground">
-              {loading ? (
-                t('stats.allPlots')
-              ) : (
-                <>
-                  <span className="text-green-600">{stats?.availablePlots || 0} available</span>
-                  {' • '}
-                  <span className="text-red-600">{stats?.soldPlots || 0} sold</span>
-                </>
-              )}
+              {t('stats.allPlots')}
             </p>
           </CardContent>
         </Card>
@@ -127,10 +119,10 @@ export default function LandInventoryPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {loading ? '--' : stats?.availablePlots || 0}
+              {loading ? '--' : stats?.availableArea ? formatArea(stats.availableArea) : '0.00'}
             </div>
             <p className="text-xs text-muted-foreground">
-              {loading ? 'plots' : `${stats?.availableArea ? formatArea(stats.availableArea) : '0.00'} acres`}
+              {loading ? t('stats.inAcres') : `${stats?.availablePlots || 0} plots • ${t('stats.inAcres')}`}
             </p>
           </CardContent>
         </Card>
@@ -144,10 +136,10 @@ export default function LandInventoryPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {loading ? '--' : stats?.soldPlots || 0}
+              {loading ? '--' : stats?.soldArea ? formatArea(stats.soldArea) : '0.00'}
             </div>
             <p className="text-xs text-muted-foreground">
-              {loading ? 'plots' : `${stats?.soldArea ? formatArea(stats.soldArea) : '0.00'} acres`}
+              {loading ? t('stats.inAcres') : `${stats?.soldPlots || 0} plots • ${t('stats.inAcres')}`}
             </p>
           </CardContent>
         </Card>
