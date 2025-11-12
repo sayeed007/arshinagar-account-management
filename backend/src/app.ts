@@ -4,12 +4,14 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import mongoSanitize from 'express-mongo-sanitize';
+import * as swaggerUi from 'swagger-ui-express';
 import dotenv from 'dotenv';
 import { connectDB } from './config/db';
 import { errorHandler, notFoundHandler } from './middlewares/error.middleware';
 import { sanitizeInput } from './middlewares/validation.middleware';
 import { logger } from './utils/logger';
 import cronService from './services/cronService';
+import { swaggerSpec } from './config/swagger';
 
 // Import routes
 import authRoutes from './routes/auth.routes';
@@ -120,6 +122,23 @@ app.get('/health', (req, res) => {
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development',
   });
+});
+
+// Swagger API Documentation
+app.use(
+  '/api/docs',
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec, {
+    customCss: '.swagger-ui .topbar { display: none }',
+    customSiteTitle: 'Arshinagar API Documentation',
+    customfavIcon: '/favicon.ico',
+  })
+);
+
+// Swagger JSON endpoint (for importing into tools like Postman)
+app.get('/api/docs.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerSpec);
 });
 
 // API Routes
