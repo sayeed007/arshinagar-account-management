@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { receiptsApi, Receipt, Client, Sale } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
+import { getErrorMessage } from '@/lib/types';
 
 export default function ApprovalQueuePage() {
   const [receipts, setReceipts] = useState<Receipt[]>([]);
@@ -18,9 +19,9 @@ export default function ApprovalQueuePage() {
       setLoading(true);
       const data = await receiptsApi.getApprovalQueue();
       setReceipts(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to load approval queue:', error);
-      showError(error.response?.data?.error?.message || 'Failed to load approval queue');
+      showError(getErrorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -34,9 +35,9 @@ export default function ApprovalQueuePage() {
       await receiptsApi.approve(id, remarks || undefined);
       showSuccess('Receipt approved successfully');
       loadQueue();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to approve receipt:', error);
-      showError(error.response?.data?.error?.message || 'Failed to approve receipt');
+      showError(getErrorMessage(error));
     }
   };
 
@@ -51,9 +52,9 @@ export default function ApprovalQueuePage() {
       await receiptsApi.reject(id, remarks);
       showSuccess('Receipt rejected');
       loadQueue();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to reject receipt:', error);
-      showError(error.response?.data?.error?.message || 'Failed to reject receipt');
+      showError(getErrorMessage(error));
     }
   };
 

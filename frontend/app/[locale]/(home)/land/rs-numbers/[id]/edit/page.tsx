@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { landApi, RSNumber, UnitType } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
+import { getErrorMessage } from '@/lib/types';
 
 export default function EditRSNumberPage() {
   const params = useParams();
@@ -40,9 +41,9 @@ export default function EditRSNumberPage() {
         unitType: data.unitType || 'Katha',
         description: data.description || '',
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to load RS Number:', error);
-      showError(error.response?.data?.error?.message || 'Failed to load RS Number');
+      showError(getErrorMessage(error));
       router.push('/land/rs-numbers');
     } finally {
       setDataLoading(false);
@@ -101,9 +102,9 @@ export default function EditRSNumberPage() {
       await landApi.rsNumbers.update(params.id as string, data);
       showSuccess('RS Number updated successfully!');
       router.push(`/land/rs-numbers/${params.id}`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to update RS Number:', error);
-      const errorMessage = error.response?.data?.error?.message || 'Failed to update RS Number';
+      const errorMessage = getErrorMessage(error);
       const details = error.response?.data?.error?.details;
 
       if (details) {

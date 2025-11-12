@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { cancellationsApi, refundsApi, Cancellation, CancellationStatus, Refund, Sale, Client, Land, RSNumber } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
+import { getErrorMessage } from '@/lib/types';
 
 interface CancellationWithRefunds extends Cancellation {
   refunds: Refund[];
@@ -28,9 +29,9 @@ export default function CancellationDetailPage({ params }: { params: { id: strin
       setLoading(true);
       const response = await cancellationsApi.getById(params.id);
       setCancellation(response.data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to load cancellation:', error);
-      showError(error.response?.data?.error?.message || 'Failed to load cancellation');
+      showError(getErrorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -44,9 +45,9 @@ export default function CancellationDetailPage({ params }: { params: { id: strin
       setShowApproveModal(false);
       setActionNotes('');
       loadCancellation();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to approve cancellation:', error);
-      showError(error.response?.data?.error?.message || 'Failed to approve cancellation');
+      showError(getErrorMessage(error));
     } finally {
       setActionLoading(false);
     }
@@ -65,9 +66,9 @@ export default function CancellationDetailPage({ params }: { params: { id: strin
       setShowRejectModal(false);
       setActionNotes('');
       loadCancellation();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to reject cancellation:', error);
-      showError(error.response?.data?.error?.message || 'Failed to reject cancellation');
+      showError(getErrorMessage(error));
     } finally {
       setActionLoading(false);
     }

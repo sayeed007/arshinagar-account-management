@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { landApi, Plot, RSNumber } from '@/lib/api'
 import { showSuccess, showError } from '@/lib/toast';
+import { getErrorMessage } from '@/lib/types';
 import { Grid3x3, MapPin, User, Calendar, Search, Filter, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -64,9 +65,9 @@ export default function AllPlotsPage() {
       }
 
       setRSNumbers(rsMap)
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to load plots:', error)
-      showError(error.response?.data?.error?.message || 'Failed to load plots')
+      showError(getErrorMessage(error))
     } finally {
       setLoading(false)
     }

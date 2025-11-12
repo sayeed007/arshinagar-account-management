@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { salesApi, Sale, Client, Plot, RSNumber, SaleStageStatus, SaleStatus } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
+import { getErrorMessage } from '@/lib/types';
 
 export default function SaleDetailPage() {
   const params = useParams();
@@ -23,9 +24,9 @@ export default function SaleDetailPage() {
       setLoading(true);
       const data = await salesApi.getById(params.id as string);
       setSale(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to load sale:', error);
-      showError(error.response?.data?.error?.message || 'Failed to load sale');
+      showError(getErrorMessage(error));
       router.push('/sales');
     } finally {
       setLoading(false);

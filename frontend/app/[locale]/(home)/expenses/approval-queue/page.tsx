@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { expensesApi, Expense, ExpenseCategory } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
+import { getErrorMessage } from '@/lib/types';
 
 export default function ExpenseApprovalQueuePage() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -18,9 +19,9 @@ export default function ExpenseApprovalQueuePage() {
       setLoading(true);
       const data = await expensesApi.getApprovalQueue();
       setExpenses(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to load approval queue:', error);
-      showError(error.response?.data?.error?.message || 'Failed to load approval queue');
+      showError(getErrorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -34,9 +35,9 @@ export default function ExpenseApprovalQueuePage() {
       await expensesApi.approve(id, remarks || undefined);
       showSuccess('Expense approved successfully');
       loadQueue();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to approve expense:', error);
-      showError(error.response?.data?.error?.message || 'Failed to approve expense');
+      showError(getErrorMessage(error));
     }
   };
 
@@ -51,9 +52,9 @@ export default function ExpenseApprovalQueuePage() {
       await expensesApi.reject(id, remarks);
       showSuccess('Expense rejected');
       loadQueue();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to reject expense:', error);
-      showError(error.response?.data?.error?.message || 'Failed to reject expense');
+      showError(getErrorMessage(error));
     }
   };
 

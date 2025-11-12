@@ -129,7 +129,7 @@ export default function DashboardPage() {
         totalEmployees: employeeStats.totalEmployees || 0,
         currentMonthPayroll,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to load dashboard stats:', error);
     } finally {
       setLoading(false);

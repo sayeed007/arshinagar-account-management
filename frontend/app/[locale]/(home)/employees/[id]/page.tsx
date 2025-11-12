@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { employeesApi, Employee, EmployeeCost } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
+import { getErrorMessage } from '@/lib/types';
 
 export default function EmployeeDetailPage() {
   const params = useParams();
@@ -26,9 +27,9 @@ export default function EmployeeDetailPage() {
       setLoading(true);
       const data = await employeesApi.getById(params.id as string);
       setEmployee(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to load employee:', error);
-      showError(error.response?.data?.error?.message || 'Failed to load employee');
+      showError(getErrorMessage(error));
       router.push('/employees');
     } finally {
       setLoading(false);
@@ -40,7 +41,7 @@ export default function EmployeeDetailPage() {
       setLoadingCosts(true);
       const data = await employeesApi.getCosts(params.id as string);
       setCosts(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to load cost history:', error);
     } finally {
       setLoadingCosts(false);

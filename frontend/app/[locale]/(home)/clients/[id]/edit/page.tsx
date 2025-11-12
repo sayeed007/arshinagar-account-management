@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { clientApi, Client } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
+import { getErrorMessage } from '@/lib/types';
 
 export default function EditClientPage() {
   const params = useParams();
@@ -40,9 +41,9 @@ export default function EditClientPage() {
         nid: data.nid || '',
         notes: data.notes || '',
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to load client:', error);
-      showError(error.response?.data?.error?.message || 'Failed to load client');
+      showError(getErrorMessage(error));
       router.push('/clients');
     } finally {
       setDataLoading(false);
@@ -86,9 +87,9 @@ export default function EditClientPage() {
       await clientApi.update(params.id as string, data);
       showSuccess('Client updated successfully!');
       router.push(`/clients/${params.id}`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to update client:', error);
-      const errorMessage = error.response?.data?.error?.message || 'Failed to update client';
+      const errorMessage = getErrorMessage(error);
       const details = error.response?.data?.error?.details;
 
       if (details) {

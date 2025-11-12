@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { employeeCostsApi, EmployeeCost, Employee } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
+import { getErrorMessage } from '@/lib/types';
 
 export default function PayrollPage() {
   const [loading, setLoading] = useState(true);
@@ -28,9 +29,9 @@ export default function PayrollPage() {
         year: selectedYear,
       });
       setCosts(data.data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to load payroll:', error);
-      showError(error.response?.data?.error?.message || 'Failed to load payroll data');
+      showError(getErrorMessage(error));
     } finally {
       setLoading(false);
     }

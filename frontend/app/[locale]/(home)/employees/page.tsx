@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { employeesApi, Employee } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
+import { getErrorMessage } from '@/lib/types';
 
 export default function EmployeesPage() {
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -30,9 +31,9 @@ export default function EmployeesPage() {
       setEmployees(response.data || []);
       setTotal(response.pagination?.total || 0);
       setTotalPages(response.pagination?.totalPages || 0);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to load employees:', error);
-      showError(error.response?.data?.error?.message || 'Failed to load employees');
+      showError(getErrorMessage(error));
     } finally {
       setLoading(false);
     }

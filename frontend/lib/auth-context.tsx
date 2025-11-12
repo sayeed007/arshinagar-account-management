@@ -96,7 +96,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const locale = getLocaleFromPathname(pathname);
       const dashboardPath = locale ? `/${locale}/dashboard` : '/dashboard';
       router.push(dashboardPath);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Login failed:', error);
       throw error;
     }

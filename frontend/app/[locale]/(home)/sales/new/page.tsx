@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { salesApi, clientApi, landApi, Client, Plot, PlotStatus } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
+import { getErrorMessage } from '@/lib/types';
 
 export default function NewSalePage() {
   const router = useRouter();
@@ -34,7 +35,7 @@ export default function NewSalePage() {
       ]);
       setClients(clientsRes.data || []);
       setPlots(plotsRes.data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to load data:', error);
       showError('Failed to load clients and plots');
     } finally {
@@ -97,9 +98,9 @@ export default function NewSalePage() {
       const sale = await salesApi.create(data);
       showSuccess('Sale created successfully!');
       router.push(`/sales/${sale._id}`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to create sale:', error);
-      const errorMessage = error.response?.data?.error?.message || 'Failed to create sale';
+      const errorMessage = getErrorMessage(error);
       showError(errorMessage);
     } finally {
       setLoading(false);

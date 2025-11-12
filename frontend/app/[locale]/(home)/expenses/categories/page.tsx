@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { expenseCategoryApi, ExpenseCategory } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
+import { getErrorMessage } from '@/lib/types';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 
 export default function ExpenseCategoriesPage() {
@@ -28,9 +29,9 @@ export default function ExpenseCategoriesPage() {
         isActive: true,
       });
       setCategories(response.data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to load categories:', error);
-      showError(error.response?.data?.error?.message || 'Failed to load expense categories');
+      showError(getErrorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -51,9 +52,9 @@ export default function ExpenseCategoriesPage() {
       setShowToggleConfirm(false);
       setCategoryToToggle(null);
       loadCategories();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to update category:', error);
-      showError(error.response?.data?.error?.message || 'Failed to update category');
+      showError(getErrorMessage(error));
       setShowToggleConfirm(false);
     } finally {
       setToggling(false);

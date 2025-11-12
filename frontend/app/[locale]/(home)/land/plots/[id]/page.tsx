@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { landApi, Plot, RSNumber, PlotStatus } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
+import { getErrorMessage } from '@/lib/types';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 
 export default function PlotDetailPage() {
@@ -35,9 +36,9 @@ export default function PlotDetailPage() {
         );
         setRSNumber(rsData);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to load plot:', error);
-      showError(error.response?.data?.error?.message || 'Failed to load plot');
+      showError(getErrorMessage(error));
       router.push('/land/rs-numbers');
     } finally {
       setLoading(false);
@@ -58,9 +59,9 @@ export default function PlotDetailPage() {
       } else {
         router.push('/land/rs-numbers');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to delete plot:', error);
-      showError(error.response?.data?.error?.message || 'Failed to delete plot');
+      showError(getErrorMessage(error));
       setShowDeleteConfirm(false);
     } finally {
       setDeleting(false);

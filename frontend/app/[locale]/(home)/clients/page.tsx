@@ -45,9 +45,9 @@ export default function ClientsPage() {
         setTotalPages(response.pagination.totalPages);
         setTotal(response.pagination.total);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to load clients:', error);
-      showError(error.response?.data?.error?.message || 'Failed to load clients');
+      showError(getErrorMessage(error));
     } finally {
       setLoading(false);
     }

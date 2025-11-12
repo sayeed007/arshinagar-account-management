@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { employeesApi, employeeCostsApi, Employee } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
+import { getErrorMessage } from '@/lib/types';
 
 export default function NewEmployeeCostPage() {
   const router = useRouter();
@@ -47,9 +48,9 @@ export default function NewEmployeeCostPage() {
       setEmployee(data);
       // Set default salary to base salary
       setFormData((prev) => ({ ...prev, salary: data.baseSalary.toString() }));
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to load employee:', error);
-      showError(error.response?.data?.error?.message || 'Failed to load employee');
+      showError(getErrorMessage(error));
       router.push('/employees');
     } finally {
       setLoadingEmployee(false);
@@ -87,9 +88,9 @@ export default function NewEmployeeCostPage() {
       });
       showSuccess('Employee cost entry created successfully!');
       router.push(`/employees/${params.id}`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to create cost entry:', error);
-      showError(error.response?.data?.error?.message || 'Failed to create employee cost entry');
+      showError(getErrorMessage(error));
     } finally {
       setLoading(false);
     }

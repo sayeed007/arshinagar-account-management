@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { refundsApi, Refund, RefundApprovalStatus, Cancellation, Sale, Client } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
+import { getErrorMessage } from '@/lib/types';
 
 export default function ApprovalQueuePage() {
   const [loading, setLoading] = useState(true);
@@ -18,9 +19,9 @@ export default function ApprovalQueuePage() {
       setLoading(true);
       const response = await refundsApi.getApprovalQueue();
       setRefunds(response.data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to load approval queue:', error);
-      showError(error.response?.data?.error?.message || 'Failed to load approval queue');
+      showError(getErrorMessage(error));
     } finally {
       setLoading(false);
     }

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { expenseCategoryApi } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
+import { getErrorMessage } from '@/lib/types';
 
 export default function NewExpenseCategoryPage() {
   const router = useRouter();
@@ -32,9 +33,9 @@ export default function NewExpenseCategoryPage() {
       });
       showSuccess('Expense category created successfully!');
       router.push('/expenses/categories');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to create category:', error);
-      showError(error.response?.data?.error?.message || 'Failed to create expense category');
+      showError(getErrorMessage(error));
     } finally {
       setLoading(false);
     }

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { cancellationsApi, refundsApi, Cancellation, Sale, Client } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
+import { getErrorMessage } from '@/lib/types';
 
 export default function RefundSchedulePage() {
   const router = useRouter();
@@ -33,9 +34,9 @@ export default function RefundSchedulePage() {
       setLoading(true);
       const response = await cancellationsApi.getById(cancellationId!);
       setCancellation(response.data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to load cancellation:', error);
-      showError(error.response?.data?.error?.message || 'Failed to load cancellation details');
+      showError(getErrorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -69,9 +70,9 @@ export default function RefundSchedulePage() {
 
       showSuccess('Refund schedule created successfully');
       router.push(`/cancellations/${cancellationId}`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to create refund schedule:', error);
-      showError(error.response?.data?.error?.message || 'Failed to create refund schedule');
+      showError(getErrorMessage(error));
     } finally {
       setSubmitting(false);
     }

@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { landApi, Plot, RSNumber, PlotStatus } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
+import { getErrorMessage } from '@/lib/types';
 
 export default function EditPlotPage() {
   const params = useParams();
@@ -46,9 +47,9 @@ export default function EditPlotPage() {
         status: data.status || 'Available',
         description: data.description || '',
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to load plot:', error);
-      showError(error.response?.data?.error?.message || 'Failed to load plot');
+      showError(getErrorMessage(error));
       router.push('/land/rs-numbers');
     } finally {
       setDataLoading(false);
@@ -105,9 +106,9 @@ export default function EditPlotPage() {
       } else {
         router.push('/land/rs-numbers');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to update plot:', error);
-      const errorMessage = error.response?.data?.error?.message || 'Failed to update plot';
+      const errorMessage = getErrorMessage(error);
       const details = error.response?.data?.error?.details;
 
       if (details) {

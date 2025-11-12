@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { clientApi, Client, salesApi, Sale, SaleStatus } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
+import { getErrorMessage } from '@/lib/types';
 
 export default function ClientDetailPage() {
   const params = useParams();
@@ -27,9 +28,9 @@ export default function ClientDetailPage() {
       setClient(data);
       // Load sales for this client
       loadSales(params.id as string);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to load client:', error);
-      showError(error.response?.data?.error?.message || 'Failed to load client');
+      showError(getErrorMessage(error));
       router.push('/clients');
     } finally {
       setLoading(false);
@@ -41,7 +42,7 @@ export default function ClientDetailPage() {
       setLoadingSales(true);
       const response = await salesApi.getAll({ clientId, page: 1, limit: 100 });
       setSales(response.data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to load sales:', error);
     } finally {
       setLoadingSales(false);
@@ -55,9 +56,9 @@ export default function ClientDetailPage() {
       await clientApi.delete(params.id as string);
       showSuccess('Client deleted successfully');
       router.push('/clients');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to delete client:', error);
-      showError(error.response?.data?.error?.message || 'Failed to delete client');
+      showError(getErrorMessage(error));
     }
   };
 

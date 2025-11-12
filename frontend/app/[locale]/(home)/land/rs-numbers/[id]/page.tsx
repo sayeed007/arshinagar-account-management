@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { landApi, RSNumber, Plot, PlotStatus } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
+import { getErrorMessage } from '@/lib/types';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 
 export default function RSNumberDetailPage() {
@@ -29,9 +30,9 @@ export default function RSNumberDetailPage() {
       setLoading(true);
       const data = await landApi.rsNumbers.getById(params.id as string);
       setRSNumber(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to load RS Number:', error);
-      showError(error.response?.data?.error?.message || 'Failed to load RS Number');
+      showError(getErrorMessage(error));
       router.push('/land/rs-numbers');
     } finally {
       setLoading(false);
@@ -47,7 +48,7 @@ export default function RSNumberDetailPage() {
         limit: 100,
       });
       setPlots(response.data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to load plots:', error);
     } finally {
       setPlotsLoading(false);
@@ -64,9 +65,9 @@ export default function RSNumberDetailPage() {
       await landApi.rsNumbers.delete(params.id as string);
       showSuccess('RS Number deleted successfully');
       router.push('/land/rs-numbers');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to delete RS Number:', error);
-      showError(error.response?.data?.error?.message || 'Failed to delete RS Number');
+      showError(getErrorMessage(error));
       setShowDeleteConfirm(false);
     } finally {
       setDeleting(false);

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { refundsApi, Refund, RefundStatus, RefundApprovalStatus, Cancellation, Sale, Client, Land, RSNumber } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
+import { getErrorMessage } from '@/lib/types';
 
 export default function RefundDetailPage({ params }: { params: { id: string } }) {
   const router = useRouter();
@@ -32,9 +33,9 @@ export default function RefundDetailPage({ params }: { params: { id: string } })
       setLoading(true);
       const response = await refundsApi.getById(params.id);
       setRefund(response.data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to load refund:', error);
-      showError(error.response?.data?.error?.message || 'Failed to load refund');
+      showError(getErrorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -47,9 +48,9 @@ export default function RefundDetailPage({ params }: { params: { id: string } })
       showSuccess('Refund submitted for approval successfully');
       setShowSubmitModal(false);
       loadRefund();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to submit refund:', error);
-      showError(error.response?.data?.error?.message || 'Failed to submit refund');
+      showError(getErrorMessage(error));
     } finally {
       setActionLoading(false);
     }
@@ -63,9 +64,9 @@ export default function RefundDetailPage({ params }: { params: { id: string } })
       setShowApproveModal(false);
       setActionRemarks('');
       loadRefund();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to approve refund:', error);
-      showError(error.response?.data?.error?.message || 'Failed to approve refund');
+      showError(getErrorMessage(error));
     } finally {
       setActionLoading(false);
     }
@@ -84,9 +85,9 @@ export default function RefundDetailPage({ params }: { params: { id: string } })
       setShowRejectModal(false);
       setActionRemarks('');
       loadRefund();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to reject refund:', error);
-      showError(error.response?.data?.error?.message || 'Failed to reject refund');
+      showError(getErrorMessage(error));
     } finally {
       setActionLoading(false);
     }
@@ -110,9 +111,9 @@ export default function RefundDetailPage({ params }: { params: { id: string } })
         remarks: '',
       });
       loadRefund();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to mark refund as paid:', error);
-      showError(error.response?.data?.error?.message || 'Failed to mark refund as paid');
+      showError(getErrorMessage(error));
     } finally {
       setActionLoading(false);
     }

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { salesApi, cancellationsApi, Sale, Client, Land, RSNumber } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
+import { getErrorMessage } from '@/lib/types';
 
 export default function NewCancellationPage() {
   const router = useRouter();
@@ -35,9 +36,9 @@ export default function NewCancellationPage() {
       setLoading(true);
       const response = await salesApi.getById(saleId!);
       setSale(response.data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to load sale:', error);
-      showError(error.response?.data?.error?.message || 'Failed to load sale details');
+      showError(getErrorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -81,9 +82,9 @@ export default function NewCancellationPage() {
 
       showSuccess('Cancellation created successfully');
       router.push(`/cancellations/${response.data._id}`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to create cancellation:', error);
-      showError(error.response?.data?.error?.message || 'Failed to create cancellation');
+      showError(getErrorMessage(error));
     } finally {
       setSubmitting(false);
     }

@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { expensesApi, Expense, ExpenseCategory, User, ExpenseStatus } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
+import { getErrorMessage } from '@/lib/types';
 
 export default function ExpenseDetailPage() {
   const params = useParams();
@@ -23,9 +24,9 @@ export default function ExpenseDetailPage() {
       setLoading(true);
       const data = await expensesApi.getById(params.id as string);
       setExpense(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to load expense:', error);
-      showError(error.response?.data?.error?.message || 'Failed to load expense');
+      showError(getErrorMessage(error));
       router.push('/expenses');
     } finally {
       setLoading(false);

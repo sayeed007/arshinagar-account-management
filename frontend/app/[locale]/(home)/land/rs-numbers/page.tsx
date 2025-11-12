@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { landApi, RSNumber } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
+import { getErrorMessage } from '@/lib/types';
 
 export default function RSNumbersPage() {
   const [rsNumbers, setRSNumbers] = useState<RSNumber[]>([]);
@@ -32,9 +33,9 @@ export default function RSNumbersPage() {
         setTotalPages(response.pagination.totalPages);
         setTotal(response.pagination.total);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to load RS Numbers:', error);
-      showError(error.response?.data?.error?.message || 'Failed to load RS Numbers');
+      showError(getErrorMessage(error));
     } finally {
       setLoading(false);
     }
