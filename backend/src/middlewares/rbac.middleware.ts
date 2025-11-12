@@ -128,3 +128,9 @@ export const checkResourceOwnership = (getUserIdFromParams: (req: AuthRequest) =
     }
   };
 };
+
+// Export wrapper function for backward compatibility with array syntax
+// Accepts both string arrays and UserRole arrays
+export const requireRole = (allowedRoles: (UserRole | string)[]) => {
+  return authorize(...(allowedRoles as UserRole[]));
+};
