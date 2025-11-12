@@ -105,7 +105,15 @@ export default function LandInventoryPage() {
               {loading ? '--' : stats?.totalPlots || 0}
             </div>
             <p className="text-xs text-muted-foreground">
-              {t('stats.allPlots')}
+              {loading ? (
+                t('stats.allPlots')
+              ) : (
+                <>
+                  <span className="text-green-600 font-medium">{stats?.availablePlots || 0} Available</span>
+                  {' • '}
+                  <span className="text-red-600 font-medium">{stats?.soldPlots || 0} Sold</span>
+                </>
+              )}
             </p>
           </CardContent>
         </Card>
