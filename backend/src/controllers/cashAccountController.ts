@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import CashAccount from '../models/CashAccount';
-import { AuthRequest } from '../middlewares/auth.middleware';
+import { AuthRequest } from '../types';
 
 // Get all cash accounts
 export const getAllCashAccounts = async (req: Request, res: Response) => {

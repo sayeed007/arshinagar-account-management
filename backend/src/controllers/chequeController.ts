@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import Cheque, { ChequeStatus } from '../models/Cheque';
-import { AuthRequest } from '../middlewares/auth.middleware';
+import { AuthRequest } from '../types';
 
 // Get all cheques
 export const getAllCheques = async (req: Request, res: Response) => {
