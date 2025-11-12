@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
@@ -9,16 +10,53 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { type Locale, defaultLocale } from '@/lib/i18n/config'
+import { landApi } from '@/lib/api'
+import { showError } from '@/lib/toast'
+import { getErrorMessage } from '@/lib/types'
+
+interface LandStats {
+  totalRSNumbers: number
+  totalPlots: number
+  availablePlots: number
+  soldPlots: number
+  totalArea: number
+  availableArea: number
+  soldArea: number
+}
 
 export default function LandInventoryPage() {
   const t = useTranslations('landInventory')
   const tCommon = useTranslations('common')
   const params = useParams()
   const locale = (params.locale as Locale) || defaultLocale
+  const [stats, setStats] = useState<LandStats | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    loadStats()
+  }, [])
+
+  const loadStats = async () => {
+    try {
+      setLoading(true)
+      const data = await landApi.getStats()
+      setStats(data)
+    } catch (error: unknown) {
+      console.error('Failed to load land statistics:', error)
+      showError(getErrorMessage(error))
+    } finally {
+      setLoading(false)
+    }
+  }
 
   // Helper to create locale-aware href
   const getLocalizedHref = (href: string) => {
     return locale === defaultLocale ? href : `/${locale}${href}`
+  }
+
+  // Helper to format area in acres
+  const formatArea = (area: number) => {
+    return area.toFixed(2)
   }
 
   return (
@@ -46,7 +84,9 @@ export default function LandInventoryPage() {
             <ListTree className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">--</div>
+            <div className="text-2xl font-bold">
+              {loading ? '--' : stats?.totalRSNumbers || 0}
+            </div>
             <p className="text-xs text-muted-foreground">
               {t('stats.activeRecords')}
             </p>
@@ -61,7 +101,9 @@ export default function LandInventoryPage() {
             <Grid3x3 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">--</div>
+            <div className="text-2xl font-bold">
+              {loading ? '--' : stats?.totalPlots || 0}
+            </div>
             <p className="text-xs text-muted-foreground">
               {t('stats.allPlots')}
             </p>
@@ -76,7 +118,9 @@ export default function LandInventoryPage() {
             <TrendingUp className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">--</div>
+            <div className="text-2xl font-bold">
+              {loading ? '--' : stats?.availableArea ? formatArea(stats.availableArea) : '0.00'}
+            </div>
             <p className="text-xs text-muted-foreground">
               {t('stats.inAcres')}
             </p>
@@ -91,7 +135,9 @@ export default function LandInventoryPage() {
             <TrendingDown className="h-4 w-4 text-red-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">--</div>
+            <div className="text-2xl font-bold">
+              {loading ? '--' : stats?.soldArea ? formatArea(stats.soldArea) : '0.00'}
+            </div>
             <p className="text-xs text-muted-foreground">
               {t('stats.inAcres')}
             </p>
