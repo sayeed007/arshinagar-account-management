@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { salesApi, clientApi, landApi, Client, Plot, PlotStatus } from '@/lib/api';
+import { salesApi, clientApi, landApi, Client, Plot, PlotStatus, SaleStageStatus } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
 import { getErrorMessage } from '@/lib/types';
 
@@ -69,28 +69,28 @@ export default function NewSalePage() {
             plannedAmount: parseFloat(formData.totalPrice) * 0.1, // 10% booking
             receivedAmount: 0,
             dueAmount: parseFloat(formData.totalPrice) * 0.1,
-            status: 'Pending',
+            status: SaleStageStatus.PENDING,
           },
           {
             stageName: 'Installments',
             plannedAmount: parseFloat(formData.totalPrice) * 0.7, // 70% installments
             receivedAmount: 0,
             dueAmount: parseFloat(formData.totalPrice) * 0.7,
-            status: 'Pending',
+            status: SaleStageStatus.PENDING,
           },
           {
             stageName: 'Registration',
             plannedAmount: parseFloat(formData.totalPrice) * 0.15, // 15% registration
             receivedAmount: 0,
             dueAmount: parseFloat(formData.totalPrice) * 0.15,
-            status: 'Pending',
+            status: SaleStageStatus.PENDING,
           },
           {
             stageName: 'Handover',
             plannedAmount: parseFloat(formData.totalPrice) * 0.05, // 5% handover
             receivedAmount: 0,
             dueAmount: parseFloat(formData.totalPrice) * 0.05,
-            status: 'Pending',
+            status: SaleStageStatus.PENDING,
           },
         ],
       };

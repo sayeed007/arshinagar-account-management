@@ -33,7 +33,7 @@ export default function RefundSchedulePage() {
     try {
       setLoading(true);
       const response = await cancellationsApi.getById(cancellationId!);
-      setCancellation(response.data);
+      setCancellation(response);
     } catch (error: unknown) {
       console.error('Failed to load cancellation:', error);
       showError(getErrorMessage(error));

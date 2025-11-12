@@ -28,6 +28,32 @@ export interface ApiResponse<T = unknown> {
   };
 }
 
+export interface ApiPaginatedResponse<T = unknown> {
+  success: boolean;
+  data: T[];
+  message?: string;
+  error?: ApiError;
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+export interface PaginatedResponse<T = unknown> {
+  success: boolean;
+  data: T[];
+  message?: string;
+  error?: ApiError;
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
 /**
  * User Types
  */
@@ -1476,6 +1502,7 @@ export enum CancellationStatus {
  * Refund Status Enum
  */
 export enum RefundStatus {
+  DRAFT = 'Draft',
   PENDING = 'Pending',
   PAID = 'Paid',
   CANCELLED = 'Cancelled',
@@ -2364,17 +2391,7 @@ export const smsApi = {
       totalPages: number;
     };
   }> => {
-    const response = await apiClient.get<
-      ApiResponse<
-        SMSLog[],
-        {
-          page: number;
-          limit: number;
-          total: number;
-          totalPages: number;
-        }
-      >
-    >('/sms/logs', { params: filters });
+    const response = await apiClient.get<ApiResponse<SMSLog[]>>('/sms/logs', { params: filters });
     return {
       logs: response.data.data!,
       pagination: response.data.pagination!,

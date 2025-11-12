@@ -1,5 +1,6 @@
 'use client';
 import { showSuccess, showError } from '@/lib/toast';
+import Link from 'next/link';
 
 import { useState } from 'react';
 
@@ -149,18 +150,18 @@ export default function SettingsPage() {
       <div className="bg-white border rounded-lg p-6">
         <h2 className="text-lg font-semibold mb-3">Quick Links</h2>
         <div className="space-y-2">
-          <a
+          <Link
             href="/sms/templates"
             className="block text-blue-600 hover:text-blue-700"
           >
             → Manage SMS Templates
-          </a>
-          <a
+          </Link>
+          <Link
             href="/expenses/categories"
             className="block text-blue-600 hover:text-blue-700"
           >
             → Manage Expense Categories
-          </a>
+          </Link>
         </div>
       </div>
     </div>
