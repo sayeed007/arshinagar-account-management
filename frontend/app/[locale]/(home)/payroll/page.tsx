@@ -30,7 +30,7 @@ export default function PayrollPage() {
       setCosts(data.data);
     } catch (error: any) {
       console.error('Failed to load payroll:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load payroll data');
+      showError(error.response?.data?.error?.message || 'Failed to load payroll data');
     } finally {
       setLoading(false);
     }

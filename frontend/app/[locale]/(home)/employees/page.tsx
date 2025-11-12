@@ -32,7 +32,7 @@ export default function EmployeesPage() {
       setTotalPages(response.pagination?.totalPages || 0);
     } catch (error: any) {
       console.error('Failed to load employees:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load employees');
+      showError(error.response?.data?.error?.message || 'Failed to load employees');
     } finally {
       setLoading(false);
     }

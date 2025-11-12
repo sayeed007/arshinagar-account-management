@@ -34,7 +34,7 @@ export default function PlotDetailPage() {
       }
     } catch (error: any) {
       console.error('Failed to load plot:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load plot');
+      showError(error.response?.data?.error?.message || 'Failed to load plot');
       router.push('/land/rs-numbers');
     } finally {
       setLoading(false);
@@ -54,7 +54,7 @@ export default function PlotDetailPage() {
       }
     } catch (error: any) {
       console.error('Failed to delete plot:', error);
-      alert(error.response?.data?.error?.message || 'Failed to delete plot');
+      showError(error.response?.data?.error?.message || 'Failed to delete plot');
     }
   };
 

@@ -34,7 +34,7 @@ export default function RefundDetailPage({ params }: { params: { id: string } })
       setRefund(response.data);
     } catch (error: any) {
       console.error('Failed to load refund:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load refund');
+      showError(error.response?.data?.error?.message || 'Failed to load refund');
     } finally {
       setLoading(false);
     }
@@ -49,7 +49,7 @@ export default function RefundDetailPage({ params }: { params: { id: string } })
       loadRefund();
     } catch (error: any) {
       console.error('Failed to submit refund:', error);
-      alert(error.response?.data?.error?.message || 'Failed to submit refund');
+      showError(error.response?.data?.error?.message || 'Failed to submit refund');
     } finally {
       setActionLoading(false);
     }
@@ -65,7 +65,7 @@ export default function RefundDetailPage({ params }: { params: { id: string } })
       loadRefund();
     } catch (error: any) {
       console.error('Failed to approve refund:', error);
-      alert(error.response?.data?.error?.message || 'Failed to approve refund');
+      showError(error.response?.data?.error?.message || 'Failed to approve refund');
     } finally {
       setActionLoading(false);
     }
@@ -73,7 +73,7 @@ export default function RefundDetailPage({ params }: { params: { id: string } })
 
   const handleReject = async () => {
     if (!actionRemarks.trim()) {
-      alert('Rejection remarks are required');
+      showError('Rejection remarks are required');
       return;
     }
 
@@ -86,7 +86,7 @@ export default function RefundDetailPage({ params }: { params: { id: string } })
       loadRefund();
     } catch (error: any) {
       console.error('Failed to reject refund:', error);
-      alert(error.response?.data?.error?.message || 'Failed to reject refund');
+      showError(error.response?.data?.error?.message || 'Failed to reject refund');
     } finally {
       setActionLoading(false);
     }
@@ -94,7 +94,7 @@ export default function RefundDetailPage({ params }: { params: { id: string } })
 
   const handleMarkAsPaid = async () => {
     if (!paymentData.paymentDate) {
-      alert('Payment date is required');
+      showError('Payment date is required');
       return;
     }
 
@@ -112,7 +112,7 @@ export default function RefundDetailPage({ params }: { params: { id: string } })
       loadRefund();
     } catch (error: any) {
       console.error('Failed to mark refund as paid:', error);
-      alert(error.response?.data?.error?.message || 'Failed to mark refund as paid');
+      showError(error.response?.data?.error?.message || 'Failed to mark refund as paid');
     } finally {
       setActionLoading(false);
     }

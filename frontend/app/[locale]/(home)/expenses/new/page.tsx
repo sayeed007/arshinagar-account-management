@@ -67,7 +67,7 @@ export default function NewExpensePage() {
 
       if (formData.paymentMethod === PaymentMethod.CHEQUE) {
         if (!formData.bankName || !formData.chequeNumber) {
-          alert('Bank name and cheque number are required for cheque payments');
+          showError('Bank name and cheque number are required for cheque payments');
           return;
         }
         data.instrumentDetails = {

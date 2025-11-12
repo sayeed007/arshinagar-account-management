@@ -42,7 +42,7 @@ export default function EditClientPage() {
       });
     } catch (error: any) {
       console.error('Failed to load client:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load client');
+      showError(error.response?.data?.error?.message || 'Failed to load client');
       router.push('/clients');
     } finally {
       setDataLoading(false);
@@ -95,9 +95,9 @@ export default function EditClientPage() {
         const fieldErrors = Object.entries(details)
           .map(([field, msg]) => `${field}: ${msg}`)
           .join('\n');
-        alert(`Validation errors:\n${fieldErrors}`);
+        showError(`Validation errors:\n${fieldErrors}`);
       } else {
-        alert(errorMessage);
+        showError(errorMessage);
       }
     } finally {
       setLoading(false);

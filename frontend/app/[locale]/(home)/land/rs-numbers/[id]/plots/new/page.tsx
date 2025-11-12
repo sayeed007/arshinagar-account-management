@@ -58,7 +58,7 @@ export default function NewPlotPage() {
 
       // Validate area against remaining area
       if (rsNumber && plotArea > rsNumber.remainingArea) {
-        alert(
+        showError(
           `Insufficient area. Available: ${rsNumber.remainingArea} ${rsNumber.unitType}\nYou tried to allocate: ${plotArea} ${rsNumber.unitType}`
         );
         setLoading(false);

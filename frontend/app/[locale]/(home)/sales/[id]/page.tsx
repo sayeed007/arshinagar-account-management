@@ -25,7 +25,7 @@ export default function SaleDetailPage() {
       setSale(data);
     } catch (error: any) {
       console.error('Failed to load sale:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load sale');
+      showError(error.response?.data?.error?.message || 'Failed to load sale');
       router.push('/sales');
     } finally {
       setLoading(false);

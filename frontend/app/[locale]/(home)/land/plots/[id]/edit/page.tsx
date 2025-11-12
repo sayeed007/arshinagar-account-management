@@ -48,7 +48,7 @@ export default function EditPlotPage() {
       });
     } catch (error: any) {
       console.error('Failed to load plot:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load plot');
+      showError(error.response?.data?.error?.message || 'Failed to load plot');
       router.push('/land/rs-numbers');
     } finally {
       setDataLoading(false);
@@ -76,7 +76,7 @@ export default function EditPlotPage() {
       if (rsNumber && newArea > oldArea) {
         const areaIncrease = newArea - oldArea;
         if (areaIncrease > rsNumber.remainingArea) {
-          alert(
+          showError(
             `Insufficient area. Available: ${rsNumber.remainingArea} ${rsNumber.unitType}\nYou tried to add: ${areaIncrease} ${rsNumber.unitType}\nCurrent plot area: ${oldArea} ${rsNumber.unitType}\nNew plot area: ${newArea} ${rsNumber.unitType}`
           );
           setLoading(false);
@@ -114,9 +114,9 @@ export default function EditPlotPage() {
         const fieldErrors = Object.entries(details)
           .map(([field, msg]) => `${field}: ${msg}`)
           .join('\n');
-        alert(`Validation errors:\n${fieldErrors}`);
+        showError(`Validation errors:\n${fieldErrors}`);
       } else {
-        alert(errorMessage);
+        showError(errorMessage);
       }
     } finally {
       setLoading(false);

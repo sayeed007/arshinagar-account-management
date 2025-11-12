@@ -34,7 +34,7 @@ export default function RSNumbersPage() {
       }
     } catch (error: any) {
       console.error('Failed to load RS Numbers:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load RS Numbers');
+      showError(error.response?.data?.error?.message || 'Failed to load RS Numbers');
     } finally {
       setLoading(false);
     }

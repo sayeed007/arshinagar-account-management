@@ -25,7 +25,7 @@ export default function ExpenseDetailPage() {
       setExpense(data);
     } catch (error: any) {
       console.error('Failed to load expense:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load expense');
+      showError(error.response?.data?.error?.message || 'Failed to load expense');
       router.push('/expenses');
     } finally {
       setLoading(false);

@@ -100,7 +100,7 @@ export default function NewSalePage() {
     } catch (error: any) {
       console.error('Failed to create sale:', error);
       const errorMessage = error.response?.data?.error?.message || 'Failed to create sale';
-      alert(errorMessage);
+      showError(errorMessage);
     } finally {
       setLoading(false);
     }

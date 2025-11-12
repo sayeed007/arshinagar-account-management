@@ -34,7 +34,7 @@ export default function NewExpenseCategoryPage() {
       router.push('/expenses/categories');
     } catch (error: any) {
       console.error('Failed to create category:', error);
-      alert(error.response?.data?.error?.message || 'Failed to create expense category');
+      showError(error.response?.data?.error?.message || 'Failed to create expense category');
     } finally {
       setLoading(false);
     }

@@ -26,7 +26,7 @@ export default function ExpenseCategoriesPage() {
       setCategories(response.data || []);
     } catch (error: any) {
       console.error('Failed to load categories:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load expense categories');
+      showError(error.response?.data?.error?.message || 'Failed to load expense categories');
     } finally {
       setLoading(false);
     }
@@ -43,7 +43,7 @@ export default function ExpenseCategoriesPage() {
       loadCategories();
     } catch (error: any) {
       console.error('Failed to update category:', error);
-      alert(error.response?.data?.error?.message || 'Failed to update category');
+      showError(error.response?.data?.error?.message || 'Failed to update category');
     }
   };
 

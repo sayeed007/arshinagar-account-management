@@ -35,7 +35,7 @@ export default function RefundSchedulePage() {
       setCancellation(response.data);
     } catch (error: any) {
       console.error('Failed to load cancellation:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load cancellation details');
+      showError(error.response?.data?.error?.message || 'Failed to load cancellation details');
     } finally {
       setLoading(false);
     }
@@ -45,17 +45,17 @@ export default function RefundSchedulePage() {
     e.preventDefault();
 
     if (!cancellationId) {
-      alert('Cancellation ID is required');
+      showError('Cancellation ID is required');
       return;
     }
 
     if (formData.numberOfInstallments < 1 || formData.numberOfInstallments > 36) {
-      alert('Number of installments must be between 1 and 36');
+      showError('Number of installments must be between 1 and 36');
       return;
     }
 
     if (!formData.startDate) {
-      alert('Start date is required');
+      showError('Start date is required');
       return;
     }
 
@@ -71,7 +71,7 @@ export default function RefundSchedulePage() {
       router.push(`/cancellations/${cancellationId}`);
     } catch (error: any) {
       console.error('Failed to create refund schedule:', error);
-      alert(error.response?.data?.error?.message || 'Failed to create refund schedule');
+      showError(error.response?.data?.error?.message || 'Failed to create refund schedule');
     } finally {
       setSubmitting(false);
     }

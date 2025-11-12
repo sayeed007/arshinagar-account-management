@@ -37,7 +37,7 @@ export default function NewCancellationPage() {
       setSale(response.data);
     } catch (error: any) {
       console.error('Failed to load sale:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load sale details');
+      showError(error.response?.data?.error?.message || 'Failed to load sale details');
     } finally {
       setLoading(false);
     }
@@ -53,22 +53,22 @@ export default function NewCancellationPage() {
     e.preventDefault();
 
     if (!saleId) {
-      alert('Sale ID is required');
+      showError('Sale ID is required');
       return;
     }
 
     if (!formData.reason.trim()) {
-      alert('Cancellation reason is required');
+      showError('Cancellation reason is required');
       return;
     }
 
     if (formData.officeChargePercent < 0 || formData.officeChargePercent > 100) {
-      alert('Office charge percentage must be between 0 and 100');
+      showError('Office charge percentage must be between 0 and 100');
       return;
     }
 
     if (formData.otherDeductions < 0) {
-      alert('Other deductions cannot be negative');
+      showError('Other deductions cannot be negative');
       return;
     }
 
@@ -83,7 +83,7 @@ export default function NewCancellationPage() {
       router.push(`/cancellations/${response.data._id}`);
     } catch (error: any) {
       console.error('Failed to create cancellation:', error);
-      alert(error.response?.data?.error?.message || 'Failed to create cancellation');
+      showError(error.response?.data?.error?.message || 'Failed to create cancellation');
     } finally {
       setSubmitting(false);
     }

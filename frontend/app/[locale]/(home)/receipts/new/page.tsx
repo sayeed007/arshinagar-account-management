@@ -67,7 +67,7 @@ export default function NewReceiptPage() {
 
     try {
       if (!selectedSale) {
-        alert('Please select a sale');
+        showError('Please select a sale');
         return;
       }
 
@@ -82,7 +82,7 @@ export default function NewReceiptPage() {
 
       if (formData.method === PaymentMethod.CHEQUE || formData.method === PaymentMethod.PDC) {
         if (!formData.bankName || !formData.chequeNumber) {
-          alert('Bank name and cheque number are required for cheque/PDC payments');
+          showError('Bank name and cheque number are required for cheque/PDC payments');
           return;
         }
         data.instrumentDetails = {

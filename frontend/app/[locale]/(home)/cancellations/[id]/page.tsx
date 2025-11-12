@@ -30,7 +30,7 @@ export default function CancellationDetailPage({ params }: { params: { id: strin
       setCancellation(response.data);
     } catch (error: any) {
       console.error('Failed to load cancellation:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load cancellation');
+      showError(error.response?.data?.error?.message || 'Failed to load cancellation');
     } finally {
       setLoading(false);
     }
@@ -46,7 +46,7 @@ export default function CancellationDetailPage({ params }: { params: { id: strin
       loadCancellation();
     } catch (error: any) {
       console.error('Failed to approve cancellation:', error);
-      alert(error.response?.data?.error?.message || 'Failed to approve cancellation');
+      showError(error.response?.data?.error?.message || 'Failed to approve cancellation');
     } finally {
       setActionLoading(false);
     }
@@ -54,7 +54,7 @@ export default function CancellationDetailPage({ params }: { params: { id: strin
 
   const handleReject = async () => {
     if (!actionNotes.trim()) {
-      alert('Rejection reason is required');
+      showError('Rejection reason is required');
       return;
     }
 
@@ -67,7 +67,7 @@ export default function CancellationDetailPage({ params }: { params: { id: strin
       loadCancellation();
     } catch (error: any) {
       console.error('Failed to reject cancellation:', error);
-      alert(error.response?.data?.error?.message || 'Failed to reject cancellation');
+      showError(error.response?.data?.error?.message || 'Failed to reject cancellation');
     } finally {
       setActionLoading(false);
     }

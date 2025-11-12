@@ -28,7 +28,7 @@ export default function RSNumberDetailPage() {
       setRSNumber(data);
     } catch (error: any) {
       console.error('Failed to load RS Number:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load RS Number');
+      showError(error.response?.data?.error?.message || 'Failed to load RS Number');
       router.push('/land/rs-numbers');
     } finally {
       setLoading(false);
@@ -62,7 +62,7 @@ export default function RSNumberDetailPage() {
       router.push('/land/rs-numbers');
     } catch (error: any) {
       console.error('Failed to delete RS Number:', error);
-      alert(error.response?.data?.error?.message || 'Failed to delete RS Number');
+      showError(error.response?.data?.error?.message || 'Failed to delete RS Number');
     }
   };
 

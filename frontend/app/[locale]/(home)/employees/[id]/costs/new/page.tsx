@@ -49,7 +49,7 @@ export default function NewEmployeeCostPage() {
       setFormData((prev) => ({ ...prev, salary: data.baseSalary.toString() }));
     } catch (error: any) {
       console.error('Failed to load employee:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load employee');
+      showError(error.response?.data?.error?.message || 'Failed to load employee');
       router.push('/employees');
     } finally {
       setLoadingEmployee(false);
@@ -89,7 +89,7 @@ export default function NewEmployeeCostPage() {
       router.push(`/employees/${params.id}`);
     } catch (error: any) {
       console.error('Failed to create cost entry:', error);
-      alert(error.response?.data?.error?.message || 'Failed to create employee cost entry');
+      showError(error.response?.data?.error?.message || 'Failed to create employee cost entry');
     } finally {
       setLoading(false);
     }

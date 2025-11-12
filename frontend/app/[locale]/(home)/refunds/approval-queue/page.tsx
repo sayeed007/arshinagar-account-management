@@ -20,7 +20,7 @@ export default function ApprovalQueuePage() {
       setRefunds(response.data);
     } catch (error: any) {
       console.error('Failed to load approval queue:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load approval queue');
+      showError(error.response?.data?.error?.message || 'Failed to load approval queue');
     } finally {
       setLoading(false);
     }

@@ -28,7 +28,7 @@ export default function EmployeeDetailPage() {
       setEmployee(data);
     } catch (error: any) {
       console.error('Failed to load employee:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load employee');
+      showError(error.response?.data?.error?.message || 'Failed to load employee');
       router.push('/employees');
     } finally {
       setLoading(false);

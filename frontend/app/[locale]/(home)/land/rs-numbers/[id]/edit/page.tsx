@@ -42,7 +42,7 @@ export default function EditRSNumberPage() {
       });
     } catch (error: any) {
       console.error('Failed to load RS Number:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load RS Number');
+      showError(error.response?.data?.error?.message || 'Failed to load RS Number');
       router.push('/land/rs-numbers');
     } finally {
       setDataLoading(false);
@@ -77,7 +77,7 @@ export default function EditRSNumberPage() {
 
       // Validate: new total area must be >= (sold + allocated)
       if (rsNumber && newTotalArea < (rsNumber.soldArea + rsNumber.allocatedArea)) {
-        alert(
+        showError(
           `Total area cannot be less than sold + allocated area.\n\nSold: ${rsNumber.soldArea} ${rsNumber.unitType}\nAllocated: ${rsNumber.allocatedArea} ${rsNumber.unitType}\nMinimum required: ${rsNumber.soldArea + rsNumber.allocatedArea} ${rsNumber.unitType}\nYou entered: ${newTotalArea} ${formData.unitType}`
         );
         setLoading(false);
@@ -110,9 +110,9 @@ export default function EditRSNumberPage() {
         const fieldErrors = Object.entries(details)
           .map(([field, msg]) => `${field}: ${msg}`)
           .join('\n');
-        alert(`Validation errors:\n${fieldErrors}`);
+        showError(`Validation errors:\n${fieldErrors}`);
       } else {
-        alert(errorMessage);
+        showError(errorMessage);
       }
     } finally {
       setLoading(false);

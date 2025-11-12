@@ -20,7 +20,7 @@ export default function ExpenseApprovalQueuePage() {
       setExpenses(data);
     } catch (error: any) {
       console.error('Failed to load approval queue:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load approval queue');
+      showError(error.response?.data?.error?.message || 'Failed to load approval queue');
     } finally {
       setLoading(false);
     }
@@ -36,24 +36,24 @@ export default function ExpenseApprovalQueuePage() {
       loadQueue();
     } catch (error: any) {
       console.error('Failed to approve expense:', error);
-      alert(error.response?.data?.error?.message || 'Failed to approve expense');
+      showError(error.response?.data?.error?.message || 'Failed to approve expense');
     }
   };
 
   const handleReject = async (id: string) => {
     const remarks = prompt('Rejection reason (required):');
     if (!remarks || remarks.trim() === '') {
-      alert('Rejection reason is required');
+      showError('Rejection reason is required');
       return;
     }
 
     try {
       await expensesApi.reject(id, remarks);
-      alert('Expense rejected');
+      showSuccess('Expense rejected');
       loadQueue();
     } catch (error: any) {
       console.error('Failed to reject expense:', error);
-      alert(error.response?.data?.error?.message || 'Failed to reject expense');
+      showError(error.response?.data?.error?.message || 'Failed to reject expense');
     }
   };
 

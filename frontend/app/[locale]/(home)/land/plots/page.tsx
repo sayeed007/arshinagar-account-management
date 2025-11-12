@@ -66,7 +66,7 @@ export default function AllPlotsPage() {
       setRSNumbers(rsMap)
     } catch (error: any) {
       console.error('Failed to load plots:', error)
-      alert(error.response?.data?.error?.message || 'Failed to load plots')
+      showError(error.response?.data?.error?.message || 'Failed to load plots')
     } finally {
       setLoading(false)
     }

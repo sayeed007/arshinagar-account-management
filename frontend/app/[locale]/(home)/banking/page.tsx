@@ -32,7 +32,7 @@ export default function BankingDashboardPage() {
       setCashAccounts(cashAccountsRes.data);
     } catch (error: any) {
       console.error('Failed to load banking dashboard:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load dashboard data');
+      showError(error.response?.data?.error?.message || 'Failed to load dashboard data');
     } finally {
       setLoading(false);
     }
