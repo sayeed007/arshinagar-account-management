@@ -147,4 +147,7 @@ rsNumberSchema.virtual('availabilityStatus').get(function () {
 /**
  * RSNumber Model
  */
-export const RSNumber = mongoose.model<IRSNumber>('RSNumber', rsNumberSchema);
+const RSNumber = mongoose.model<IRSNumber>('RSNumber', rsNumberSchema);
+
+export default RSNumber;
+export { RSNumber }; // Named export for backward compatibility

@@ -109,4 +109,7 @@ clientSchema.virtual('fullContactInfo').get(function () {
 /**
  * Client Model
  */
-export const Client = mongoose.model<IClient>('Client', clientSchema);
+const Client = mongoose.model<IClient>('Client', clientSchema);
+
+export default Client;
+export { Client }; // Named export for backward compatibility
