@@ -263,10 +263,10 @@ export default function ClientDetailPage() {
                             ৳{sale.totalPrice.toLocaleString()}
                           </td>
                           <td className="px-4 py-4 whitespace-nowrap text-sm text-green-600 dark:text-green-400">
-                            ৳{sale.totalPaid.toLocaleString()}
+                            ৳{sale.paidAmount.toLocaleString()}
                           </td>
                           <td className="px-4 py-4 whitespace-nowrap text-sm text-orange-600 dark:text-orange-400">
-                            ৳{sale.totalDue.toLocaleString()}
+                            ৳{sale.dueAmount.toLocaleString()}
                           </td>
                           <td className="px-4 py-4 whitespace-nowrap">
                             <span
@@ -318,7 +318,7 @@ export default function ClientDetailPage() {
                     <div>
                       <p className="text-gray-500 dark:text-gray-400">Total Due</p>
                       <p className="text-lg font-semibold text-orange-600 dark:text-orange-400">
-                        ৳{sales.reduce((sum, sale) => sum + sale.totalDue, 0).toLocaleString()}
+                        ৳{sales.reduce((sum, sale) => sum + sale.dueAmount, 0).toLocaleString()}
                       </p>
                     </div>
                   </div>
