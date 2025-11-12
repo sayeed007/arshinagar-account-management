@@ -2,7 +2,7 @@ import Ledger from '../models/Ledger';
 import Receipt from '../models/Receipt';
 import Expense from '../models/Expense';
 import Sale from '../models/Sale';
-import Client from '../models/Client';
+import { Client } from '../models/Client';
 import InstallmentSchedule from '../models/InstallmentSchedule';
 import EmployeeCost from '../models/EmployeeCost';
 

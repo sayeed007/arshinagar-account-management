@@ -8,8 +8,8 @@
     "build": "tsc",
     "start": "node dist/app.js",
     "seed": "ts-node src/utils/seed.ts",
-    "seed:full": "ts-node src/seeds/fullSystemSeed.ts",
-    "seed:sms": "ts-node src/seeds/smsTemplates.ts",
+    "seed:full": "ts-node --transpile-only src/seeds/fullSystemSeed.ts",
+    "seed:sms": "ts-node --transpile-only src/seeds/smsTemplates.ts",
     "test": "jest",
     "lint": "eslint . --ext .ts",
     "format": "prettier --write \"src/**/*.ts\""

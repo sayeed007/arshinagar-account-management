@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import reportService from '../services/reportService';
 import Sale from '../models/Sale';
-import Client from '../models/Client';
+import { Client } from '../models/Client';
 import Receipt from '../models/Receipt';
 import Expense from '../models/Expense';
 

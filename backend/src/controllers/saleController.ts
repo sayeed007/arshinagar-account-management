@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import Sale, { ISale, SaleStatus } from '../models/Sale';
-import Plot, { PlotStatus } from '../models/Plot';
-import RSNumber from '../models/RSNumber';
-import Client from '../models/Client';
+import { Plot, PlotStatus } from '../models/Plot';
+import { RSNumber } from '../models/RSNumber';
+import { Client } from '../models/Client';
 import Ledger from '../models/Ledger';
 import { ApiError, ErrorCode } from '../middlewares/error.middleware';
 import mongoose from 'mongoose';

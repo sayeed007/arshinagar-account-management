@@ -161,4 +161,7 @@ plotSchema.virtual('statusColor').get(function () {
 /**
  * Plot Model
  */
-export const Plot = mongoose.model<IPlot>('Plot', plotSchema);
+const Plot = mongoose.model<IPlot>('Plot', plotSchema);
+
+export default Plot;
+export { Plot }; // Named export for backward compatibility

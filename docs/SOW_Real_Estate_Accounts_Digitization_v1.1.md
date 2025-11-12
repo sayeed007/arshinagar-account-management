@@ -1,9 +1,9 @@
 # STATEMENT OF WORK (SOW)
 
-### Project: Real Estate Accounts Digitization System  
-**Prepared by:** [Your Company Name]  
-**Date:** November 11, 2025  
-**Version:** 1.1  
+### Project: Real Estate Accounts Digitization System
+**Prepared by:** [Your Company Name]
+**Date:** November 12, 2025
+**Version:** 1.2  
 
 ---
 
@@ -57,13 +57,18 @@ The system will manage all financial operations related to land projects—clien
 
 | **Phase** | **Activities** | **Deliverables** | **Estimated Duration** |
 |------------|----------------|------------------|------------------------|
-| **Phase 1** | Master setup for land, client, RS number tracking, and installment schedule | Master data module, RS-wise land balance view | 4 weeks |
-| **Phase 2** | Collections & Receipts (booking, installment payments, approval workflow) | Receipt workflow, automated SMS, collection reports | 4 weeks |
-| **Phase 3** | Expenses, refunds, and payroll integration | Expense dashboard, refund workflow, employee cost module | 4 weeks |
-| **Phase 4** | Cheques, reports, dashboards, and QA testing | Cheque alerts, ledgers, dashboards, and final deployment | 4 weeks |
+| **Phase 0 (Initial)** | • Detailed requirement gathering sessions<br>• System architecture design<br>• UI/UX wireframes and mockups<br>• Database schema design<br>• **Client review & approval before coding** | • Business Requirements Document (BRD)<br>• Technical Specification Document<br>• Complete UI/UX designs (Figma/Adobe XD)<br>• Database ER diagrams<br>• Signed approval from client | **2 weeks** |
+| **Phase 1** | • Master setup for land, client, RS number tracking<br>• Project and installment schedule module<br>• Role-based access control setup | • Master data module<br>• RS-wise land balance view<br>• Project management interface<br>• User role management | **3 weeks** |
+| **Phase 2** | • Collections & Receipts module<br>• Booking and installment payment flows<br>• Multi-level approval workflow<br>• SMS integration for receipts | • Receipt workflow with approval chain<br>• Automated SMS notifications<br>• Collection reports and tracking<br>• Payment history views | **3 weeks** |
+| **Phase 3** | • Expense management system<br>• Booking cancellation & refund workflow<br>• Employee cost tracking (salary, commission, fuel)<br>• Payroll integration | • Expense dashboard with categories<br>• Refund calculation engine<br>• Employee cost module<br>• Payroll reports | **3 weeks** |
+| **Phase 4** | • Cheque register & tracking system<br>• Bank & cash management<br>• Financial reports suite<br>• Dashboard & KPIs<br>• Data migration module (if opted) | • Cheque alerts (due/overdue)<br>• Multi-bank management interface<br>• Complete financial reports (Ledger, Trial Balance, P&L, Balance Sheet)<br>• Executive dashboard<br>• Historical data import | **3 weeks** |
+| **Phase 5 (Testing)** | • Comprehensive system testing<br>• User Acceptance Testing (UAT) with client<br>• Bug fixes and refinements<br>• Performance optimization<br>• Training & documentation<br>• Final deployment to production | • Complete test reports<br>• UAT sign-off from client<br>• User training sessions (video + live)<br>• User manual & documentation<br>• Production deployment<br>• Post-deployment support plan | **2 weeks** |
 
-**Total Project Duration:** 4 months from SOW signing and initial payment.  
-*Timeline assumes client feedback within 3 business days per milestone.*
+**Total Project Duration:** 4 months (16 weeks) from SOW signing and initial payment.
+*Timeline assumes client feedback within 2 business days per milestone to maintain schedule.*
+
+### Phase 0 - Critical Success Factor
+⚠️ **Phase 0 is mandatory** to ensure alignment between client expectations and development. No coding will begin until client formally approves the designs and specifications from Phase 0.
 
 ---
 
@@ -93,34 +98,49 @@ The system will manage all financial operations related to land projects—clien
 
 ## 6. Payment Schedule
 
-| Installment | Trigger | Amount (BDT) |
-|--------------|----------|---------------|
-| **30%** | Upon SOW signing | 150,000 |
-| **40%** | After Phase 2 completion | 224,000 |
-| **30%** | Upon project delivery & training | 186,000 |
+| Installment | Trigger | Amount (BDT) | % |
+|--------------|----------|---------------|-----|
+| **1st Payment** | Upon SOW signing (Phase 0 initiation) | **112,000** | 20% |
+| **2nd Payment** | After Phase 0 approval & Phase 1 completion | **168,000** | 30% |
+| **3rd Payment** | After Phase 3 completion | **168,000** | 30% |
+| **4th Payment** | Upon Phase 5 completion, UAT sign-off & production deployment | **112,000** | 20% |
+| **Total** | | **560,000** | 100% |
 
 *Payments via bank transfer within 7 days of invoice.*
+
+**Payment Notes:**
+- First payment initiates Phase 0 (requirement gathering & design)
+- No development coding begins until Phase 0 is approved and 2nd payment is received
+- Final payment includes 30 days post-deployment support
 
 ---
 
 ## 7. Assumptions
-- Client will provide: project names, RS Number data, branding assets, and SMS gateway credentials (if applicable).  
-- All modules in English (Bangla optional for SMS).  
-- One client representative for feedback.  
-- No major scope changes without written approval.  
-- Historical data will be provided in predefined Excel format.  
+- Client will provide: project names, RS Number data, branding assets, and SMS gateway credentials (if applicable).
+- Client will participate actively in Phase 0 requirement gathering sessions and provide timely feedback on UI/UX designs.
+- All modules in English (Bangla optional for SMS).
+- One designated client representative for feedback and approvals.
+- No major scope changes without written approval and change request process.
+- Historical data will be provided in predefined Excel format with reasonable data quality.
+- Client will provide a staging/testing environment access for UAT in Phase 5.
+
+## 8. Post-Deployment Support
+- **30 days free support** included after production deployment
+- Bug fixes and minor adjustments during support period
+- After 30 days: Optional Annual Maintenance Contract (AMC) available at **15% of project cost per year**
+- AMC includes: bug fixes, minor enhancements, priority support, and system updates  
 
 ---
 
-## 8. Change Request Process
-Any scope, cost, or timeline modification must be:  
-1. Submitted in writing by either party.  
-2. Reviewed and quoted within 48 hours.  
-3. Approved via a signed addendum.  
+## 9. Change Request Process
+Any scope, cost, or timeline modification must be:
+1. Submitted in writing by either party.
+2. Reviewed and quoted within 48 hours.
+3. Approved via a signed addendum.
 
 ---
 
-## 9. Acceptance & Signatures
+## 10. Acceptance & Signatures
 This SOW is valid for **15 days** from the date above.
 
 | **Client** | **Service Provider** |

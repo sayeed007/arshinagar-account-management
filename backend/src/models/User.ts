@@ -90,4 +90,7 @@ userSchema.index({ isActive: 1 });
 /**
  * User Model
  */
-export const User = mongoose.model<IUser>('User', userSchema);
+const User = mongoose.model<IUser>('User', userSchema);
+
+export default User;
+export { User }; // Named export for backward compatibility

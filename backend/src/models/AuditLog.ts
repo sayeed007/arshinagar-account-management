@@ -97,4 +97,7 @@ auditLogSchema.pre('deleteMany', function (next) {
 /**
  * Audit Log Model
  */
-export const AuditLog = mongoose.model<IAuditLog>('AuditLog', auditLogSchema);
+const AuditLog = mongoose.model<IAuditLog>('AuditLog', auditLogSchema);
+
+export default AuditLog;
+export { AuditLog }; // Named export for backward compatibility

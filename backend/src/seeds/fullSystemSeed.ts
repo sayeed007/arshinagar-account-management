@@ -1,13 +1,13 @@
 import mongoose from 'mongoose';
-import bcrypt from 'bcrypt';
-import dotenv from 'dotenv';
+import * as bcrypt from 'bcryptjs';
+import * as dotenv from 'dotenv';
 import { connectDB } from '../config/db';
 
 // Import all models
-import User from '../models/User';
-import Client from '../models/Client';
-import RSNumber from '../models/RSNumber';
-import Plot from '../models/Plot';
+import { User } from '../models/User';
+import { Client } from '../models/Client';
+import { RSNumber } from '../models/RSNumber';
+import { Plot } from '../models/Plot';
 import Sale from '../models/Sale';
 import Receipt from '../models/Receipt';
 import InstallmentSchedule from '../models/InstallmentSchedule';
@@ -75,33 +75,34 @@ async function clearDatabase() {
 async function seedUsers() {
   console.log('👥 Seeding users...');
 
-  const hashedPassword = await bcrypt.hash('password123', 10);
-
   const users = [
-    { username: 'admin', email: 'admin@arshinagar.com', password: hashedPassword, role: 'Admin', isActive: true },
-    { username: 'accountmgr', email: 'accounts@arshinagar.com', password: hashedPassword, role: 'AccountManager', isActive: true },
-    { username: 'hof', email: 'hof@arshinagar.com', password: hashedPassword, role: 'HOF', isActive: true },
+    { username: 'admin', email: 'admin@arshinagar.com', password: 'Admin@123', role: 'Admin', isActive: true },
+    { username: 'accountmgr', email: 'manager@arshinagar.com', password: 'Manager@123', role: 'AccountManager', isActive: true },
+    { username: 'hof', email: 'hof@arshinagar.com', password: 'Hof@1234', role: 'HOF', isActive: true },
   ];
 
-  const createdUsers = await User.insertMany(users);
+  // Use create() instead of insertMany() to trigger pre-save hooks for password hashing
+  const createdUsers = await User.create(users);
   console.log(`✅ Created ${createdUsers.length} users`);
   return createdUsers;
 }
 
-async function seedExpenseCategories() {
+async function seedExpenseCategories(users: any[]) {
   console.log('💰 Seeding expense categories...');
 
+  const adminUser = users[0]; // Use admin user as creator
+
   const categories = [
-    { name: 'Land Purchase', description: 'Land acquisition costs', isActive: true },
-    { name: 'Salary', description: 'Employee salaries', isActive: true },
-    { name: 'Stationery', description: 'Office supplies', isActive: true },
-    { name: 'Utility', description: 'Electricity, water, internet', isActive: true },
-    { name: 'Sales Commission', description: 'Sales agent commissions', isActive: true },
-    { name: 'Fuel', description: 'Vehicle fuel costs', isActive: true },
-    { name: 'Client Entertainment', description: 'Client meetings and entertainment', isActive: true },
-    { name: 'Marketing', description: 'Advertising and marketing', isActive: true },
-    { name: 'Legal', description: 'Legal and registration fees', isActive: true },
-    { name: 'Maintenance', description: 'Property maintenance', isActive: true },
+    { name: 'Land Purchase', description: 'Land acquisition costs', isActive: true, createdBy: adminUser._id },
+    { name: 'Salary', description: 'Employee salaries', isActive: true, createdBy: adminUser._id },
+    { name: 'Stationery', description: 'Office supplies', isActive: true, createdBy: adminUser._id },
+    { name: 'Utility', description: 'Electricity, water, internet', isActive: true, createdBy: adminUser._id },
+    { name: 'Sales Commission', description: 'Sales agent commissions', isActive: true, createdBy: adminUser._id },
+    { name: 'Fuel', description: 'Vehicle fuel costs', isActive: true, createdBy: adminUser._id },
+    { name: 'Client Entertainment', description: 'Client meetings and entertainment', isActive: true, createdBy: adminUser._id },
+    { name: 'Marketing', description: 'Advertising and marketing', isActive: true, createdBy: adminUser._id },
+    { name: 'Legal', description: 'Legal and registration fees', isActive: true, createdBy: adminUser._id },
+    { name: 'Maintenance', description: 'Property maintenance', isActive: true, createdBy: adminUser._id },
   ];
 
   const createdCategories = await ExpenseCategory.insertMany(categories);
@@ -135,15 +136,17 @@ async function seedLandInventory() {
   // Create RS Numbers
   const rsNumbers = [];
   for (let i = 0; i < 15; i++) {
+    const totalArea = randomInt(10, 50);
     rsNumbers.push({
       rsNumber: `RS-${String(i + 1).padStart(4, '0')}`,
-      dagNumber: `DAG-${randomInt(100, 999)}`,
-      project: randomChoice(projects),
+      projectName: randomChoice(projects),
       location: randomChoice(areas),
-      totalArea: randomInt(10, 50),
+      totalArea: totalArea,
       unitType: 'Katha',
       soldArea: 0,
-      remainingArea: randomInt(10, 50),
+      allocatedArea: 0,
+      remainingArea: totalArea,
+      description: `DAG-${randomInt(100, 999)}`,
       isActive: true,
     });
   }
@@ -156,13 +159,15 @@ async function seedLandInventory() {
   for (const rs of createdRSNumbers) {
     const plotCount = randomInt(3, 8);
     for (let i = 0; i < plotCount; i++) {
+      const area = randomInt(2, 10);
+      const pricePerUnit = randomInt(500000, 2000000);
       plots.push({
         rsNumberId: rs._id,
         plotNumber: `${rs.rsNumber}-P${String(i + 1).padStart(3, '0')}`,
-        area: randomInt(2, 10),
+        area: area,
         unitType: 'Katha',
         status: 'Available',
-        pricePerUnit: randomInt(500000, 2000000),
+        price: area * pricePerUnit,
         isActive: true,
       });
     }
@@ -174,15 +179,87 @@ async function seedLandInventory() {
   return { rsNumbers: createdRSNumbers, plots: createdPlots };
 }
 
-async function seedEmployees() {
+async function seedEmployees(users: any[]) {
   console.log('👨‍💼 Seeding employees...');
 
+  const adminUser = users[0]; // Use admin user as creator
+
   const employees = [
-    { name: 'Karim Uddin', designation: 'Sales Manager', phone: generatePhone(), email: 'karim@arshinagar.com', bankAccount: '1234567890', bankName: 'DBBL', joiningDate: new Date('2020-01-01'), isActive: true },
-    { name: 'Rahim Hossain', designation: 'Sales Executive', phone: generatePhone(), email: 'rahim@arshinagar.com', bankAccount: '0987654321', bankName: 'BRAC Bank', joiningDate: new Date('2021-06-01'), isActive: true },
-    { name: 'Shamim Ahmed', designation: 'Accountant', phone: generatePhone(), email: 'shamim@arshinagar.com', bankAccount: '1122334455', bankName: 'Islami Bank', joiningDate: new Date('2020-03-01'), isActive: true },
-    { name: 'Fahim Rahman', designation: 'Marketing Officer', phone: generatePhone(), email: 'fahim@arshinagar.com', bankAccount: '5566778899', bankName: 'City Bank', joiningDate: new Date('2021-01-01'), isActive: true },
-    { name: 'Tanim Khan', designation: 'Sales Executive', phone: generatePhone(), email: 'tanim@arshinagar.com', bankAccount: '9988776655', bankName: 'EBL', joiningDate: new Date('2022-01-01'), isActive: true },
+    {
+      name: 'Karim Uddin',
+      designation: 'Sales Manager',
+      phone: generatePhone(),
+      email: 'karim@arshinagar.com',
+      bankAccount: {
+        bankName: 'DBBL',
+        accountNumber: '1234567890',
+        accountHolderName: 'Karim Uddin'
+      },
+      joinDate: new Date('2020-01-01'),
+      baseSalary: 80000,
+      isActive: true,
+      createdBy: adminUser._id
+    },
+    {
+      name: 'Rahim Hossain',
+      designation: 'Sales Executive',
+      phone: generatePhone(),
+      email: 'rahim@arshinagar.com',
+      bankAccount: {
+        bankName: 'BRAC Bank',
+        accountNumber: '0987654321',
+        accountHolderName: 'Rahim Hossain'
+      },
+      joinDate: new Date('2021-06-01'),
+      baseSalary: 50000,
+      isActive: true,
+      createdBy: adminUser._id
+    },
+    {
+      name: 'Shamim Ahmed',
+      designation: 'Accountant',
+      phone: generatePhone(),
+      email: 'shamim@arshinagar.com',
+      bankAccount: {
+        bankName: 'Islami Bank',
+        accountNumber: '1122334455',
+        accountHolderName: 'Shamim Ahmed'
+      },
+      joinDate: new Date('2020-03-01'),
+      baseSalary: 60000,
+      isActive: true,
+      createdBy: adminUser._id
+    },
+    {
+      name: 'Fahim Rahman',
+      designation: 'Marketing Officer',
+      phone: generatePhone(),
+      email: 'fahim@arshinagar.com',
+      bankAccount: {
+        bankName: 'City Bank',
+        accountNumber: '5566778899',
+        accountHolderName: 'Fahim Rahman'
+      },
+      joinDate: new Date('2021-01-01'),
+      baseSalary: 55000,
+      isActive: true,
+      createdBy: adminUser._id
+    },
+    {
+      name: 'Tanim Khan',
+      designation: 'Sales Executive',
+      phone: generatePhone(),
+      email: 'tanim@arshinagar.com',
+      bankAccount: {
+        bankName: 'EBL',
+        accountNumber: '9988776655',
+        accountHolderName: 'Tanim Khan'
+      },
+      joinDate: new Date('2022-01-01'),
+      baseSalary: 50000,
+      isActive: true,
+      createdBy: adminUser._id
+    },
   ];
 
   const createdEmployees = await Employee.insertMany(employees);
@@ -190,13 +267,45 @@ async function seedEmployees() {
   return createdEmployees;
 }
 
-async function seedBankAccounts() {
+async function seedBankAccounts(users: any[]) {
   console.log('🏦 Seeding bank accounts...');
 
+  const adminUser = users[0]; // Use admin user as creator
+
   const accounts = [
-    { bankName: 'Dutch Bangla Bank', accountNumber: 'DBBL-001-234567', accountType: 'Current', branchName: 'Gulshan', openingBalance: 5000000, currentBalance: 5000000, isActive: true },
-    { bankName: 'BRAC Bank', accountNumber: 'BRAC-002-345678', accountType: 'Savings', branchName: 'Dhanmondi', openingBalance: 2000000, currentBalance: 2000000, isActive: true },
-    { bankName: 'Islami Bank', accountNumber: 'IBBL-003-456789', accountType: 'Current', branchName: 'Motijheel', openingBalance: 3000000, currentBalance: 3000000, isActive: true },
+    {
+      bankName: 'Dutch Bangla Bank',
+      accountNumber: 'DBBL-001-234567',
+      accountName: 'Arshinagar Real Estate - DBBL',
+      accountType: 'Current',
+      branchName: 'Gulshan',
+      openingBalance: 5000000,
+      currentBalance: 5000000,
+      isActive: true,
+      createdBy: adminUser._id
+    },
+    {
+      bankName: 'BRAC Bank',
+      accountNumber: 'BRAC-002-345678',
+      accountName: 'Arshinagar Real Estate - BRAC',
+      accountType: 'Savings',
+      branchName: 'Dhanmondi',
+      openingBalance: 2000000,
+      currentBalance: 2000000,
+      isActive: true,
+      createdBy: adminUser._id
+    },
+    {
+      bankName: 'Islami Bank',
+      accountNumber: 'IBBL-003-456789',
+      accountName: 'Arshinagar Real Estate - IBBL',
+      accountType: 'Current',
+      branchName: 'Motijheel',
+      openingBalance: 3000000,
+      currentBalance: 3000000,
+      isActive: true,
+      createdBy: adminUser._id
+    },
   ];
 
   const createdAccounts = await BankAccount.insertMany(accounts);
@@ -209,13 +318,14 @@ async function seedBankAccounts() {
     openingBalance: 500000,
     currentBalance: 500000,
     isActive: true,
+    createdBy: adminUser._id,
   });
   console.log(`✅ Created cash account`);
 
   return { bankAccounts: createdAccounts, cashAccount };
 }
 
-async function seedSalesAndReceipts(clients: any[], plots: any[], users: any[], bankAccounts: any[]) {
+async function seedSalesAndReceipts(clients: any[], plots: any[], users: any[], _bankAccounts: any[]) {
   console.log('💼 Seeding sales, receipts, and installments...');
 
   const startDate = new Date('2024-01-01');
@@ -235,7 +345,7 @@ async function seedSalesAndReceipts(clients: any[], plots: any[], users: any[], 
     const plot = plots.find((p: any) => p.status === 'Available') || randomChoice(plots);
 
     const saleDate = randomDate(startDate, endDate);
-    const totalPrice = plot.area * plot.pricePerUnit;
+    const totalPrice = plot.price || (plot.area * 1000000); // Use plot price or fallback
     const bookingAmount = totalPrice * 0.2; // 20% booking
     const registrationAmount = totalPrice * 0.05; // 5% registration
     const handoverAmount = totalPrice * 0.05; // 5% handover
@@ -247,24 +357,18 @@ async function seedSalesAndReceipts(clients: any[], plots: any[], users: any[], 
       _id: new mongoose.Types.ObjectId(),
       saleNumber: `SAL-2024-${String(saleCounter++).padStart(5, '0')}`,
       clientId: client._id,
-      plot: {
-        plotId: plot._id,
-        plotNumber: plot.plotNumber,
-        rsNumber: plot.rsNumberId,
-        area: plot.area,
-        unitType: plot.unitType,
-        pricePerUnit: plot.pricePerUnit,
-        project: randomChoice(projects),
-      },
+      plotId: plot._id,
+      rsNumberId: plot.rsNumberId,
       saleDate,
       totalPrice,
       paidAmount: 0,
-      saleStatus: 'Active',
+      dueAmount: totalPrice,
+      status: 'Active',
       stages: [
-        { stageName: 'Booking', plannedAmount: bookingAmount, receivedAmount: 0, dueAmount: bookingAmount, status: 'Pending' },
-        { stageName: 'Installments', plannedAmount: installmentAmount, receivedAmount: 0, dueAmount: installmentAmount, status: 'Pending' },
-        { stageName: 'Registration', plannedAmount: registrationAmount, receivedAmount: 0, dueAmount: registrationAmount, status: 'Pending' },
-        { stageName: 'Handover', plannedAmount: handoverAmount, receivedAmount: 0, dueAmount: handoverAmount, status: 'Pending' },
+        { _id: new mongoose.Types.ObjectId(), stageName: 'Booking', plannedAmount: bookingAmount, receivedAmount: 0, dueAmount: bookingAmount, status: 'Pending' },
+        { _id: new mongoose.Types.ObjectId(), stageName: 'Installments', plannedAmount: installmentAmount, receivedAmount: 0, dueAmount: installmentAmount, status: 'Pending' },
+        { _id: new mongoose.Types.ObjectId(), stageName: 'Registration', plannedAmount: registrationAmount, receivedAmount: 0, dueAmount: registrationAmount, status: 'Pending' },
+        { _id: new mongoose.Types.ObjectId(), stageName: 'Handover', plannedAmount: handoverAmount, receivedAmount: 0, dueAmount: handoverAmount, status: 'Pending' },
       ],
       isActive: true,
     };
@@ -278,14 +382,15 @@ async function seedSalesAndReceipts(clients: any[], plots: any[], users: any[], 
 
     // Create booking receipt (approved)
     const bookingReceiptDate = new Date(saleDate.getTime() + randomInt(1, 3) * 24 * 60 * 60 * 1000);
-    const bookingReceipt = {
+    const bookingMethod = randomChoice(['Cash', 'Bank Transfer', 'Cheque']);
+    const bookingReceipt: any = {
       receiptNumber: `RCP-2024-${String(receiptCounter++).padStart(5, '0')}`,
       clientId: client._id,
       saleId: sale._id,
       stageId: sale.stages[0]._id,
-      receiptType: 'Sale',
+      receiptType: 'Booking',
       amount: bookingAmount,
-      method: randomChoice(['Cash', 'Bank Transfer', 'Cheque']),
+      method: bookingMethod,
       receiptDate: bookingReceiptDate,
       approvalStatus: 'Approved',
       postedToLedger: true,
@@ -297,6 +402,15 @@ async function seedSalesAndReceipts(clients: any[], plots: any[], users: any[], 
       createdBy: users[1]._id,
       isActive: true,
     };
+
+    // Add instrument details if payment is by cheque
+    if (bookingMethod === 'Cheque') {
+      bookingReceipt.instrumentDetails = {
+        bankName: randomChoice(['DBBL', 'BRAC Bank', 'City Bank', 'Islami Bank']),
+        chequeNumber: `CHQ-${randomInt(100000, 999999)}`,
+        chequeDate: bookingReceiptDate,
+      };
+    }
 
     receipts.push(bookingReceipt);
     sale.paidAmount += bookingAmount;
@@ -313,6 +427,7 @@ async function seedSalesAndReceipts(clients: any[], plots: any[], users: any[], 
 
       const installment = {
         saleId: sale._id,
+        clientId: client._id,
         installmentNumber: month + 1,
         dueDate,
         amount: monthlyInstallment,
@@ -328,7 +443,7 @@ async function seedSalesAndReceipts(clients: any[], plots: any[], users: any[], 
         const paymentMethod = randomChoice(['Cash', 'Bank Transfer', 'Cheque', 'PDC']);
         const receiptDate = installment.paidDate!;
 
-        const installmentReceipt = {
+        const installmentReceipt: any = {
           receiptNumber: `RCP-2024-${String(receiptCounter++).padStart(5, '0')}`,
           clientId: client._id,
           saleId: sale._id,
@@ -349,31 +464,44 @@ async function seedSalesAndReceipts(clients: any[], plots: any[], users: any[], 
           isActive: true,
         };
 
-        // If PDC, create cheque
-        if (paymentMethod === 'PDC') {
-          const cheque = {
-            chequeNumber: `CHQ-${randomInt(100000, 999999)}`,
-            bankName: randomChoice(['DBBL', 'BRAC Bank', 'City Bank', 'Islami Bank']),
-            branchName: randomChoice(['Gulshan', 'Dhanmondi', 'Motijheel']),
-            chequeType: 'PDC',
-            issueDate: new Date(dueDate.getTime() - 30 * 24 * 60 * 60 * 1000),
-            dueDate,
-            amount: monthlyInstallment,
-            clientId: client._id,
-            saleId: sale._id,
-            receiptId: new mongoose.Types.ObjectId(),
-            status: 'Cleared',
-            clearedDate: receiptDate,
-            clearedBy: users[1]._id,
-            isActive: true,
+        // Add instrument details for Cheque and PDC payments
+        if (paymentMethod === 'Cheque' || paymentMethod === 'PDC') {
+          const chequeNum = `CHQ-${randomInt(100000, 999999)}`;
+          const bankName = randomChoice(['DBBL', 'BRAC Bank', 'City Bank', 'Islami Bank']);
+
+          installmentReceipt.instrumentDetails = {
+            bankName: bankName,
+            chequeNumber: chequeNum,
+            chequeDate: receiptDate,
           };
-          cheques.push(cheque);
+
+          // If PDC, also create cheque record
+          if (paymentMethod === 'PDC') {
+            const cheque = {
+              chequeNumber: chequeNum,
+              bankName: bankName,
+              branchName: randomChoice(['Gulshan', 'Dhanmondi', 'Motijheel']),
+              chequeType: 'PDC',
+              issueDate: new Date(dueDate.getTime() - 30 * 24 * 60 * 60 * 1000),
+              dueDate,
+              amount: monthlyInstallment,
+              clientId: client._id,
+              saleId: sale._id,
+              receiptId: new mongoose.Types.ObjectId(),
+              status: 'Cleared',
+              clearedDate: receiptDate,
+              clearedBy: users[1]._id,
+              createdBy: users[1]._id,
+              isActive: true,
+            };
+            cheques.push(cheque);
+          }
         }
 
         receipts.push(installmentReceipt);
         sale.paidAmount += monthlyInstallment;
         sale.stages[1].receivedAmount += monthlyInstallment;
-        sale.stages[1].dueAmount -= monthlyInstallment;
+        sale.stages[1].dueAmount = Math.max(0, sale.stages[1].dueAmount - monthlyInstallment);
       }
     }
 
@@ -383,14 +511,15 @@ async function seedSalesAndReceipts(clients: any[], plots: any[], users: any[], 
       const regDate = new Date();
       regDate.setMonth(regDate.getMonth() - randomInt(1, 3));
 
-      const regReceipt = {
+      const regMethod = randomChoice(['Bank Transfer', 'Cheque']);
+      const regReceipt: any = {
         receiptNumber: `RCP-2024-${String(receiptCounter++).padStart(5, '0')}`,
         clientId: client._id,
         saleId: sale._id,
         stageId: sale.stages[2]._id,
         receiptType: 'Registration',
         amount: registrationAmount,
-        method: randomChoice(['Bank Transfer', 'Cheque']),
+        method: regMethod,
         receiptDate: regDate,
         approvalStatus: 'Approved',
         postedToLedger: true,
@@ -402,6 +531,15 @@ async function seedSalesAndReceipts(clients: any[], plots: any[], users: any[], 
         createdBy: users[1]._id,
         isActive: true,
       };
+
+      // Add instrument details if payment is by cheque
+      if (regMethod === 'Cheque') {
+        regReceipt.instrumentDetails = {
+          bankName: randomChoice(['DBBL', 'BRAC Bank', 'City Bank', 'Islami Bank']),
+          chequeNumber: `CHQ-${randomInt(100000, 999999)}`,
+          chequeDate: regDate,
+        };
+      }
 
       receipts.push(regReceipt);
       sale.paidAmount += registrationAmount;
@@ -438,7 +576,7 @@ async function seedSalesAndReceipts(clients: any[], plots: any[], users: any[], 
         sale.stages[3].receivedAmount = handoverAmount;
         sale.stages[3].dueAmount = 0;
         sale.stages[3].status = 'Completed';
-        sale.saleStatus = 'Completed';
+        sale.status = 'Completed';
       }
     }
   }
@@ -460,7 +598,7 @@ async function seedSalesAndReceipts(clients: any[], plots: any[], users: any[], 
   return { sales: createdSales, receipts: createdReceipts, installments: createdInstallments, cheques: createdCheques };
 }
 
-async function seedExpenses(categories: any[], employees: any[], users: any[]) {
+async function seedExpenses(categories: any[], _employees: any[], users: any[]) {
   console.log('💸 Seeding expenses...');
 
   const expenses = [];
@@ -479,7 +617,7 @@ async function seedExpenses(categories: any[], employees: any[], users: any[]) {
       amount: randomInt(50000, 100000),
       vendor: 'DESCO / WASA',
       description: 'Office electricity and water bills',
-      method: 'Bank Transfer',
+      paymentMethod: 'Bank Transfer',
       approvalStatus: 'Approved',
       approvedBy: users[2]._id,
       createdBy: users[1]._id,
@@ -495,7 +633,7 @@ async function seedExpenses(categories: any[], employees: any[], users: any[]) {
         amount: randomInt(15000, 40000),
         vendor: 'Stationery Store',
         description: 'Office supplies and materials',
-        method: 'Cash',
+        paymentMethod: 'Cash',
         approvalStatus: 'Approved',
         approvedBy: users[1]._id,
         createdBy: users[1]._id,
@@ -511,7 +649,7 @@ async function seedExpenses(categories: any[], employees: any[], users: any[]) {
       amount: randomInt(100000, 300000),
       vendor: 'Various Media',
       description: 'Social media ads, banners, and promotions',
-      method: 'Bank Transfer',
+      paymentMethod: 'Bank Transfer',
       approvalStatus: 'Approved',
       approvedBy: users[2]._id,
       createdBy: users[1]._id,
@@ -526,7 +664,7 @@ async function seedExpenses(categories: any[], employees: any[], users: any[]) {
       amount: randomInt(30000, 80000),
       vendor: 'Fuel Stations',
       description: 'Vehicle fuel for site visits and client meetings',
-      method: 'Cash',
+      paymentMethod: 'Cash',
       approvalStatus: 'Approved',
       approvedBy: users[1]._id,
       createdBy: users[1]._id,
@@ -542,7 +680,7 @@ async function seedExpenses(categories: any[], employees: any[], users: any[]) {
         amount: randomInt(20000, 70000),
         vendor: 'Restaurants',
         description: 'Client meetings and entertainment',
-        method: 'Cash',
+        paymentMethod: 'Cash',
         approvalStatus: 'Approved',
         approvedBy: users[1]._id,
         createdBy: users[1]._id,
@@ -559,7 +697,7 @@ async function seedExpenses(categories: any[], employees: any[], users: any[]) {
     amount: 15000000,
     vendor: 'Land Seller',
     description: 'Purchase of 20 Katha land for Phase 3',
-    method: 'Bank Transfer',
+    paymentMethod: 'Bank Transfer',
     approvalStatus: 'Approved',
     approvedBy: users[2]._id,
     createdBy: users[0]._id,
@@ -573,7 +711,7 @@ async function seedExpenses(categories: any[], employees: any[], users: any[]) {
     amount: 500000,
     vendor: 'Law Firm',
     description: 'Land registration and legal fees',
-    method: 'Bank Transfer',
+    paymentMethod: 'Bank Transfer',
     approvalStatus: 'Approved',
     approvedBy: users[2]._id,
     createdBy: users[1]._id,
@@ -585,9 +723,10 @@ async function seedExpenses(categories: any[], employees: any[], users: any[]) {
   return createdExpenses;
 }
 
-async function seedEmployeeCosts(employees: any[]) {
+async function seedEmployeeCosts(employees: any[], users: any[]) {
   console.log('💼 Seeding employee costs (12 months)...');
 
+  const adminUser = users[0]; // Use admin user as creator
   const costs = [];
 
   // Salaries for each designation
@@ -628,6 +767,7 @@ async function seedEmployeeCosts(employees: any[]) {
         deductions,
         grossPay,
         netPay,
+        createdBy: adminUser._id,
       });
     }
   }
@@ -637,16 +777,20 @@ async function seedEmployeeCosts(employees: any[]) {
   return createdCosts;
 }
 
-async function seedCancellationsAndRefunds(sales: any[], clients: any[], users: any[]) {
+async function seedCancellationsAndRefunds(sales: any[], _clients: any[], users: any[]) {
   console.log('❌ Seeding cancellations and refunds...');
 
   const cancellations = [];
   const refunds = [];
+  let refundCounter = 1;
 
-  // Cancel 5 sales
-  for (let i = 0; i < 5; i++) {
-    const sale = randomChoice(sales.filter((s: any) => s.saleStatus === 'Active' && s.paidAmount > 0));
-    if (!sale) continue;
+  // Get eligible sales and shuffle them to avoid duplicates
+  const eligibleSales = sales.filter((s: any) => s.status === 'Active' && s.paidAmount > 0);
+  const shuffledSales = eligibleSales.sort(() => Math.random() - 0.5);
+  const salesToCancel = shuffledSales.slice(0, Math.min(5, shuffledSales.length));
+
+  // Cancel selected sales
+  for (const sale of salesToCancel) {
 
     const cancellationDate = randomDate(new Date('2024-06-01'), new Date('2024-11-30'));
     const officeChargePercent = 10;
@@ -664,8 +808,9 @@ async function seedCancellationsAndRefunds(sales: any[], clients: any[], users: 
       officeChargeAmount,
       otherDeductions,
       refundableAmount,
-      refundStatus: 'Partial Refund',
-      approvalStatus: 'Approved',
+      refundedAmount: 0,
+      remainingRefund: refundableAmount,
+      status: 'Pending',
       approvedBy: users[2]._id,
       approvedAt: cancellationDate,
       createdBy: users[1]._id,
@@ -683,6 +828,7 @@ async function seedCancellationsAndRefunds(sales: any[], clients: any[], users: 
       const isPaid = month < 3; // First 3 paid
 
       refunds.push({
+        refundNumber: `RFD-2024-${String(refundCounter++).padStart(5, '0')}`,
         cancellationId: cancellation._id,
         saleId: sale._id,
         clientId: sale.clientId,
@@ -692,8 +838,8 @@ async function seedCancellationsAndRefunds(sales: any[], clients: any[], users: 
         status: isPaid ? 'Paid' : 'Pending',
         paidDate: isPaid ? dueDate : undefined,
         paidAmount: isPaid ? monthlyRefund : 0,
-        method: isPaid ? randomChoice(['Bank Transfer', 'Cash']) : undefined,
-        approvalStatus: isPaid ? 'Approved' : 'Pending',
+        paymentMethod: isPaid ? randomChoice(['Bank Transfer', 'Cash']) : undefined,
+        approvalStatus: isPaid ? 'Approved' : 'Draft',
         approvedBy: isPaid ? users[2]._id : undefined,
         createdBy: users[1]._id,
         isActive: true,
@@ -786,14 +932,14 @@ async function main() {
     console.log('\n📊 Seeding all data...\n');
 
     const users = await seedUsers();
-    const categories = await seedExpenseCategories();
+    const categories = await seedExpenseCategories(users);
     const clients = await seedClients();
     const { rsNumbers, plots } = await seedLandInventory();
-    const employees = await seedEmployees();
-    const { bankAccounts, cashAccount } = await seedBankAccounts();
+    const employees = await seedEmployees(users);
+    const { bankAccounts, cashAccount: _cashAccount } = await seedBankAccounts(users);
     const { sales, receipts, installments, cheques } = await seedSalesAndReceipts(clients, plots, users, bankAccounts);
     const expenses = await seedExpenses(categories, employees, users);
-    const employeeCosts = await seedEmployeeCosts(employees);
+    const employeeCosts = await seedEmployeeCosts(employees, users);
     const { cancellations, refunds } = await seedCancellationsAndRefunds(sales, clients, users);
     const smsTemplates = await seedSMSTemplates();
     const systemSettings = await seedSystemSettings();
@@ -820,9 +966,9 @@ async function main() {
 
     console.log('\n🎉 Database seeded with 1 year of comprehensive data!');
     console.log('\n📝 Login credentials:');
-    console.log('   Admin: admin@arshinagar.com / password123');
-    console.log('   Account Manager: accounts@arshinagar.com / password123');
-    console.log('   HOF: hof@arshinagar.com / password123');
+    console.log('   Admin: admin@arshinagar.com / Admin@123');
+    console.log('   Account Manager: manager@arshinagar.com /  Manager@123');
+    console.log('   HOF: hof@arshinagar.com / Hof@1234');
 
     process.exit(0);
   } catch (error: any) {
