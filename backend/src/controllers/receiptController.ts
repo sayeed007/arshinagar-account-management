@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import Receipt, { ReceiptApprovalStatus } from '../models/Receipt';
 import Sale from '../models/Sale';
-import Client from '../models/Client';
+import { Client } from '../models/Client';
 import Ledger from '../models/Ledger';
 import { ApiError, ErrorCode } from '../middlewares/error.middleware';
 import { UserRole } from '../types';

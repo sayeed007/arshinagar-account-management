@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import SMSTemplate from '../models/SMSTemplate';
 import smsService from '../services/smsService';
 import Sale, { ISale } from '../models/Sale';
-import Client from '../models/Client';
+import { Client } from '../models/Client';
 
 // Extend Request to include user
 interface AuthRequest extends Request {

@@ -2,7 +2,7 @@ import cron from 'node-cron';
 import InstallmentSchedule from '../models/InstallmentSchedule';
 import Cheque from '../models/Cheque';
 import Sale from '../models/Sale';
-import Client from '../models/Client';
+import { Client } from '../models/Client';
 import smsService from './smsService';
 
 class CronService {
