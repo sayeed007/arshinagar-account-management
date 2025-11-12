@@ -101,9 +101,9 @@ export default function SaleDetailPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Main Content */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-3 space-y-6">
           {/* Sale Summary */}
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Sale Summary</h2>
@@ -197,13 +197,12 @@ export default function SaleDetailPage() {
                       {/* Stage Progress Bar */}
                       <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                         <div
-                          className={`h-2 rounded-full ${
-                            stage.status === SaleStageStatus.COMPLETED
+                          className={`h-2 rounded-full ${stage.status === SaleStageStatus.COMPLETED
                               ? 'bg-green-500'
                               : stage.status === SaleStageStatus.PARTIAL
-                              ? 'bg-yellow-500'
-                              : 'bg-gray-400'
-                          }`}
+                                ? 'bg-yellow-500'
+                                : 'bg-gray-400'
+                            }`}
                           style={{ width: `${stageProgress}%` }}
                         />
                       </div>

@@ -141,9 +141,9 @@ export default function RSNumberDetailPage() {
         <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{rsNumber.projectName}</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* RS Number Info */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-3 space-y-6">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
               Land Information
@@ -203,11 +203,10 @@ export default function RSNumberDetailPage() {
                 </dt>
                 <dd className="mt-1">
                   <span
-                    className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                      rsNumber.isActive
+                    className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${rsNumber.isActive
                         ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
                         : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                    }`}
+                      }`}
                   >
                     {rsNumber.isActive ? 'Active' : 'Inactive'}
                   </span>

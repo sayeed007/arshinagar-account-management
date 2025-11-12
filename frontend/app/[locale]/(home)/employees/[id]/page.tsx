@@ -96,9 +96,9 @@ export default function EmployeeDetailPage() {
         <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{employee.designation}</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Main Content */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-3 space-y-6">
           {/* Employee Details */}
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Employee Information</h2>
@@ -244,11 +244,10 @@ export default function EmployeeDetailPage() {
             <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
               <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Status</h3>
               <span
-                className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${
-                  employee.resignDate
+                className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${employee.resignDate
                     ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
                     : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                }`}
+                  }`}
               >
                 {employee.resignDate ? 'Resigned' : 'Active'}
               </span>

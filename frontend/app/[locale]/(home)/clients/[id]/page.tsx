@@ -5,9 +5,6 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { clientApi, Client, salesApi, Sale, SaleStatus } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
-import { Modal, ModalContent, ModalFooter } from '@/components/ui/modal';
-import { ConfirmDialog } from '@/components/ui/confirm-dialog';
-import { getErrorMessage } from '@/lib/types';
 
 export default function ClientDetailPage() {
   const params = useParams();
@@ -16,19 +13,6 @@ export default function ClientDetailPage() {
   const [sales, setSales] = useState<Sale[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingSales, setLoadingSales] = useState(true);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [updating, setUpdating] = useState(false);
-  const [deleting, setDeleting] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '',
-    phone: '',
-    alternatePhone: '',
-    email: '',
-    address: '',
-    nid: '',
-    notes: '',
-  });
 
   useEffect(() => {
     if (params.id) {
@@ -41,16 +25,6 @@ export default function ClientDetailPage() {
       setLoading(true);
       const data = await clientApi.getById(params.id as string);
       setClient(data);
-      // Pre-fill form data for editing
-      setFormData({
-        name: data.name,
-        phone: data.phone,
-        alternatePhone: data.alternatePhone || '',
-        email: data.email || '',
-        address: data.address,
-        nid: data.nid || '',
-        notes: data.notes || '',
-      });
       // Load sales for this client
       loadSales(params.id as string);
     } catch (error: any) {
@@ -74,62 +48,9 @@ export default function ClientDetailPage() {
     }
   };
 
-  const handleOpenEditModal = () => {
-    if (client) {
-      setFormData({
-        name: client.name,
-        phone: client.phone,
-        alternatePhone: client.alternatePhone || '',
-        email: client.email || '',
-        address: client.address,
-        nid: client.nid || '',
-        notes: client.notes || '',
-      });
-      setShowEditModal(true);
-    }
-  };
+  const handleDelete = async () => {
+    if (!confirm('Are you sure you want to delete this client?')) return;
 
-  const handleCloseEditModal = () => {
-    setShowEditModal(false);
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setUpdating(true);
-
-    try {
-      // Remove empty optional fields
-      const data: Record<string, unknown> = { ...formData };
-      if (!data.alternatePhone) delete data.alternatePhone;
-      if (!data.email) delete data.email;
-      if (!data.nid) delete data.nid;
-      if (!data.notes) delete data.notes;
-
-      await clientApi.update(params.id as string, data);
-      showSuccess('Client updated successfully!');
-      handleCloseEditModal();
-      loadClient(); // Refresh the client data
-    } catch (error) {
-      console.error('Failed to update client:', error);
-      showError(getErrorMessage(error));
-    } finally {
-      setUpdating(false);
-    }
-  };
-
-  const handleDeleteClick = () => {
-    setShowDeleteConfirm(true);
-  };
-
-  const handleDeleteConfirm = async () => {
-    setDeleting(true);
     try {
       await clientApi.delete(params.id as string);
       showSuccess('Client deleted successfully');
@@ -137,9 +58,6 @@ export default function ClientDetailPage() {
     } catch (error: any) {
       console.error('Failed to delete client:', error);
       showError(error.response?.data?.error?.message || 'Failed to delete client');
-      setShowDeleteConfirm(false);
-    } finally {
-      setDeleting(false);
     }
   };
 
@@ -178,9 +96,9 @@ export default function ClientDetailPage() {
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{client.name}</h1>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Client Info */}
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-3">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
               Client Information
@@ -264,11 +182,10 @@ export default function ClientDetailPage() {
                 </dt>
                 <dd className="mt-1">
                   <span
-                    className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                      client.isActive
-                        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                        : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                    }`}
+                    className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${client.isActive
+                      ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                      : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                      }`}
                   >
                     {client.isActive ? 'Active' : 'Inactive'}
                   </span>
@@ -353,15 +270,14 @@ export default function ClientDetailPage() {
                           </td>
                           <td className="px-4 py-4 whitespace-nowrap">
                             <span
-                              className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                                sale.status === SaleStatus.COMPLETED
-                                  ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                                  : sale.status === SaleStatus.ACTIVE
+                              className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${sale.status === SaleStatus.COMPLETED
+                                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                                : sale.status === SaleStatus.ACTIVE
                                   ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
                                   : sale.status === SaleStatus.CANCELLED
-                                  ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                                  : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
-                              }`}
+                                    ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                                    : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
+                                }`}
                             >
                               {sale.status}
                             </span>
@@ -418,14 +334,14 @@ export default function ClientDetailPage() {
               Actions
             </h2>
             <div className="space-y-3">
-              <button
-                onClick={handleOpenEditModal}
+              <Link
+                href={`/clients/${client._id}/edit`}
                 className="block w-full px-4 py-2 bg-indigo-600 text-white text-center rounded-md hover:bg-indigo-700"
               >
                 Edit Client
-              </button>
+              </Link>
               <button
-                onClick={handleDeleteClick}
+                onClick={handleDelete}
                 className="w-full px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
               >
                 Delete Client
@@ -440,172 +356,6 @@ export default function ClientDetailPage() {
           </div>
         </div>
       </div>
-
-      {/* Edit Client Modal */}
-      <Modal
-        isOpen={showEditModal}
-        onClose={handleCloseEditModal}
-        title="Edit Client"
-        size="lg"
-      >
-        <form onSubmit={handleSubmit}>
-          <ModalContent>
-            <div className="space-y-4">
-              {/* Name */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Name <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                  minLength={2}
-                  maxLength={100}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                  placeholder="Enter client name"
-                />
-              </div>
-
-              {/* Phone */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Phone <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  required
-                  pattern="^(\+8801|01)[3-9]\d{8}$"
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                  placeholder="01712345678"
-                />
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  Format: 01XXXXXXXXX or +8801XXXXXXXXX
-                </p>
-              </div>
-
-              {/* Alternate Phone */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Alternate Phone
-                </label>
-                <input
-                  type="tel"
-                  name="alternatePhone"
-                  value={formData.alternatePhone}
-                  onChange={handleChange}
-                  pattern="^(\+8801|01)[3-9]\d{8}$"
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                  placeholder="01712345678"
-                />
-              </div>
-
-              {/* Email */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                  placeholder="client@example.com"
-                />
-              </div>
-
-              {/* Address */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Address <span className="text-red-500">*</span>
-                </label>
-                <textarea
-                  name="address"
-                  value={formData.address}
-                  onChange={handleChange}
-                  required
-                  minLength={5}
-                  maxLength={500}
-                  rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                  placeholder="Enter full address"
-                />
-              </div>
-
-              {/* NID */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  NID Number
-                </label>
-                <input
-                  type="text"
-                  name="nid"
-                  value={formData.nid}
-                  onChange={handleChange}
-                  pattern="^\d{10,17}$"
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                  placeholder="10-17 digits"
-                />
-              </div>
-
-              {/* Notes */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Notes
-                </label>
-                <textarea
-                  name="notes"
-                  value={formData.notes}
-                  onChange={handleChange}
-                  maxLength={1000}
-                  rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                  placeholder="Additional notes (optional)"
-                />
-              </div>
-            </div>
-          </ModalContent>
-
-          <ModalFooter>
-            <div className="flex gap-3">
-              <button
-                type="submit"
-                disabled={updating}
-                className="flex-1 px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {updating ? 'Updating...' : 'Update Client'}
-              </button>
-              <button
-                type="button"
-                onClick={handleCloseEditModal}
-                disabled={updating}
-                className="flex-1 px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Cancel
-              </button>
-            </div>
-          </ModalFooter>
-        </form>
-      </Modal>
-
-      {/* Delete Confirmation Dialog */}
-      <ConfirmDialog
-        isOpen={showDeleteConfirm}
-        onClose={() => setShowDeleteConfirm(false)}
-        onConfirm={handleDeleteConfirm}
-        title="Delete Client"
-        message={`Are you sure you want to delete ${client?.name}? This action cannot be undone and will remove all associated data.`}
-        confirmText="Delete"
-        cancelText="Cancel"
-        variant="danger"
-        isLoading={deleting}
-      />
     </div>
   );
 }
