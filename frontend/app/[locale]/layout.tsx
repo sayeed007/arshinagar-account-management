@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { ThemeProvider } from '@/lib/providers/theme-provider';
 import { AuthProvider } from '@/lib/auth-context';
 import { locales } from '@/lib/i18n/config';
+import { Toaster } from 'sonner';
 
 export default async function LocaleLayout({
   children,
@@ -27,6 +28,7 @@ export default async function LocaleLayout({
       <AuthProvider>
         <NextIntlClientProvider messages={messages} locale={locale}>
           {children}
+          <Toaster richColors position="top-right" />
         </NextIntlClientProvider>
       </AuthProvider>
     </ThemeProvider>
