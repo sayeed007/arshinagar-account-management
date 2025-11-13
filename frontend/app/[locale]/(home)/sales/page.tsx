@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { salesApi, Sale, SaleStatus, Client, Plot } from '@/lib/api';
+import { toast } from 'sonner';
 
 export default function SalesPage() {
   const [sales, setSales] = useState<Sale[]>([]);
@@ -37,7 +38,7 @@ export default function SalesPage() {
       setTotalPages(response.pagination?.totalPages || 0);
     } catch (error: any) {
       console.error('Failed to load sales:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load sales');
+      toast.error(error.response?.data?.error?.message || 'Failed to load sales');
     } finally {
       setLoading(false);
     }

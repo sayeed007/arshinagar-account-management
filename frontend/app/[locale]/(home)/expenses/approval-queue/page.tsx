@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { expensesApi, Expense, ExpenseCategory } from '@/lib/api';
+import { toast } from 'sonner';
 
 export default function ExpenseApprovalQueuePage() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -19,7 +20,7 @@ export default function ExpenseApprovalQueuePage() {
       setExpenses(data);
     } catch (error: any) {
       console.error('Failed to load approval queue:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load approval queue');
+      toast.error(error.response?.data?.error?.message || 'Failed to load approval queue');
     } finally {
       setLoading(false);
     }
@@ -31,28 +32,28 @@ export default function ExpenseApprovalQueuePage() {
 
     try {
       await expensesApi.approve(id, remarks || undefined);
-      alert('Expense approved successfully');
+      toast.success('Expense approved successfully');
       loadQueue();
     } catch (error: any) {
       console.error('Failed to approve expense:', error);
-      alert(error.response?.data?.error?.message || 'Failed to approve expense');
+      toast.error(error.response?.data?.error?.message || 'Failed to approve expense');
     }
   };
 
   const handleReject = async (id: string) => {
     const remarks = prompt('Rejection reason (required):');
     if (!remarks || remarks.trim() === '') {
-      alert('Rejection reason is required');
+      toast.error('Rejection reason is required');
       return;
     }
 
     try {
       await expensesApi.reject(id, remarks);
-      alert('Expense rejected');
+      toast.success('Expense rejected');
       loadQueue();
     } catch (error: any) {
       console.error('Failed to reject expense:', error);
-      alert(error.response?.data?.error?.message || 'Failed to reject expense');
+      toast.error(error.response?.data?.error?.message || 'Failed to reject expense');
     }
   };
 

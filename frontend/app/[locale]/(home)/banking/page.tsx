@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { bankAccountsApi, cashAccountsApi, BankAccount, CashAccount, AccountType } from '@/lib/api';
+import { toast } from 'sonner';
 
 export default function BankingDashboardPage() {
   const [loading, setLoading] = useState(true);
@@ -31,7 +32,7 @@ export default function BankingDashboardPage() {
       setCashAccounts(cashAccountsRes.data);
     } catch (error: any) {
       console.error('Failed to load banking dashboard:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load dashboard data');
+      toast.error(error.response?.data?.error?.message || 'Failed to load dashboard data');
     } finally {
       setLoading(false);
     }

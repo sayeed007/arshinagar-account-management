@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { refundsApi, Refund, RefundApprovalStatus, Cancellation, Sale, Client } from '@/lib/api';
+import { toast } from 'sonner';
 
 export default function ApprovalQueuePage() {
   const [loading, setLoading] = useState(true);
@@ -19,7 +20,7 @@ export default function ApprovalQueuePage() {
       setRefunds(response.data);
     } catch (error: any) {
       console.error('Failed to load approval queue:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load approval queue');
+      toast.error(error.response?.data?.error?.message || 'Failed to load approval queue');
     } finally {
       setLoading(false);
     }

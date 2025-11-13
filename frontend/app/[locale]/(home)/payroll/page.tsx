@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { employeeCostsApi, EmployeeCost, Employee } from '@/lib/api';
+import { toast } from 'sonner';
 
 export default function PayrollPage() {
   const [loading, setLoading] = useState(true);
@@ -29,7 +30,7 @@ export default function PayrollPage() {
       setCosts(data.data);
     } catch (error: any) {
       console.error('Failed to load payroll:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load payroll data');
+      toast.error(error.response?.data?.error?.message || 'Failed to load payroll data');
     } finally {
       setLoading(false);
     }

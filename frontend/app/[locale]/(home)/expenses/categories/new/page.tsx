@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { expenseCategoryApi } from '@/lib/api';
+import { toast } from 'sonner';
 
 export default function NewExpenseCategoryPage() {
   const router = useRouter();
@@ -29,11 +30,11 @@ export default function NewExpenseCategoryPage() {
         name: formData.name,
         description: formData.description || undefined,
       });
-      alert('Expense category created successfully!');
+      toast.success('Expense category created successfully!');
       router.push('/expenses/categories');
     } catch (error: any) {
       console.error('Failed to create category:', error);
-      alert(error.response?.data?.error?.message || 'Failed to create expense category');
+      toast.error(error.response?.data?.error?.message || 'Failed to create expense category');
     } finally {
       setLoading(false);
     }

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { clientApi, Client } from '@/lib/api';
+import { toast } from 'sonner';
 
 export default function ClientsPage() {
   const [clients, setClients] = useState<Client[]>([]);
@@ -33,7 +34,7 @@ export default function ClientsPage() {
       }
     } catch (error: any) {
       console.error('Failed to load clients:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load clients');
+      toast.error(error.response?.data?.error?.message || 'Failed to load clients');
     } finally {
       setLoading(false);
     }

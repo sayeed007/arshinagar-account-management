@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { expensesApi, expenseCategoryApi, ExpenseCategory, PaymentMethod } from '@/lib/api';
+import { toast } from 'sonner';
 
 export default function NewExpensePage() {
   const router = useRouter();
@@ -34,7 +35,7 @@ export default function NewExpensePage() {
       setCategories(response.data || []);
     } catch (error: any) {
       console.error('Failed to load categories:', error);
-      alert('Failed to load expense categories');
+      toast.error('Failed to load expense categories');
     } finally {
       setLoadingData(false);
     }
@@ -65,7 +66,7 @@ export default function NewExpensePage() {
 
       if (formData.paymentMethod === PaymentMethod.CHEQUE) {
         if (!formData.bankName || !formData.chequeNumber) {
-          alert('Bank name and cheque number are required for cheque payments');
+          toast.error('Bank name and cheque number are required for cheque payments');
           return;
         }
         data.instrumentDetails = {
@@ -79,11 +80,11 @@ export default function NewExpensePage() {
       }
 
       const expense = await expensesApi.create(data);
-      alert('Expense created successfully!');
+      toast.success('Expense created successfully!');
       router.push(`/expenses/${expense._id}`);
     } catch (error: any) {
       console.error('Failed to create expense:', error);
-      alert(error.response?.data?.error?.message || 'Failed to create expense');
+      toast.error(error.response?.data?.error?.message || 'Failed to create expense');
     } finally {
       setLoading(false);
     }

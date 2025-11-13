@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { receiptsApi, Receipt, ReceiptApprovalStatus, Client, Sale } from '@/lib/api';
+import { toast } from 'sonner';
 
 export default function ReceiptsPage() {
   const searchParams = useSearchParams();
@@ -40,7 +41,7 @@ export default function ReceiptsPage() {
       setTotalPages(response.pagination?.totalPages || 0);
     } catch (error: any) {
       console.error('Failed to load receipts:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load receipts');
+      toast.error(error.response?.data?.error?.message || 'Failed to load receipts');
     } finally {
       setLoading(false);
     }

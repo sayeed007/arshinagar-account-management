@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { employeesApi, employeeCostsApi, Employee } from '@/lib/api';
+import { toast } from 'sonner';
 
 export default function NewEmployeeCostPage() {
   const router = useRouter();
@@ -48,7 +49,7 @@ export default function NewEmployeeCostPage() {
       setFormData((prev) => ({ ...prev, salary: data.baseSalary.toString() }));
     } catch (error: any) {
       console.error('Failed to load employee:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load employee');
+      toast.error(error.response?.data?.error?.message || 'Failed to load employee');
       router.push('/employees');
     } finally {
       setLoadingEmployee(false);
@@ -84,11 +85,11 @@ export default function NewEmployeeCostPage() {
         paymentMethod: formData.paymentMethod,
         notes: formData.notes || undefined,
       });
-      alert('Employee cost entry created successfully!');
+      toast.success('Employee cost entry created successfully!');
       router.push(`/employees/${params.id}`);
     } catch (error: any) {
       console.error('Failed to create cost entry:', error);
-      alert(error.response?.data?.error?.message || 'Failed to create employee cost entry');
+      toast.error(error.response?.data?.error?.message || 'Failed to create employee cost entry');
     } finally {
       setLoading(false);
     }

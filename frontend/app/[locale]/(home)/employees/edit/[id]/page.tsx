@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { employeesApi, Employee } from '@/lib/api';
+import { toast } from 'sonner';
 
 export default function EditEmployeePage() {
   const router = useRouter();
@@ -55,7 +56,7 @@ export default function EditEmployeePage() {
       });
     } catch (error: any) {
       console.error('Failed to load employee:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load employee');
+      toast.error(error.response?.data?.error?.message || 'Failed to load employee');
       router.push('/employees');
     } finally {
       setLoadingData(false);
@@ -95,11 +96,11 @@ export default function EditEmployeePage() {
       }
 
       await employeesApi.update(params.id as string, data);
-      alert('Employee updated successfully!');
+      toast.success('Employee updated successfully!');
       router.push(`/employees/${params.id}`);
     } catch (error: any) {
       console.error('Failed to update employee:', error);
-      alert(error.response?.data?.error?.message || 'Failed to update employee');
+      toast.error(error.response?.data?.error?.message || 'Failed to update employee');
     } finally {
       setLoading(false);
     }

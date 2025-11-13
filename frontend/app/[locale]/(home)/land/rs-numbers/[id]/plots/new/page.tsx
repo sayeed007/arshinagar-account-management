@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { landApi, RSNumber, PlotStatus } from '@/lib/api';
+import { toast } from 'sonner';
 
 export default function NewPlotPage() {
   const params = useParams();
@@ -31,7 +32,7 @@ export default function NewPlotPage() {
       setRSNumber(data);
     } catch (error: any) {
       console.error('Failed to load RS Number:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load RS Number');
+      toast.error(error.response?.data?.error?.message || 'Failed to load RS Number');
       router.push('/land/rs-numbers');
     } finally {
       setRsLoading(false);
@@ -56,7 +57,7 @@ export default function NewPlotPage() {
 
       // Validate area against remaining area
       if (rsNumber && plotArea > rsNumber.remainingArea) {
-        alert(
+        toast.success(
           `Insufficient area. Available: ${rsNumber.remainingArea} ${rsNumber.unitType}\nYou tried to allocate: ${plotArea} ${rsNumber.unitType}`
         );
         setLoading(false);
@@ -77,7 +78,7 @@ export default function NewPlotPage() {
       }
 
       await landApi.plots.create(data);
-      alert('Plot created successfully!');
+      toast.success('Plot created successfully!');
       router.push(`/land/rs-numbers/${params.id}`);
     } catch (error: any) {
       console.error('Failed to create plot:', error);
@@ -88,9 +89,9 @@ export default function NewPlotPage() {
         const fieldErrors = Object.entries(details)
           .map(([field, msg]) => `${field}: ${msg}`)
           .join('\n');
-        alert(`Validation errors:\n${fieldErrors}`);
+        toast.error(`Validation errors:\n${fieldErrors}`);
       } else {
-        alert(errorMessage);
+        toast.error(errorMessage);
       }
     } finally {
       setLoading(false);

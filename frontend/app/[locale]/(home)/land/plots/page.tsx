@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { type Locale, defaultLocale } from '@/lib/i18n/config'
+import { toast } from 'sonner';
 
 export default function AllPlotsPage() {
   const [plots, setPlots] = useState<Plot[]>([])
@@ -65,7 +66,7 @@ export default function AllPlotsPage() {
       setRSNumbers(rsMap)
     } catch (error: any) {
       console.error('Failed to load plots:', error)
-      alert(error.response?.data?.error?.message || 'Failed to load plots')
+      toast.error(error.response?.data?.error?.message || 'Failed to load plots')
     } finally {
       setLoading(false)
     }

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { clientApi, Client } from '@/lib/api';
+import { toast } from 'sonner';
 
 export default function NewClientPage() {
   const router = useRouter();
@@ -38,7 +39,7 @@ export default function NewClientPage() {
       if (!data.notes) delete data.notes;
 
       await clientApi.create(data);
-      alert('Client created successfully!');
+      toast.success('Client created successfully!');
       router.push('/clients');
     } catch (error: any) {
       console.error('Failed to create client:', error);
@@ -49,9 +50,9 @@ export default function NewClientPage() {
         const fieldErrors = Object.entries(details)
           .map(([field, msg]) => `${field}: ${msg}`)
           .join('\n');
-        alert(`Validation errors:\n${fieldErrors}`);
+        toast.error(`Validation errors:\n${fieldErrors}`);
       } else {
-        alert(errorMessage);
+        toast.error(errorMessage);
       }
     } finally {
       setLoading(false);

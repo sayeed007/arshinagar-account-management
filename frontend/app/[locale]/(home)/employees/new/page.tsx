@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { employeesApi } from '@/lib/api';
+import { toast } from 'sonner';
 
 export default function NewEmployeePage() {
   const router = useRouter();
@@ -54,11 +55,11 @@ export default function NewEmployeePage() {
       }
 
       const employee = await employeesApi.create(data);
-      alert('Employee created successfully!');
+      toast.success('Employee created successfully!');
       router.push(`/employees/${employee._id}`);
     } catch (error: any) {
       console.error('Failed to create employee:', error);
-      alert(error.response?.data?.error?.message || 'Failed to create employee');
+      toast.error(error.response?.data?.error?.message || 'Failed to create employee');
     } finally {
       setLoading(false);
     }

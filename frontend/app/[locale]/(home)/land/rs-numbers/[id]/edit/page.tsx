@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { landApi, RSNumber, UnitType } from '@/lib/api';
+import { toast } from 'sonner';
 
 export default function EditRSNumberPage() {
   const params = useParams();
@@ -41,7 +42,7 @@ export default function EditRSNumberPage() {
       });
     } catch (error: any) {
       console.error('Failed to load RS Number:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load RS Number');
+      toast.error(error.response?.data?.error?.message || 'Failed to load RS Number');
       router.push('/land/rs-numbers');
     } finally {
       setDataLoading(false);
@@ -76,7 +77,7 @@ export default function EditRSNumberPage() {
 
       // Validate: new total area must be >= (sold + allocated)
       if (rsNumber && newTotalArea < (rsNumber.soldArea + rsNumber.allocatedArea)) {
-        alert(
+        toast.error(
           `Total area cannot be less than sold + allocated area.\n\nSold: ${rsNumber.soldArea} ${rsNumber.unitType}\nAllocated: ${rsNumber.allocatedArea} ${rsNumber.unitType}\nMinimum required: ${rsNumber.soldArea + rsNumber.allocatedArea} ${rsNumber.unitType}\nYou entered: ${newTotalArea} ${formData.unitType}`
         );
         setLoading(false);
@@ -98,7 +99,7 @@ export default function EditRSNumberPage() {
       }
 
       await landApi.rsNumbers.update(params.id as string, data);
-      alert('RS Number updated successfully!');
+      toast.success('RS Number updated successfully!');
       router.push(`/land/rs-numbers/${params.id}`);
     } catch (error: any) {
       console.error('Failed to update RS Number:', error);
@@ -109,9 +110,9 @@ export default function EditRSNumberPage() {
         const fieldErrors = Object.entries(details)
           .map(([field, msg]) => `${field}: ${msg}`)
           .join('\n');
-        alert(`Validation errors:\n${fieldErrors}`);
+        toast.error(`Validation errors:\n${fieldErrors}`);
       } else {
-        alert(errorMessage);
+        toast.error(errorMessage);
       }
     } finally {
       setLoading(false);

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { receiptsApi, salesApi, Sale, ReceiptType, PaymentMethod } from '@/lib/api';
+import { toast } from 'sonner';
 
 export default function NewReceiptPage() {
   const router = useRouter();
@@ -44,7 +45,7 @@ export default function NewReceiptPage() {
       setSales(response.data || []);
     } catch (error: any) {
       console.error('Failed to load sales:', error);
-      alert('Failed to load sales');
+      toast.error('Failed to load sales');
     } finally {
       setLoadingData(false);
     }
@@ -65,7 +66,7 @@ export default function NewReceiptPage() {
 
     try {
       if (!selectedSale) {
-        alert('Please select a sale');
+        toast.error('Please select a sale');
         return;
       }
 
@@ -80,7 +81,7 @@ export default function NewReceiptPage() {
 
       if (formData.method === PaymentMethod.CHEQUE || formData.method === PaymentMethod.PDC) {
         if (!formData.bankName || !formData.chequeNumber) {
-          alert('Bank name and cheque number are required for cheque/PDC payments');
+          toast.error('Bank name and cheque number are required for cheque/PDC payments');
           return;
         }
         data.instrumentDetails = {
@@ -94,11 +95,11 @@ export default function NewReceiptPage() {
       }
 
       const receipt = await receiptsApi.create(data);
-      alert('Receipt created successfully!');
+      toast.success('Receipt created successfully!');
       router.push(`/receipts/${receipt._id}`);
     } catch (error: any) {
       console.error('Failed to create receipt:', error);
-      alert(error.response?.data?.error?.message || 'Failed to create receipt');
+      toast.error(error.response?.data?.error?.message || 'Failed to create receipt');
     } finally {
       setLoading(false);
     }

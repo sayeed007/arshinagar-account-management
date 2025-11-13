@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { refundsApi, Refund, RefundStatus, RefundApprovalStatus, Cancellation, Sale, Client, Land, RSNumber } from '@/lib/api';
+import { toast } from 'sonner';
 
 export default function RefundDetailPage({ params }: { params: { id: string } }) {
   const router = useRouter();
@@ -33,7 +34,7 @@ export default function RefundDetailPage({ params }: { params: { id: string } })
       setRefund(response.data);
     } catch (error: any) {
       console.error('Failed to load refund:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load refund');
+      toast.error(error.response?.data?.error?.message || 'Failed to load refund');
     } finally {
       setLoading(false);
     }
@@ -43,12 +44,12 @@ export default function RefundDetailPage({ params }: { params: { id: string } })
     try {
       setActionLoading(true);
       await refundsApi.submit(params.id);
-      alert('Refund submitted for approval successfully');
+      toast.success('Refund submitted for approval successfully');
       setShowSubmitModal(false);
       loadRefund();
     } catch (error: any) {
       console.error('Failed to submit refund:', error);
-      alert(error.response?.data?.error?.message || 'Failed to submit refund');
+      toast.error(error.response?.data?.error?.message || 'Failed to submit refund');
     } finally {
       setActionLoading(false);
     }
@@ -58,13 +59,13 @@ export default function RefundDetailPage({ params }: { params: { id: string } })
     try {
       setActionLoading(true);
       await refundsApi.approve(params.id, actionRemarks || undefined);
-      alert('Refund approved successfully');
+      toast.success('Refund approved successfully');
       setShowApproveModal(false);
       setActionRemarks('');
       loadRefund();
     } catch (error: any) {
       console.error('Failed to approve refund:', error);
-      alert(error.response?.data?.error?.message || 'Failed to approve refund');
+      toast.error(error.response?.data?.error?.message || 'Failed to approve refund');
     } finally {
       setActionLoading(false);
     }
@@ -72,20 +73,20 @@ export default function RefundDetailPage({ params }: { params: { id: string } })
 
   const handleReject = async () => {
     if (!actionRemarks.trim()) {
-      alert('Rejection remarks are required');
+      toast.error('Rejection remarks are required');
       return;
     }
 
     try {
       setActionLoading(true);
       await refundsApi.reject(params.id, actionRemarks);
-      alert('Refund rejected successfully');
+      toast.success('Refund rejected successfully');
       setShowRejectModal(false);
       setActionRemarks('');
       loadRefund();
     } catch (error: any) {
       console.error('Failed to reject refund:', error);
-      alert(error.response?.data?.error?.message || 'Failed to reject refund');
+      toast.error(error.response?.data?.error?.message || 'Failed to reject refund');
     } finally {
       setActionLoading(false);
     }
@@ -93,14 +94,14 @@ export default function RefundDetailPage({ params }: { params: { id: string } })
 
   const handleMarkAsPaid = async () => {
     if (!paymentData.paymentDate) {
-      alert('Payment date is required');
+      toast.error('Payment date is required');
       return;
     }
 
     try {
       setActionLoading(true);
       await refundsApi.markAsPaid(params.id, paymentData);
-      alert('Refund marked as paid successfully');
+      toast.success('Refund marked as paid successfully');
       setShowPaymentModal(false);
       setPaymentData({
         paymentMethod: 'Cash',
@@ -111,7 +112,7 @@ export default function RefundDetailPage({ params }: { params: { id: string } })
       loadRefund();
     } catch (error: any) {
       console.error('Failed to mark refund as paid:', error);
-      alert(error.response?.data?.error?.message || 'Failed to mark refund as paid');
+      toast.error(error.response?.data?.error?.message || 'Failed to mark refund as paid');
     } finally {
       setActionLoading(false);
     }

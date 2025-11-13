@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { landApi, Plot, RSNumber, PlotStatus } from '@/lib/api';
+import { toast } from 'sonner';
 
 export default function EditPlotPage() {
   const params = useParams();
@@ -47,7 +48,7 @@ export default function EditPlotPage() {
       });
     } catch (error: any) {
       console.error('Failed to load plot:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load plot');
+      toast.error(error.response?.data?.error?.message || 'Failed to load plot');
       router.push('/land/rs-numbers');
     } finally {
       setDataLoading(false);
@@ -75,7 +76,7 @@ export default function EditPlotPage() {
       if (rsNumber && newArea > oldArea) {
         const areaIncrease = newArea - oldArea;
         if (areaIncrease > rsNumber.remainingArea) {
-          alert(
+          toast.success(
             `Insufficient area. Available: ${rsNumber.remainingArea} ${rsNumber.unitType}\nYou tried to add: ${areaIncrease} ${rsNumber.unitType}\nCurrent plot area: ${oldArea} ${rsNumber.unitType}\nNew plot area: ${newArea} ${rsNumber.unitType}`
           );
           setLoading(false);
@@ -96,7 +97,7 @@ export default function EditPlotPage() {
       }
 
       await landApi.plots.update(params.id as string, data);
-      alert('Plot updated successfully!');
+      toast.success('Plot updated successfully!');
 
       // Navigate back based on where we came from
       if (rsNumber) {
@@ -113,9 +114,9 @@ export default function EditPlotPage() {
         const fieldErrors = Object.entries(details)
           .map(([field, msg]) => `${field}: ${msg}`)
           .join('\n');
-        alert(`Validation errors:\n${fieldErrors}`);
+        toast.error(`Validation errors:\n${fieldErrors}`);
       } else {
-        alert(errorMessage);
+        toast.error(errorMessage);
       }
     } finally {
       setLoading(false);

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { landApi, RSNumber } from '@/lib/api';
+import { toast } from 'sonner';
 
 export default function RSNumbersPage() {
   const [rsNumbers, setRSNumbers] = useState<RSNumber[]>([]);
@@ -33,7 +34,7 @@ export default function RSNumbersPage() {
       }
     } catch (error: any) {
       console.error('Failed to load RS Numbers:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load RS Numbers');
+      toast.error(error.response?.data?.error?.message || 'Failed to load RS Numbers');
     } finally {
       setLoading(false);
     }

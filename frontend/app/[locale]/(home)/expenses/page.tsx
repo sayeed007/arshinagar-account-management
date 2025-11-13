@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { expensesApi, Expense, ExpenseStatus, ExpenseCategory } from '@/lib/api';
+import { toast } from 'sonner';
 
 export default function ExpensesPage() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -32,7 +33,7 @@ export default function ExpensesPage() {
       setTotalPages(response.pagination?.totalPages || 0);
     } catch (error: any) {
       console.error('Failed to load expenses:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load expenses');
+      toast.error(error.response?.data?.error?.message || 'Failed to load expenses');
     } finally {
       setLoading(false);
     }

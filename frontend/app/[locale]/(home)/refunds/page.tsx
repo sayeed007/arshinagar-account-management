@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { refundsApi, Refund, RefundStatus, RefundApprovalStatus, Cancellation, Sale, Client } from '@/lib/api';
+import { toast } from 'sonner';
 
 export default function RefundsPage() {
   const [loading, setLoading] = useState(true);
@@ -32,7 +33,7 @@ export default function RefundsPage() {
       setTotalPages(response.pagination.totalPages);
     } catch (error: any) {
       console.error('Failed to load refunds:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load refunds');
+      toast.error(error.response?.data?.error?.message || 'Failed to load refunds');
     } finally {
       setLoading(false);
     }

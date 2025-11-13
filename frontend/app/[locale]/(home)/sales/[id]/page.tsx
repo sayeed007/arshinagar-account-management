@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { salesApi, Sale, Client, Plot, RSNumber, SaleStageStatus, SaleStatus } from '@/lib/api';
+import { toast } from 'sonner';
 
 export default function SaleDetailPage() {
   const params = useParams();
@@ -24,7 +25,7 @@ export default function SaleDetailPage() {
       setSale(data);
     } catch (error: any) {
       console.error('Failed to load sale:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load sale');
+      toast.error(error.response?.data?.error?.message || 'Failed to load sale');
       router.push('/sales');
     } finally {
       setLoading(false);

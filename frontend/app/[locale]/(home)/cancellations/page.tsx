@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { cancellationsApi, Cancellation, CancellationStatus, Sale, Client } from '@/lib/api';
+import { toast } from 'sonner';
 
 export default function CancellationsPage() {
   const [loading, setLoading] = useState(true);
@@ -28,7 +29,7 @@ export default function CancellationsPage() {
       setTotalPages(response.pagination.totalPages);
     } catch (error: any) {
       console.error('Failed to load cancellations:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load cancellations');
+      toast.error(error.response?.data?.error?.message || 'Failed to load cancellations');
     } finally {
       setLoading(false);
     }

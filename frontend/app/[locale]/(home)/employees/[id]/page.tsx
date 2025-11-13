@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { employeesApi, Employee, EmployeeCost } from '@/lib/api';
+import { toast } from 'sonner';
 
 export default function EmployeeDetailPage() {
   const params = useParams();
@@ -27,7 +28,7 @@ export default function EmployeeDetailPage() {
       setEmployee(data);
     } catch (error: any) {
       console.error('Failed to load employee:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load employee');
+      toast.error(error.response?.data?.error?.message || 'Failed to load employee');
       router.push('/employees');
     } finally {
       setLoading(false);

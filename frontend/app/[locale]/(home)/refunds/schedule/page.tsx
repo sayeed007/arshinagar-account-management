@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { cancellationsApi, refundsApi, Cancellation, Sale, Client } from '@/lib/api';
+import { toast } from 'sonner';
 
 export default function RefundSchedulePage() {
   const router = useRouter();
@@ -34,7 +35,7 @@ export default function RefundSchedulePage() {
       setCancellation(response.data);
     } catch (error: any) {
       console.error('Failed to load cancellation:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load cancellation details');
+      toast.error(error.response?.data?.error?.message || 'Failed to load cancellation details');
     } finally {
       setLoading(false);
     }
@@ -44,17 +45,17 @@ export default function RefundSchedulePage() {
     e.preventDefault();
 
     if (!cancellationId) {
-      alert('Cancellation ID is required');
+      toast.error('Cancellation ID is required');
       return;
     }
 
     if (formData.numberOfInstallments < 1 || formData.numberOfInstallments > 36) {
-      alert('Number of installments must be between 1 and 36');
+      toast.error('Number of installments must be between 1 and 36');
       return;
     }
 
     if (!formData.startDate) {
-      alert('Start date is required');
+      toast.error('Start date is required');
       return;
     }
 
@@ -66,11 +67,11 @@ export default function RefundSchedulePage() {
         startDate: formData.startDate,
       });
 
-      alert('Refund schedule created successfully');
+      toast.success('Refund schedule created successfully');
       router.push(`/cancellations/${cancellationId}`);
     } catch (error: any) {
       console.error('Failed to create refund schedule:', error);
-      alert(error.response?.data?.error?.message || 'Failed to create refund schedule');
+      toast.error(error.response?.data?.error?.message || 'Failed to create refund schedule');
     } finally {
       setSubmitting(false);
     }

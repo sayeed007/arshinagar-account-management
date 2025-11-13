@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { employeesApi, Employee } from '@/lib/api';
+import { toast } from 'sonner';
 
 export default function EmployeesPage() {
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -31,7 +32,7 @@ export default function EmployeesPage() {
       setTotalPages(response.pagination?.totalPages || 0);
     } catch (error: any) {
       console.error('Failed to load employees:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load employees');
+      toast.error(error.response?.data?.error?.message || 'Failed to load employees');
     } finally {
       setLoading(false);
     }

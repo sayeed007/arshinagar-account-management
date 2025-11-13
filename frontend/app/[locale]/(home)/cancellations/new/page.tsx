@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { salesApi, cancellationsApi, Sale, Client, Land, RSNumber } from '@/lib/api';
+import { toast } from 'sonner';
 
 export default function NewCancellationPage() {
   const router = useRouter();
@@ -36,7 +37,7 @@ export default function NewCancellationPage() {
       setSale(response.data);
     } catch (error: any) {
       console.error('Failed to load sale:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load sale details');
+      toast.error(error.response?.data?.error?.message || 'Failed to load sale details');
     } finally {
       setLoading(false);
     }
@@ -52,22 +53,22 @@ export default function NewCancellationPage() {
     e.preventDefault();
 
     if (!saleId) {
-      alert('Sale ID is required');
+      toast.error('Sale ID is required');
       return;
     }
 
     if (!formData.reason.trim()) {
-      alert('Cancellation reason is required');
+      toast.error('Cancellation reason is required');
       return;
     }
 
     if (formData.officeChargePercent < 0 || formData.officeChargePercent > 100) {
-      alert('Office charge percentage must be between 0 and 100');
+      toast.error('Office charge percentage must be between 0 and 100');
       return;
     }
 
     if (formData.otherDeductions < 0) {
-      alert('Other deductions cannot be negative');
+      toast.error('Other deductions cannot be negative');
       return;
     }
 
@@ -78,11 +79,11 @@ export default function NewCancellationPage() {
         ...formData,
       });
 
-      alert('Cancellation created successfully');
+      toast.success('Cancellation created successfully');
       router.push(`/cancellations/${response.data._id}`);
     } catch (error: any) {
       console.error('Failed to create cancellation:', error);
-      alert(error.response?.data?.error?.message || 'Failed to create cancellation');
+      toast.error(error.response?.data?.error?.message || 'Failed to create cancellation');
     } finally {
       setSubmitting(false);
     }

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { cancellationsApi, refundsApi, Cancellation, CancellationStatus, Refund, Sale, Client, Land, RSNumber } from '@/lib/api';
+import { toast } from 'sonner';
 
 interface CancellationWithRefunds extends Cancellation {
   refunds: Refund[];
@@ -29,7 +30,7 @@ export default function CancellationDetailPage({ params }: { params: { id: strin
       setCancellation(response.data);
     } catch (error: any) {
       console.error('Failed to load cancellation:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load cancellation');
+      toast.error(error.response?.data?.error?.message || 'Failed to load cancellation');
     } finally {
       setLoading(false);
     }
@@ -39,13 +40,13 @@ export default function CancellationDetailPage({ params }: { params: { id: strin
     try {
       setActionLoading(true);
       await cancellationsApi.approve(params.id, actionNotes || undefined);
-      alert('Cancellation approved successfully');
+      toast.success('Cancellation approved successfully');
       setShowApproveModal(false);
       setActionNotes('');
       loadCancellation();
     } catch (error: any) {
       console.error('Failed to approve cancellation:', error);
-      alert(error.response?.data?.error?.message || 'Failed to approve cancellation');
+      toast.error(error.response?.data?.error?.message || 'Failed to approve cancellation');
     } finally {
       setActionLoading(false);
     }
@@ -53,20 +54,20 @@ export default function CancellationDetailPage({ params }: { params: { id: strin
 
   const handleReject = async () => {
     if (!actionNotes.trim()) {
-      alert('Rejection reason is required');
+      toast.error('Rejection reason is required');
       return;
     }
 
     try {
       setActionLoading(true);
       await cancellationsApi.reject(params.id, actionNotes);
-      alert('Cancellation rejected successfully');
+      toast.success('Cancellation rejected successfully');
       setShowRejectModal(false);
       setActionNotes('');
       loadCancellation();
     } catch (error: any) {
       console.error('Failed to reject cancellation:', error);
-      alert(error.response?.data?.error?.message || 'Failed to reject cancellation');
+      toast.error(error.response?.data?.error?.message || 'Failed to reject cancellation');
     } finally {
       setActionLoading(false);
     }

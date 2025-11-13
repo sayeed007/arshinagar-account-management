@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { clientApi, Client } from '@/lib/api';
+import { toast } from 'sonner';
 
 export default function EditClientPage() {
   const params = useParams();
@@ -41,7 +42,7 @@ export default function EditClientPage() {
       });
     } catch (error: any) {
       console.error('Failed to load client:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load client');
+      toast.error(error.response?.data?.error?.message || 'Failed to load client');
       router.push('/clients');
     } finally {
       setDataLoading(false);
@@ -83,7 +84,7 @@ export default function EditClientPage() {
       }
 
       await clientApi.update(params.id as string, data);
-      alert('Client updated successfully!');
+      toast.success('Client updated successfully!');
       router.push(`/clients/${params.id}`);
     } catch (error: any) {
       console.error('Failed to update client:', error);
@@ -94,9 +95,9 @@ export default function EditClientPage() {
         const fieldErrors = Object.entries(details)
           .map(([field, msg]) => `${field}: ${msg}`)
           .join('\n');
-        alert(`Validation errors:\n${fieldErrors}`);
+        toast.error(`Validation errors:\n${fieldErrors}`);
       } else {
-        alert(errorMessage);
+        toast.error(errorMessage);
       }
     } finally {
       setLoading(false);

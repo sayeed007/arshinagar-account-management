@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { landApi, UnitType } from '@/lib/api';
+import { toast } from 'sonner';
 
 export default function NewRSNumberPage() {
   const router = useRouter();
@@ -56,7 +57,7 @@ export default function NewRSNumberPage() {
       }
 
       await landApi.rsNumbers.create(data);
-      alert('RS Number created successfully!');
+      toast.success('RS Number created successfully!');
       router.push('/land/rs-numbers');
     } catch (error: any) {
       console.error('Failed to create RS Number:', error);
@@ -67,9 +68,9 @@ export default function NewRSNumberPage() {
         const fieldErrors = Object.entries(details)
           .map(([field, msg]) => `${field}: ${msg}`)
           .join('\n');
-        alert(`Validation errors:\n${fieldErrors}`);
+        toast.error(`Validation errors:\n${fieldErrors}`);
       } else {
-        alert(errorMessage);
+        toast.error(errorMessage);
       }
     } finally {
       setLoading(false);
