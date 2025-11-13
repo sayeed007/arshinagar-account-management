@@ -250,7 +250,7 @@ router.get(
  *   get:
  *     summary: Get all users
  *     description: Get list of all users (Admin only)
- *     tags: [Auth]
+ *     tags: [Users]
  *     parameters:
  *       - in: query
  *         name: page
@@ -323,7 +323,7 @@ router.get(
  *   put:
  *     summary: Update user
  *     description: Update user information (Admin only)
- *     tags: [Auth]
+ *     tags: [Users]
  *     parameters:
  *       - in: path
  *         name: id
@@ -386,7 +386,7 @@ router.get(
  *   delete:
  *     summary: Delete user
  *     description: Delete user account (Admin only)
- *     tags: [Auth]
+ *     tags: [Users]
  *     parameters:
  *       - in: path
  *         name: id
