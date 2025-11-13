@@ -7,6 +7,7 @@ import { clientApi, Client, salesApi, Sale, SaleStatus } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
 import { getErrorMessage, AppError } from '@/lib/types';
 import { Modal, ModalContent, ModalFooter } from '@/components/ui/modal';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 
 export default function ClientDetailPage() {
   const params = useParams();
@@ -17,6 +18,8 @@ export default function ClientDetailPage() {
   const [loadingSales, setLoadingSales] = useState(true);
   const [showEditModal, setShowEditModal] = useState(false);
   const [updating, setUpdating] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -143,16 +146,23 @@ export default function ClientDetailPage() {
     }
   };
 
-  const handleDelete = async () => {
-    if (!confirm('Are you sure you want to delete this client?')) return;
+  const handleDeleteClick = () => {
+    setShowDeleteConfirm(true);
+  };
 
+  const handleDeleteConfirm = async () => {
+    setDeleting(true);
     try {
       await clientApi.delete(params.id as string);
       showSuccess('Client deleted successfully');
+      setShowDeleteConfirm(false);
       router.push('/clients');
     } catch (error: unknown) {
       console.error('Failed to delete client:', error);
       showError(getErrorMessage(error));
+      setShowDeleteConfirm(false);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -436,7 +446,7 @@ export default function ClientDetailPage() {
                 Edit Client
               </button>
               <button
-                onClick={handleDelete}
+                onClick={handleDeleteClick}
                 className="w-full px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
               >
                 Delete Client
@@ -604,6 +614,19 @@ export default function ClientDetailPage() {
           </ModalFooter>
         </form>
       </Modal>
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Client"
+        message={`Are you sure you want to delete "${client?.name}"?\n\nThis action cannot be undone. All associated data including purchase history will be permanently removed.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+        isLoading={deleting}
+      />
     </div>
   );
 }
