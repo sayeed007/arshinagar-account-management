@@ -6,6 +6,7 @@ import {
   updateRSNumber,
   deleteRSNumber,
   createPlot,
+  getAllPlots,
   getPlotsByRSNumber,
   getPlotById,
   updatePlot,
@@ -375,6 +376,78 @@ router.post(
   auditLog(AuditAction.CREATE, 'Plot'),
   asyncHandler(createPlot)
 );
+
+/**
+ * @swagger
+ * /land/plots:
+ *   get:
+ *     summary: Get all plots
+ *     description: Get paginated list of all plots with optional filters
+ *     tags: [Land]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *         description: Items per page
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search by plot number
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [Available, Reserved, Sold, Blocked]
+ *         description: Filter by plot status
+ *       - in: query
+ *         name: rsNumberId
+ *         schema:
+ *           type: string
+ *         description: Filter by RS Number ID
+ *       - in: query
+ *         name: sortBy
+ *         schema:
+ *           type: string
+ *           default: createdAt
+ *         description: Sort field
+ *       - in: query
+ *         name: sortOrder
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *           default: desc
+ *         description: Sort order
+ *     responses:
+ *       200:
+ *         description: Plots retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Plot'
+ *                 pagination:
+ *                   $ref: '#/components/schemas/Pagination'
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Account Manager or higher access required
+ */
+router.get('/plots', accountManagerOrHigher, asyncHandler(getAllPlots));
 
 /**
  * @swagger

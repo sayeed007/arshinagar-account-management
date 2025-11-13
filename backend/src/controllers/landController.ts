@@ -334,6 +334,75 @@ export const createPlot = async (
 };
 
 /**
+ * Get All Plots with Pagination and Filtering
+ */
+export const getAllPlots = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const {
+      page = 1,
+      limit = 20,
+      search = '',
+      status,
+      rsNumberId,
+      sortBy = 'createdAt',
+      sortOrder = 'desc',
+    } = req.query;
+
+    const pageNum = parseInt(page as string);
+    const limitNum = parseInt(limit as string);
+    const skip = (pageNum - 1) * limitNum;
+
+    // Build query
+    const query: any = { isActive: true };
+
+    // Search by plot number
+    if (search) {
+      query.plotNumber = { $regex: search, $options: 'i' };
+    }
+
+    // Filter by status
+    if (status) {
+      query.status = status;
+    }
+
+    // Filter by RS Number
+    if (rsNumberId) {
+      query.rsNumberId = rsNumberId;
+    }
+
+    const total = await Plot.countDocuments(query);
+
+    // Build sort
+    const sort: any = {};
+    sort[sortBy as string] = sortOrder === 'asc' ? 1 : -1;
+
+    const plots = await Plot.find(query)
+      .populate('clientId', 'name phone email')
+      .populate('rsNumberId', 'rsNumber projectName location unitType')
+      .sort(sort)
+      .limit(limitNum)
+      .skip(skip)
+      .lean();
+
+    res.status(200).json({
+      success: true,
+      data: plots,
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        total,
+        totalPages: Math.ceil(total / limitNum),
+      },
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
  * Get All Plots for an RS Number
  */
 export const getPlotsByRSNumber = async (

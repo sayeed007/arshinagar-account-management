@@ -8,6 +8,7 @@ import { showSuccess, showError } from '@/lib/toast';
 import { getErrorMessage, AppError } from '@/lib/types';
 import { Modal, ModalContent, ModalFooter } from '@/components/ui/modal';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { Breadcrumb } from '@/components/ui/breadcrumb';
 
 export default function ClientDetailPage() {
   const params = useParams();
@@ -190,16 +191,13 @@ export default function ClientDetailPage() {
 
   return (
     <div>
-      <div className="mb-6">
-        <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-2">
-          <Link href="/clients" className="hover:text-indigo-600">
-            Clients
-          </Link>
-          <span>/</span>
-          <span>{client.name}</span>
-        </div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{client.name}</h1>
-      </div>
+      <Breadcrumb
+        items={[
+          { label: 'Clients', href: '/clients' },
+          { label: client.name },
+        ]}
+        title={client.name}
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Client Info */}

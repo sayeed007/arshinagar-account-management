@@ -10,8 +10,9 @@ interface ConfirmDialogProps {
   message: string;
   confirmText?: string;
   cancelText?: string;
-  variant?: 'danger' | 'warning' | 'info';
+  variant?: 'danger' | 'warning' | 'info' | 'success';
   isLoading?: boolean;
+  children?: React.ReactNode;
 }
 
 export function ConfirmDialog({
@@ -24,6 +25,7 @@ export function ConfirmDialog({
   cancelText = 'Cancel',
   variant = 'danger',
   isLoading = false,
+  children,
 }: ConfirmDialogProps) {
   const getVariantStyles = () => {
     switch (variant) {
@@ -33,6 +35,8 @@ export function ConfirmDialog({
         return 'bg-yellow-600 hover:bg-yellow-700 focus:ring-yellow-500';
       case 'info':
         return 'bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500';
+      case 'success':
+        return 'bg-green-600 hover:bg-green-700 focus:ring-green-500';
       default:
         return 'bg-red-600 hover:bg-red-700 focus:ring-red-500';
     }
@@ -94,6 +98,24 @@ export function ConfirmDialog({
             </svg>
           </div>
         );
+      case 'success':
+        return (
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/20">
+            <svg
+              className="h-6 w-6 text-green-600 dark:text-green-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth="1.5"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          </div>
+        );
     }
   };
 
@@ -119,6 +141,7 @@ export function ConfirmDialog({
             {message}
           </p>
         </div>
+        {children && <div className="mt-4 text-left">{children}</div>}
       </ModalContent>
 
       <ModalFooter>

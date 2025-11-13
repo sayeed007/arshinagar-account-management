@@ -8,6 +8,8 @@ import { showSuccess, showError } from '@/lib/toast';
 import { getErrorMessage, AppError } from '@/lib/types';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { Modal, ModalContent, ModalFooter } from '@/components/ui/modal';
+import { Breadcrumb } from '@/components/ui/breadcrumb';
+import { PlotFormModal } from '@/components/land/plot-form-modal';
 
 export default function RSNumberDetailPage() {
   const params = useParams();
@@ -20,6 +22,7 @@ export default function RSNumberDetailPage() {
   const [deleting, setDeleting] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [updating, setUpdating] = useState(false);
+  const [showPlotModal, setShowPlotModal] = useState(false);
   const [formData, setFormData] = useState({
     rsNumber: '',
     projectName: '',
@@ -40,7 +43,7 @@ export default function RSNumberDetailPage() {
     try {
       setLoading(true);
       const data = await landApi.rsNumbers.getById(params.id as string);
-      setRSNumber(data);
+      setRSNumber(data?.rsNumber);
     } catch (error: unknown) {
       console.error('Failed to load RS Number:', error);
       showError(getErrorMessage(error));
@@ -102,7 +105,7 @@ export default function RSNumberDetailPage() {
       projectName: '',
       location: '',
       totalArea: '',
-      unitType: 'Katha',
+      unitType: 'Katha' as UnitType,
       description: '',
     });
   };
@@ -143,7 +146,7 @@ export default function RSNumberDetailPage() {
       }
 
       // Prepare data
-      const data: any = {
+      const data: Partial<RSNumber> = {
         rsNumber: formData.rsNumber.trim(),
         projectName: formData.projectName.trim(),
         location: formData.location.trim(),
@@ -232,19 +235,18 @@ export default function RSNumberDetailPage() {
 
   const utilization = getUtilizationPercentage(rsNumber);
 
+  console.log(rsNumber);
+
   return (
     <div>
-      <div className="mb-6">
-        <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-2">
-          <Link href="/land/rs-numbers" className="hover:text-indigo-600">
-            RS Numbers
-          </Link>
-          <span>/</span>
-          <span>{rsNumber.rsNumber}</span>
-        </div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{rsNumber.rsNumber}</h1>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{rsNumber.projectName}</p>
-      </div>
+      <Breadcrumb
+        items={[
+          { label: 'RS Numbers', href: '/land/rs-numbers' },
+          { label: rsNumber.rsNumber },
+        ]}
+        title={rsNumber.rsNumber}
+        subtitle={rsNumber.projectName}
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* RS Number Info */}
@@ -298,7 +300,7 @@ export default function RSNumberDetailPage() {
                   Created At
                 </dt>
                 <dd className="mt-1 text-sm text-gray-900 dark:text-white">
-                  {new Date(rsNumber.createdAt).toLocaleDateString()}
+                  {rsNumber.createdAt ? new Date(rsNumber.createdAt).toLocaleDateString() : 'N/A'}
                 </dd>
               </div>
 
@@ -309,8 +311,8 @@ export default function RSNumberDetailPage() {
                 <dd className="mt-1">
                   <span
                     className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${rsNumber.isActive
-                        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                        : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                      ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                      : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
                       }`}
                   >
                     {rsNumber.isActive ? 'Active' : 'Inactive'}
@@ -330,25 +332,25 @@ export default function RSNumberDetailPage() {
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600 dark:text-gray-400">Total Area:</span>
                 <span className="font-semibold text-gray-900 dark:text-white">
-                  {rsNumber.totalArea} {rsNumber.unitType}
+                  {Number(rsNumber.totalArea)} {rsNumber.unitType}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600 dark:text-gray-400">Sold Area:</span>
                 <span className="font-semibold text-red-600 dark:text-red-400">
-                  {rsNumber.soldArea} {rsNumber.unitType}
+                  {Number(rsNumber.soldArea)} {rsNumber.unitType}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600 dark:text-gray-400">Allocated Area:</span>
                 <span className="font-semibold text-yellow-600 dark:text-yellow-400">
-                  {rsNumber.allocatedArea} {rsNumber.unitType}
+                  {Number(rsNumber.allocatedArea)} {rsNumber.unitType}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600 dark:text-gray-400">Remaining Area:</span>
                 <span className="font-semibold text-green-600 dark:text-green-400">
-                  {rsNumber.remainingArea} {rsNumber.unitType}
+                  {Number(rsNumber.remainingArea)} {rsNumber.unitType}
                 </span>
               </div>
 
@@ -374,12 +376,12 @@ export default function RSNumberDetailPage() {
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
                 Plots ({plots.length})
               </h2>
-              <Link
-                href={`/land/rs-numbers/${rsNumber._id}/plots/new`}
+              <button
+                onClick={() => setShowPlotModal(true)}
                 className="px-4 py-2 bg-indigo-600 text-white text-sm rounded-md hover:bg-indigo-700"
               >
                 + Add Plot
-              </Link>
+              </button>
             </div>
 
             {plotsLoading ? (
@@ -426,7 +428,7 @@ export default function RSNumberDetailPage() {
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap">
                           <div className="text-sm text-gray-900 dark:text-white">
-                            {plot.area} {rsNumber.unitType}
+                            {Number(plot.area)} {rsNumber.unitType}
                           </div>
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap">
@@ -642,6 +644,19 @@ export default function RSNumberDetailPage() {
           </ModalFooter>
         </form>
       </Modal>
+
+      {/* Add/Edit Plot Modal */}
+      {rsNumber && (
+        <PlotFormModal
+          isOpen={showPlotModal}
+          onClose={() => setShowPlotModal(false)}
+          rsNumber={rsNumber}
+          onSuccess={() => {
+            loadRSNumber();
+            loadPlots();
+          }}
+        />
+      )}
     </div>
   );
 }
