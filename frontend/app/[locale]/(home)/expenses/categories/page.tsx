@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { expenseCategoryApi, ExpenseCategory } from '@/lib/api';
+import { toast } from 'sonner';
 
 export default function ExpenseCategoriesPage() {
   const [categories, setCategories] = useState<ExpenseCategory[]>([]);
@@ -28,7 +29,7 @@ export default function ExpenseCategoriesPage() {
       setCategories(response.data || []);
     } catch (error: any) {
       console.error('Failed to load categories:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load expense categories');
+      toast.error(error.response?.data?.error?.message || 'Failed to load expense categories');
     } finally {
       setLoading(false);
     }
@@ -45,13 +46,13 @@ export default function ExpenseCategoriesPage() {
     try {
       setToggleLoading(true);
       await expenseCategoryApi.update(selectedCategory.id, { isActive: !selectedCategory.isActive });
-      alert('Category updated successfully');
+      toast.success('Category updated successfully');
       setShowToggleModal(false);
       setSelectedCategory(null);
       loadCategories();
     } catch (error: any) {
       console.error('Failed to update category:', error);
-      alert(error.response?.data?.error?.message || 'Failed to update category');
+      toast.error(error.response?.data?.error?.message || 'Failed to update category');
     } finally {
       setToggleLoading(false);
     }

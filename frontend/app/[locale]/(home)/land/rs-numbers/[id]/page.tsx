@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { landApi, RSNumber, Plot, PlotStatus } from '@/lib/api';
+import { toast } from 'sonner';
 
 export default function RSNumberDetailPage() {
   const params = useParams();
@@ -29,7 +30,7 @@ export default function RSNumberDetailPage() {
       setRSNumber(data);
     } catch (error: any) {
       console.error('Failed to load RS Number:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load RS Number');
+      toast.error(error.response?.data?.error?.message || 'Failed to load RS Number');
       router.push('/land/rs-numbers');
     } finally {
       setLoading(false);
@@ -60,12 +61,12 @@ export default function RSNumberDetailPage() {
     try {
       setDeleteLoading(true);
       await landApi.rsNumbers.delete(params.id as string);
-      alert('RS Number deleted successfully');
+      toast.success('RS Number deleted successfully');
       setShowDeleteModal(false);
       router.push('/land/rs-numbers');
     } catch (error: any) {
       console.error('Failed to delete RS Number:', error);
-      alert(error.response?.data?.error?.message || 'Failed to delete RS Number');
+      toast.error(error.response?.data?.error?.message || 'Failed to delete RS Number');
     } finally {
       setDeleteLoading(false);
     }

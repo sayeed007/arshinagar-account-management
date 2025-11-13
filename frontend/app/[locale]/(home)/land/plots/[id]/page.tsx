@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { landApi, Plot, RSNumber, PlotStatus } from '@/lib/api';
+import { toast } from 'sonner';
 
 export default function PlotDetailPage() {
   const params = useParams();
@@ -35,7 +36,7 @@ export default function PlotDetailPage() {
       }
     } catch (error: any) {
       console.error('Failed to load plot:', error);
-      alert(error.response?.data?.error?.message || 'Failed to load plot');
+      toast.error(error.response?.data?.error?.message || 'Failed to load plot');
       router.push('/land/rs-numbers');
     } finally {
       setLoading(false);
@@ -50,7 +51,7 @@ export default function PlotDetailPage() {
     try {
       setDeleteLoading(true);
       await landApi.plots.delete(params.id as string);
-      alert('Plot deleted successfully');
+      toast.success('Plot deleted successfully');
       setShowDeleteModal(false);
       if (rsNumber) {
         router.push(`/land/rs-numbers/${rsNumber._id}`);
@@ -59,7 +60,7 @@ export default function PlotDetailPage() {
       }
     } catch (error: any) {
       console.error('Failed to delete plot:', error);
-      alert(error.response?.data?.error?.message || 'Failed to delete plot');
+      toast.error(error.response?.data?.error?.message || 'Failed to delete plot');
     } finally {
       setDeleteLoading(false);
     }
