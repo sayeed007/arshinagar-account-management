@@ -8,6 +8,9 @@ export default function ExpenseCategoriesPage() {
   const [categories, setCategories] = useState<ExpenseCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [showToggleModal, setShowToggleModal] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<{ id: string; name: string; isActive: boolean } | null>(null);
+  const [toggleLoading, setToggleLoading] = useState(false);
 
   useEffect(() => {
     loadCategories();
@@ -31,18 +34,26 @@ export default function ExpenseCategoriesPage() {
     }
   };
 
-  const handleToggleActive = async (id: string, currentStatus: boolean) => {
-    if (!confirm(`Are you sure you want to ${currentStatus ? 'deactivate' : 'activate'} this category?`)) {
-      return;
-    }
+  const handleToggleClick = (id: string, name: string, isActive: boolean) => {
+    setSelectedCategory({ id, name, isActive });
+    setShowToggleModal(true);
+  };
+
+  const handleConfirmToggle = async () => {
+    if (!selectedCategory) return;
 
     try {
-      await expenseCategoryApi.update(id, { isActive: !currentStatus });
+      setToggleLoading(true);
+      await expenseCategoryApi.update(selectedCategory.id, { isActive: !selectedCategory.isActive });
       alert('Category updated successfully');
+      setShowToggleModal(false);
+      setSelectedCategory(null);
       loadCategories();
     } catch (error: any) {
       console.error('Failed to update category:', error);
       alert(error.response?.data?.error?.message || 'Failed to update category');
+    } finally {
+      setToggleLoading(false);
     }
   };
 
@@ -144,7 +155,7 @@ export default function ExpenseCategoriesPage() {
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap text-sm space-x-2">
                       <button
-                        onClick={() => handleToggleActive(category._id, category.isActive)}
+                        onClick={() => handleToggleClick(category._id, category.name, category.isActive)}
                         className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300"
                       >
                         {category.isActive ? 'Deactivate' : 'Activate'}
@@ -157,6 +168,42 @@ export default function ExpenseCategoriesPage() {
           </div>
         )}
       </div>
+
+      {/* Toggle Status Confirmation Modal */}
+      {showToggleModal && selectedCategory && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
+          <div className="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div className="p-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                {selectedCategory.isActive ? 'Deactivate' : 'Activate'} Category
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                Are you sure you want to {selectedCategory.isActive ? 'deactivate' : 'activate'}{' '}
+                <span className="font-semibold">{selectedCategory.name}</span>?
+              </p>
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => {
+                    setShowToggleModal(false);
+                    setSelectedCategory(null);
+                  }}
+                  disabled={toggleLoading}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleConfirmToggle}
+                  disabled={toggleLoading}
+                  className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 disabled:opacity-50"
+                >
+                  {toggleLoading ? 'Updating...' : selectedCategory.isActive ? 'Deactivate' : 'Activate'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

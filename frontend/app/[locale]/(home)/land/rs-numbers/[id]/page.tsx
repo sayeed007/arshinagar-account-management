@@ -12,6 +12,8 @@ export default function RSNumberDetailPage() {
   const [plots, setPlots] = useState<Plot[]>([]);
   const [loading, setLoading] = useState(true);
   const [plotsLoading, setPlotsLoading] = useState(true);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   useEffect(() => {
     if (params.id) {
@@ -50,18 +52,22 @@ export default function RSNumberDetailPage() {
     }
   };
 
-  const handleDelete = async () => {
-    if (!confirm('Are you sure you want to delete this RS Number? This will also delete all associated plots.')) {
-      return;
-    }
+  const handleDeleteClick = () => {
+    setShowDeleteModal(true);
+  };
 
+  const handleConfirmDelete = async () => {
     try {
+      setDeleteLoading(true);
       await landApi.rsNumbers.delete(params.id as string);
       alert('RS Number deleted successfully');
+      setShowDeleteModal(false);
       router.push('/land/rs-numbers');
     } catch (error: any) {
       console.error('Failed to delete RS Number:', error);
       alert(error.response?.data?.error?.message || 'Failed to delete RS Number');
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -357,7 +363,7 @@ export default function RSNumberDetailPage() {
                 Edit RS Number
               </Link>
               <button
-                onClick={handleDelete}
+                onClick={handleDeleteClick}
                 className="w-full px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
               >
                 Delete RS Number
@@ -372,6 +378,42 @@ export default function RSNumberDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
+          <div className="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div className="p-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                Delete RS Number
+              </h3>
+              <div className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                <p className="mb-2">Are you sure you want to delete this RS Number?</p>
+                <p className="font-semibold text-red-600 dark:text-red-400">
+                  Warning: This will also delete all associated plots ({plots.length} plot{plots.length !== 1 ? 's' : ''}).
+                </p>
+                <p className="mt-2">This action cannot be undone.</p>
+              </div>
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => setShowDeleteModal(false)}
+                  disabled={deleteLoading}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleConfirmDelete}
+                  disabled={deleteLoading}
+                  className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:opacity-50"
+                >
+                  {deleteLoading ? 'Deleting...' : 'Delete'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
