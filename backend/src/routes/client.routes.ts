@@ -164,6 +164,17 @@ router.get('/', accountManagerOrHigher, asyncHandler(getAllClients));
  *     responses:
  *       200:
  *         description: Search results
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Client'
  */
 router.get('/search', accountManagerOrHigher, asyncHandler(searchClients));
 
@@ -174,21 +185,149 @@ router.get('/search', accountManagerOrHigher, asyncHandler(searchClients));
  *     summary: Get client statistics
  *     description: Get client statistics
  * @access  AccountManager or higher
+ *     description: Get client statistics including total count, active clients, etc.
+ *     tags: [Clients]
+ *     responses:
+ *       200:
+ *         description: Client statistics retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     totalClients:
+ *                       type: number
+ *                     activeClients:
+ *                       type: number
+ *                     inactiveClients:
+ *                       type: number
+ *       401:
+ *         description: Unauthorized
  */
 router.get('/stats', accountManagerOrHigher, asyncHandler(getClientStats));
 
 /**
- * @route   GET /api/clients/:id
- * @desc    Get client by ID
- * @access  AccountManager or higher
+ * @swagger
+ * /clients/{id}:
+ *   get:
+ *     summary: Get client by ID
+ *     description: Retrieve detailed information for a specific client
+ *     tags: [Clients]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Client ID
+ *     responses:
+ *       200:
+ *         description: Client details retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   $ref: '#/components/schemas/Client'
+ *       404:
+ *         description: Client not found
+ *       401:
+ *         description: Unauthorized
+ *   put:
+ *     summary: Update client
+ *     description: Update client information
+ *     tags: [Clients]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Client ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               fatherName:
+ *                 type: string
+ *               phone:
+ *                 type: string
+ *               alternatePhone:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *                 format: email
+ *               nid:
+ *                 type: string
+ *               address:
+ *                 type: string
+ *               notes:
+ *                 type: string
+ *               isActive:
+ *                 type: boolean
+ *     responses:
+ *       200:
+ *         description: Client updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   $ref: '#/components/schemas/Client'
+ *       400:
+ *         description: Validation error
+ *       404:
+ *         description: Client not found
+ *       401:
+ *         description: Unauthorized
+ *   delete:
+ *     summary: Delete client
+ *     description: Soft delete a client (marks as inactive)
+ *     tags: [Clients]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Client ID
+ *     responses:
+ *       200:
+ *         description: Client deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *       404:
+ *         description: Client not found
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - HOF or Admin access required
  */
 router.get('/:id', accountManagerOrHigher, asyncHandler(getClientById));
 
-/**
- * @route   PUT /api/clients/:id
- * @desc    Update client
- * @access  AccountManager or higher
- */
 router.put(
   '/:id',
   accountManagerOrHigher,
@@ -198,11 +337,6 @@ router.put(
   asyncHandler(updateClient)
 );
 
-/**
- * @route   DELETE /api/clients/:id
- * @desc    Delete client (soft delete)
- * @access  HOF or Admin
- */
 router.delete(
   '/:id',
   hofOrAdmin,
@@ -211,9 +345,37 @@ router.delete(
 );
 
 /**
- * @route   POST /api/clients/:id/restore
- * @desc    Restore deleted client
- * @access  Admin only
+ * @swagger
+ * /clients/{id}/restore:
+ *   post:
+ *     summary: Restore deleted client
+ *     description: Restore a soft-deleted client
+ *     tags: [Clients]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Client ID
+ *     responses:
+ *       200:
+ *         description: Client restored successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   $ref: '#/components/schemas/Client'
+ *       404:
+ *         description: Client not found
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Admin access required
  */
 router.post('/:id/restore', hofOrAdmin, asyncHandler(restoreClient));
 

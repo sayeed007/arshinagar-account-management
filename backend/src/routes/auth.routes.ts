@@ -245,9 +245,70 @@ router.get(
 );
 
 /**
- * @route   GET /api/auth/users
- * @desc    Get all users (Admin only)
- * @access  Private/Admin
+ * @swagger
+ * /auth/users:
+ *   get:
+ *     summary: Get all users
+ *     description: Get list of all users (Admin only)
+ *     tags: [Auth]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Items per page
+ *       - in: query
+ *         name: role
+ *         schema:
+ *           type: string
+ *           enum: [Admin, AccountManager, HOF]
+ *         description: Filter by user role
+ *       - in: query
+ *         name: isActive
+ *         schema:
+ *           type: boolean
+ *         description: Filter by active status
+ *     responses:
+ *       200:
+ *         description: Users retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                       name:
+ *                         type: string
+ *                       email:
+ *                         type: string
+ *                       role:
+ *                         type: string
+ *                       isActive:
+ *                         type: boolean
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                 pagination:
+ *                   $ref: '#/components/schemas/Pagination'
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Admin access required
  */
 router.get(
   '/users',
@@ -257,9 +318,100 @@ router.get(
 );
 
 /**
- * @route   PUT /api/auth/users/:id
- * @desc    Update user (Admin only)
- * @access  Private/Admin
+ * @swagger
+ * /auth/users/{id}:
+ *   put:
+ *     summary: Update user
+ *     description: Update user information (Admin only)
+ *     tags: [Auth]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *                 format: email
+ *               role:
+ *                 type: string
+ *                 enum: [Admin, AccountManager, HOF]
+ *               isActive:
+ *                 type: boolean
+ *               password:
+ *                 type: string
+ *                 minLength: 8
+ *                 description: Optional - only include if changing password
+ *     responses:
+ *       200:
+ *         description: User updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     _id:
+ *                       type: string
+ *                     name:
+ *                       type: string
+ *                     email:
+ *                       type: string
+ *                     role:
+ *                       type: string
+ *                     isActive:
+ *                       type: boolean
+ *       400:
+ *         description: Validation error
+ *       404:
+ *         description: User not found
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Admin access required
+ *   delete:
+ *     summary: Delete user
+ *     description: Delete user account (Admin only)
+ *     tags: [Auth]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User ID
+ *     responses:
+ *       200:
+ *         description: User deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *       404:
+ *         description: User not found
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Admin access required
  */
 router.put(
   '/users/:id',
@@ -271,11 +423,6 @@ router.put(
   asyncHandler(updateUser)
 );
 
-/**
- * @route   DELETE /api/auth/users/:id
- * @desc    Delete user (Admin only)
- * @access  Private/Admin
- */
 router.delete(
   '/users/:id',
   authenticate,
