@@ -3,10 +3,11 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { landApi, RSNumber, Plot, PlotStatus } from '@/lib/api';
+import { landApi, RSNumber, Plot, PlotStatus, UnitType } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
-import { getErrorMessage } from '@/lib/types';
+import { getErrorMessage, AppError } from '@/lib/types';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { Modal, ModalContent, ModalFooter } from '@/components/ui/modal';
 
 export default function RSNumberDetailPage() {
   const params = useParams();
@@ -17,6 +18,16 @@ export default function RSNumberDetailPage() {
   const [plotsLoading, setPlotsLoading] = useState(true);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [updating, setUpdating] = useState(false);
+  const [formData, setFormData] = useState({
+    rsNumber: '',
+    projectName: '',
+    location: '',
+    totalArea: '',
+    unitType: 'Katha' as UnitType,
+    description: '',
+  });
 
   useEffect(() => {
     if (params.id) {
@@ -71,6 +82,103 @@ export default function RSNumberDetailPage() {
       setShowDeleteConfirm(false);
     } finally {
       setDeleting(false);
+    }
+  };
+
+  const handleOpenEditModal = () => {
+    if (rsNumber) {
+      setFormData({
+        rsNumber: rsNumber.rsNumber || '',
+        projectName: rsNumber.projectName || '',
+        location: rsNumber.location || '',
+        totalArea: rsNumber.totalArea.toString() || '',
+        unitType: rsNumber.unitType || 'Katha',
+        description: rsNumber.description || '',
+      });
+      setShowEditModal(true);
+    }
+  };
+
+  const handleCloseEditModal = () => {
+    setShowEditModal(false);
+    setFormData({
+      rsNumber: '',
+      projectName: '',
+      location: '',
+      totalArea: '',
+      unitType: 'Katha',
+      description: '',
+    });
+  };
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+
+    // Auto-uppercase RS Number
+    if (name === 'rsNumber') {
+      setFormData({
+        ...formData,
+        [name]: value.toUpperCase(),
+      });
+    } else {
+      setFormData({
+        ...formData,
+        [name]: value,
+      });
+    }
+  };
+
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setUpdating(true);
+
+    try {
+      const newTotalArea = parseFloat(formData.totalArea);
+
+      // Validate: new total area must be >= (sold + allocated)
+      if (rsNumber && newTotalArea < (rsNumber.soldArea + rsNumber.allocatedArea)) {
+        showError(
+          `Total area cannot be less than sold + allocated area.\n\nSold: ${rsNumber.soldArea} ${rsNumber.unitType}\nAllocated: ${rsNumber.allocatedArea} ${rsNumber.unitType}\nMinimum required: ${rsNumber.soldArea + rsNumber.allocatedArea} ${rsNumber.unitType}\nYou entered: ${newTotalArea} ${formData.unitType}`
+        );
+        setUpdating(false);
+        return;
+      }
+
+      // Prepare data
+      const data: any = {
+        rsNumber: formData.rsNumber.trim(),
+        projectName: formData.projectName.trim(),
+        location: formData.location.trim(),
+        totalArea: newTotalArea,
+        unitType: formData.unitType,
+      };
+
+      // Add optional description
+      if (formData.description.trim()) {
+        data.description = formData.description.trim();
+      }
+
+      await landApi.rsNumbers.update(params.id as string, data);
+      showSuccess('RS Number updated successfully!');
+      handleCloseEditModal();
+      loadRSNumber(); // Reload RS Number data
+    } catch (error: unknown) {
+      console.error('Failed to update RS Number:', error);
+      const errorMessage = getErrorMessage(error);
+      const details = (error as AppError).response?.data?.error?.details;
+
+      if (details) {
+        const fieldErrors = Object.entries(details)
+          .map(([field, msg]) => `${field}: ${msg}`)
+          .join('\n');
+        showError(`Validation errors:\n${fieldErrors}`);
+      } else {
+        showError(errorMessage);
+      }
+    } finally {
+      setUpdating(false);
     }
   };
 
@@ -358,12 +466,12 @@ export default function RSNumberDetailPage() {
               Actions
             </h2>
             <div className="space-y-3">
-              <Link
-                href={`/land/rs-numbers/${rsNumber._id}/edit`}
-                className="block w-full px-4 py-2 bg-indigo-600 text-white text-center rounded-md hover:bg-indigo-700"
+              <button
+                onClick={handleOpenEditModal}
+                className="w-full px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
               >
                 Edit RS Number
-              </Link>
+              </button>
               <button
                 onClick={handleDeleteClick}
                 className="w-full px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
@@ -393,6 +501,151 @@ export default function RSNumberDetailPage() {
         variant="danger"
         isLoading={deleting}
       />
+
+      {/* Edit RS Number Modal */}
+      <Modal isOpen={showEditModal} onClose={handleCloseEditModal} title="Edit RS Number" size="lg">
+        <form onSubmit={handleUpdate}>
+          <ModalContent>
+            {/* Warning Banner */}
+            {rsNumber && (
+              <div className="mb-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md">
+                <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                  <strong>Note:</strong> Total area must be at least{' '}
+                  <strong>{rsNumber.soldArea + rsNumber.allocatedArea} {rsNumber.unitType}</strong> (Sold:{' '}
+                  {rsNumber.soldArea} + Allocated: {rsNumber.allocatedArea})
+                </p>
+              </div>
+            )}
+
+            <div className="space-y-4">
+              {/* RS Number */}
+              <div>
+                <label htmlFor="rsNumber" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  RS Number *
+                </label>
+                <input
+                  type="text"
+                  id="rsNumber"
+                  name="rsNumber"
+                  value={formData.rsNumber}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                  placeholder="e.g., RS-1234"
+                />
+              </div>
+
+              {/* Project Name */}
+              <div>
+                <label htmlFor="projectName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Project Name *
+                </label>
+                <input
+                  type="text"
+                  id="projectName"
+                  name="projectName"
+                  value={formData.projectName}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                  placeholder="Enter project name"
+                />
+              </div>
+
+              {/* Location */}
+              <div>
+                <label htmlFor="location" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Location *
+                </label>
+                <input
+                  type="text"
+                  id="location"
+                  name="location"
+                  value={formData.location}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                  placeholder="Enter location"
+                />
+              </div>
+
+              {/* Total Area and Unit Type */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="totalArea" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Total Area *
+                  </label>
+                  <input
+                    type="number"
+                    id="totalArea"
+                    name="totalArea"
+                    value={formData.totalArea}
+                    onChange={handleChange}
+                    required
+                    min="0"
+                    step="0.01"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                    placeholder="0.00"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="unitType" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Unit Type *
+                  </label>
+                  <select
+                    id="unitType"
+                    name="unitType"
+                    value={formData.unitType}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                  >
+                    <option value="Katha">Katha</option>
+                    <option value="Decimal">Decimal</option>
+                    <option value="Acre">Acre</option>
+                    <option value="Bigha">Bigha</option>
+                    <option value="Square Feet">Square Feet</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Description */}
+              <div>
+                <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Description
+                </label>
+                <textarea
+                  id="description"
+                  name="description"
+                  value={formData.description}
+                  onChange={handleChange}
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                  placeholder="Enter description (optional)"
+                />
+              </div>
+            </div>
+          </ModalContent>
+
+          <ModalFooter>
+            <button
+              type="button"
+              onClick={handleCloseEditModal}
+              disabled={updating}
+              className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={updating}
+              className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50"
+            >
+              {updating ? 'Updating...' : 'Update RS Number'}
+            </button>
+          </ModalFooter>
+        </form>
+      </Modal>
     </div>
   );
 }

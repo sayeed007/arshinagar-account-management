@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
-import { clientApi, landApi, salesApi, receiptsApi, expensesApi, employeesApi, employeeCostsApi } from '@/lib/api';
+import { clientApi, landApi, salesApi, receiptsApi, expensesApi, employeesApi, employeeCostsApi, UnitType } from '@/lib/api';
 import { Modal, ModalContent, ModalFooter } from '@/components/ui/modal';
 import { showSuccess, showError } from '@/lib/toast';
 import { getErrorMessage } from '@/lib/types';
@@ -21,6 +21,16 @@ export default function DashboardPage() {
     address: '',
     nid: '',
     notes: '',
+  });
+  const [showRSNumberModal, setShowRSNumberModal] = useState(false);
+  const [creatingRSNumber, setCreatingRSNumber] = useState(false);
+  const [rsFormData, setRSFormData] = useState({
+    rsNumber: '',
+    projectName: '',
+    location: '',
+    totalArea: '',
+    unitType: 'Katha' as UnitType,
+    description: '',
   });
   const [stats, setStats] = useState({
     totalClients: 0,
@@ -211,6 +221,79 @@ export default function DashboardPage() {
     }
   };
 
+  const handleOpenRSNumberModal = () => {
+    setShowRSNumberModal(true);
+    setRSFormData({
+      rsNumber: '',
+      projectName: '',
+      location: '',
+      totalArea: '',
+      unitType: 'Katha',
+      description: '',
+    });
+  };
+
+  const handleCloseRSNumberModal = () => {
+    setShowRSNumberModal(false);
+    setRSFormData({
+      rsNumber: '',
+      projectName: '',
+      location: '',
+      totalArea: '',
+      unitType: 'Katha',
+      description: '',
+    });
+  };
+
+  const handleRSNumberChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+
+    // Auto-uppercase RS Number
+    if (name === 'rsNumber') {
+      setRSFormData({
+        ...rsFormData,
+        [name]: value.toUpperCase(),
+      });
+    } else {
+      setRSFormData({
+        ...rsFormData,
+        [name]: value,
+      });
+    }
+  };
+
+  const handleRSNumberSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setCreatingRSNumber(true);
+
+    try {
+      const data: any = {
+        rsNumber: rsFormData.rsNumber.trim(),
+        projectName: rsFormData.projectName.trim(),
+        location: rsFormData.location.trim(),
+        totalArea: parseFloat(rsFormData.totalArea),
+        unitType: rsFormData.unitType,
+      };
+
+      // Add optional description
+      if (rsFormData.description.trim()) {
+        data.description = rsFormData.description.trim();
+      }
+
+      await landApi.rsNumbers.create(data);
+      showSuccess('RS Number created successfully!');
+      handleCloseRSNumberModal();
+      loadStats(); // Refresh dashboard stats
+    } catch (error) {
+      console.error('Failed to create RS Number:', error);
+      showError(getErrorMessage(error));
+    } finally {
+      setCreatingRSNumber(false);
+    }
+  };
+
   const statCards = [
     {
       name: 'Total Clients',
@@ -341,9 +424,9 @@ export default function DashboardPage() {
             </div>
           </button>
 
-          <Link
-            href="/land/rs-numbers/new"
-            className="bg-white dark:bg-gray-800 p-6 shadow rounded-lg hover:shadow-md transition-shadow"
+          <button
+            onClick={handleOpenRSNumberModal}
+            className="bg-white dark:bg-gray-800 p-6 shadow rounded-lg hover:shadow-md transition-shadow text-left"
           >
             <div className="flex items-center">
               <span className="text-3xl mr-4">🏞️</span>
@@ -352,7 +435,7 @@ export default function DashboardPage() {
                 <p className="text-xs text-gray-500 dark:text-gray-400">Register RS number</p>
               </div>
             </div>
-          </Link>
+          </button>
 
           <Link
             href="/sales/new"
@@ -583,6 +666,140 @@ export default function DashboardPage() {
                 Cancel
               </button>
             </div>
+          </ModalFooter>
+        </form>
+      </Modal>
+
+      {/* Create RS Number Modal */}
+      <Modal isOpen={showRSNumberModal} onClose={handleCloseRSNumberModal} title="Create RS Number" size="lg">
+        <form onSubmit={handleRSNumberSubmit}>
+          <ModalContent>
+            <div className="space-y-4">
+              {/* RS Number */}
+              <div>
+                <label htmlFor="rsNumber" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  RS Number *
+                </label>
+                <input
+                  type="text"
+                  id="rsNumber"
+                  name="rsNumber"
+                  value={rsFormData.rsNumber}
+                  onChange={handleRSNumberChange}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                  placeholder="e.g., RS-1234"
+                />
+              </div>
+
+              {/* Project Name */}
+              <div>
+                <label htmlFor="projectName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Project Name *
+                </label>
+                <input
+                  type="text"
+                  id="projectName"
+                  name="projectName"
+                  value={rsFormData.projectName}
+                  onChange={handleRSNumberChange}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                  placeholder="Enter project name"
+                />
+              </div>
+
+              {/* Location */}
+              <div>
+                <label htmlFor="location" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Location *
+                </label>
+                <input
+                  type="text"
+                  id="location"
+                  name="location"
+                  value={rsFormData.location}
+                  onChange={handleRSNumberChange}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                  placeholder="Enter location"
+                />
+              </div>
+
+              {/* Total Area and Unit Type */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="totalArea" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Total Area *
+                  </label>
+                  <input
+                    type="number"
+                    id="totalArea"
+                    name="totalArea"
+                    value={rsFormData.totalArea}
+                    onChange={handleRSNumberChange}
+                    required
+                    min="0"
+                    step="0.01"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                    placeholder="0.00"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="unitType" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Unit Type *
+                  </label>
+                  <select
+                    id="unitType"
+                    name="unitType"
+                    value={rsFormData.unitType}
+                    onChange={handleRSNumberChange}
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                  >
+                    <option value="Katha">Katha</option>
+                    <option value="Decimal">Decimal</option>
+                    <option value="Acre">Acre</option>
+                    <option value="Bigha">Bigha</option>
+                    <option value="Square Feet">Square Feet</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Description */}
+              <div>
+                <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Description
+                </label>
+                <textarea
+                  id="description"
+                  name="description"
+                  value={rsFormData.description}
+                  onChange={handleRSNumberChange}
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                  placeholder="Enter description (optional)"
+                />
+              </div>
+            </div>
+          </ModalContent>
+
+          <ModalFooter>
+            <button
+              type="button"
+              onClick={handleCloseRSNumberModal}
+              disabled={creatingRSNumber}
+              className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={creatingRSNumber}
+              className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50"
+            >
+              {creatingRSNumber ? 'Creating...' : 'Create RS Number'}
+            </button>
           </ModalFooter>
         </form>
       </Modal>
