@@ -553,6 +553,39 @@ export const getLandStats = async (
       remainingArea: 0,
     };
 
+    // Calculate available and sold land areas from plots
+    const availableLandAreas = await Plot.aggregate([
+      { $match: { status: PlotStatus.AVAILABLE, isActive: true } },
+      {
+        $group: {
+          _id: null,
+          totalArea: { $sum: '$area' },
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const soldLandAreas = await Plot.aggregate([
+      { $match: { status: PlotStatus.SOLD, isActive: true } },
+      {
+        $group: {
+          _id: null,
+          totalArea: { $sum: '$area' },
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const availableLandStats = availableLandAreas[0] || {
+      totalArea: 0,
+      count: 0,
+    };
+
+    const soldLandStats = soldLandAreas[0] || {
+      totalArea: 0,
+      count: 0,
+    };
+
     res.status(200).json({
       success: true,
       data: {
@@ -561,6 +594,8 @@ export const getLandStats = async (
         availablePlots,
         soldPlots,
         areaStats,
+        availableLandStats,
+        soldLandStats,
       },
     });
   } catch (error) {

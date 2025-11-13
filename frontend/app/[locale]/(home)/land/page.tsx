@@ -3,23 +3,65 @@
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import { MapPin, ListTree, Grid3x3, Plus, TrendingUp, TrendingDown } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { type Locale, defaultLocale } from '@/lib/i18n/config'
+import { landApi } from '@/lib/api'
+
+interface LandStats {
+  totalRSNumbers: number
+  totalPlots: number
+  availablePlots: number
+  soldPlots: number
+  areaStats: {
+    totalArea: number
+    soldArea: number
+    allocatedArea: number
+    remainingArea: number
+  }
+  availableLandStats: {
+    totalArea: number
+    count: number
+  }
+  soldLandStats: {
+    totalArea: number
+    count: number
+  }
+}
 
 export default function LandInventoryPage() {
   const t = useTranslations('landInventory')
   const tCommon = useTranslations('common')
   const params = useParams()
   const locale = (params.locale as Locale) || defaultLocale
+  const [stats, setStats] = useState<LandStats | null>(null)
+  const [loading, setLoading] = useState(true)
 
   // Helper to create locale-aware href
   const getLocalizedHref = (href: string) => {
     return locale === defaultLocale ? href : `/${locale}${href}`
   }
+
+  // Fetch land statistics
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        setLoading(true)
+        const data = await landApi.getStats()
+        setStats(data)
+      } catch (error) {
+        console.error('Failed to fetch land stats:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchStats()
+  }, [])
 
   return (
     <div className="space-y-6">
@@ -46,7 +88,9 @@ export default function LandInventoryPage() {
             <ListTree className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">--</div>
+            <div className="text-2xl font-bold">
+              {loading ? '--' : stats?.totalRSNumbers || 0}
+            </div>
             <p className="text-xs text-muted-foreground">
               {t('stats.activeRecords')}
             </p>
@@ -61,7 +105,9 @@ export default function LandInventoryPage() {
             <Grid3x3 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">--</div>
+            <div className="text-2xl font-bold">
+              {loading ? '--' : stats?.totalPlots || 0}
+            </div>
             <p className="text-xs text-muted-foreground">
               {t('stats.allPlots')}
             </p>
@@ -76,9 +122,11 @@ export default function LandInventoryPage() {
             <TrendingUp className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">--</div>
+            <div className="text-2xl font-bold">
+              {loading ? '--' : (stats?.availableLandStats.totalArea || 0).toFixed(2)}
+            </div>
             <p className="text-xs text-muted-foreground">
-              {t('stats.inAcres')}
+              {loading ? t('stats.inAcres') : `${stats?.availableLandStats.count || 0} plots • In Katha`}
             </p>
           </CardContent>
         </Card>
@@ -91,9 +139,11 @@ export default function LandInventoryPage() {
             <TrendingDown className="h-4 w-4 text-red-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">--</div>
+            <div className="text-2xl font-bold">
+              {loading ? '--' : (stats?.soldLandStats.totalArea || 0).toFixed(2)}
+            </div>
             <p className="text-xs text-muted-foreground">
-              {t('stats.inAcres')}
+              {loading ? t('stats.inAcres') : `${stats?.soldLandStats.count || 0} plots • In Katha`}
             </p>
           </CardContent>
         </Card>
