@@ -1,18 +1,18 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Separator } from '@/components/ui/separator'
+import { landApi } from '@/lib/api'
+import { type Locale, defaultLocale } from '@/lib/i18n/config'
+import { showError } from '@/lib/toast'
+import { getErrorMessage } from '@/lib/types'
+import { Grid3x3, ListTree, MapPin, Plus, TrendingDown, TrendingUp } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
-import { MapPin, ListTree, Grid3x3, Plus, TrendingUp, TrendingDown } from 'lucide-react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
-import { type Locale, defaultLocale } from '@/lib/i18n/config'
-import { landApi } from '@/lib/api'
-import { showError } from '@/lib/toast'
-import { getErrorMessage } from '@/lib/types'
+import { useEffect, useState } from 'react'
 
 interface LandStats {
   totalRSNumbers: number
@@ -22,6 +22,20 @@ interface LandStats {
   totalArea: number
   availableArea: number
   soldArea: number
+  areaStats: {
+    totalArea: number
+    soldArea: number
+    allocatedArea: number
+    remainingArea: number
+  }
+  availableLandStats: {
+    totalArea: number
+    count: number
+  }
+  soldLandStats: {
+    totalArea: number
+    count: number
+  }
 }
 
 export default function LandInventoryPage() {
@@ -58,6 +72,22 @@ export default function LandInventoryPage() {
   const formatArea = (area: number) => {
     return area.toFixed(2)
   }
+  // Fetch land statistics
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        setLoading(true)
+        const data = await landApi.getStats()
+        setStats(data)
+      } catch (error) {
+        console.error('Failed to fetch land stats:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchStats()
+  }, [])
 
   return (
     <div className="space-y-6">
@@ -119,10 +149,10 @@ export default function LandInventoryPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {loading ? '--' : stats?.availableArea ? formatArea(stats.availableArea) : '0.00'}
+              {loading ? '--' : (stats?.availableLandStats.totalArea || 0).toFixed(2)}
             </div>
             <p className="text-xs text-muted-foreground">
-              {loading ? t('stats.inAcres') : `${stats?.availablePlots || 0} plots • ${t('stats.inAcres')}`}
+              {loading ? t('stats.inAcres') : `${stats?.availableLandStats.count || 0} plots • In Katha`}
             </p>
           </CardContent>
         </Card>
@@ -136,10 +166,10 @@ export default function LandInventoryPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {loading ? '--' : stats?.soldArea ? formatArea(stats.soldArea) : '0.00'}
+              {loading ? '--' : (stats?.soldLandStats.totalArea || 0).toFixed(2)}
             </div>
             <p className="text-xs text-muted-foreground">
-              {loading ? t('stats.inAcres') : `${stats?.soldPlots || 0} plots • ${t('stats.inAcres')}`}
+              {loading ? t('stats.inAcres') : `${stats?.soldLandStats.count || 0} plots • In Katha`}
             </p>
           </CardContent>
         </Card>
