@@ -602,3 +602,62 @@ export const getLandStats = async (
     throw error;
   }
 };
+
+/**
+ * Recalculate RS Number Areas
+ * This utility endpoint recalculates soldArea and allocatedArea for all RS Numbers
+ * based on their actual plots. Useful for fixing data inconsistencies.
+ */
+export const recalculateRSNumberAreas = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const rsNumbers = await RSNumber.find({ isActive: true });
+    let updatedCount = 0;
+
+    for (const rsNumber of rsNumbers) {
+      // Get all active plots for this RS Number
+      const plots = await Plot.find({ rsNumberId: rsNumber._id, isActive: true });
+
+      // Calculate sold and allocated areas
+      let soldArea = 0;
+      let allocatedArea = 0;
+
+      for (const plot of plots) {
+        if (plot.status === PlotStatus.SOLD) {
+          soldArea += plot.area;
+        } else {
+          // Reserved, Available, or Blocked plots count as allocated
+          allocatedArea += plot.area;
+        }
+      }
+
+      // Update RS Number if values changed
+      if (rsNumber.soldArea !== soldArea || rsNumber.allocatedArea !== allocatedArea) {
+        rsNumber.soldArea = soldArea;
+        rsNumber.allocatedArea = allocatedArea;
+        rsNumber.calculateRemainingArea();
+        await rsNumber.save();
+        updatedCount++;
+
+        logger.info(
+          `Recalculated areas for ${rsNumber.rsNumber}: Sold=${soldArea}, Allocated=${allocatedArea}, Remaining=${rsNumber.remainingArea}`
+        );
+      }
+    }
+
+    logger.info(`RS Number area recalculation completed. Updated ${updatedCount} records.`);
+
+    res.status(200).json({
+      success: true,
+      message: `Recalculated areas for ${updatedCount} RS Numbers`,
+      data: {
+        totalRSNumbers: rsNumbers.length,
+        updatedCount,
+      },
+    });
+  } catch (error) {
+    throw error;
+  }
+};

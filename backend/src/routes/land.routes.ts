@@ -11,6 +11,7 @@ import {
   updatePlot,
   deletePlot,
   getLandStats,
+  recalculateRSNumberAreas,
 } from '../controllers/landController';
 import { authenticate } from '../middlewares/auth.middleware';
 import { accountManagerOrHigher, hofOrAdmin } from '../middlewares/rbac.middleware';
@@ -614,5 +615,38 @@ router.delete(
  *         description: Forbidden - Account Manager or higher access required
  */
 router.get('/stats', accountManagerOrHigher, asyncHandler(getLandStats));
+
+/**
+ * @swagger
+ * /land/recalculate-areas:
+ *   post:
+ *     summary: Recalculate RS Number areas
+ *     description: Recalculates soldArea and allocatedArea for all RS Numbers based on their actual plots. Useful for fixing data inconsistencies.
+ *     tags: [Land]
+ *     responses:
+ *       200:
+ *         description: Areas recalculated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     totalRSNumbers:
+ *                       type: number
+ *                     updatedCount:
+ *                       type: number
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Admin access required
+ */
+router.post('/recalculate-areas', hofOrAdmin, asyncHandler(recalculateRSNumberAreas));
 
 export default router;
