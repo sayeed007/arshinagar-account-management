@@ -53,12 +53,8 @@ export default function RSNumberDetailPage() {
   const loadPlots = async () => {
     try {
       setPlotsLoading(true);
-      const response = await landApi.getAllPlots({
-        rsNumberId: params.id as string,
-        page: 1,
-        limit: 100,
-      });
-      setPlots(response.data || []);
+      const plots = await landApi.plots.getByRSNumber(params.id as string);
+      setPlots(plots || []);
     } catch (error: unknown) {
       console.error('Failed to load plots:', error);
     } finally {
