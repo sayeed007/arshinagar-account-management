@@ -151,7 +151,7 @@ export default function NewSalePage() {
             {clients.length === 0 && (
               <p className="text-xs text-red-500 mt-1">
                 No clients found.{' '}
-                <Link href="/clients/new" className="underline">
+                <Link href="/clients" className="underline">
                   Create a client first
                 </Link>
               </p>

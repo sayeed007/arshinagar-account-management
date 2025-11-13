@@ -258,7 +258,7 @@ export default function DashboardPage() {
         </h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Link
-            href="/clients/new"
+            href="/clients"
             className="bg-white dark:bg-gray-800 p-6 shadow rounded-lg hover:shadow-md transition-shadow"
           >
             <div className="flex items-center">
