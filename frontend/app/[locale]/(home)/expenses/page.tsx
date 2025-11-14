@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { expensesApi, Expense, ExpenseStatus, ExpenseCategory } from '@/lib/api';
 import { ListQueryParams, getErrorMessage } from '@/lib/types';
 import { showSuccess, showError } from '@/lib/toast';
+import { ExpenseFormModal } from '@/components/expenses/expense-form-modal';
 
 export default function ExpensesPage() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -13,6 +14,7 @@ export default function ExpensesPage() {
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [statusFilter, setStatusFilter] = useState<ExpenseStatus | ''>('');
+  const [showExpenseModal, setShowExpenseModal] = useState(false);
   const limit = 10;
 
   useEffect(() => {
@@ -64,6 +66,10 @@ export default function ExpensesPage() {
     }).format(amount);
   };
 
+  const handleExpenseSuccess = () => {
+    loadExpenses();
+  };
+
   return (
     <div>
       <div className="mb-6">
@@ -104,12 +110,12 @@ export default function ExpensesPage() {
             >
               📋 Approval Queue
             </Link>
-            <Link
-              href="/expenses/new"
+            <button
+              onClick={() => setShowExpenseModal(true)}
               className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm whitespace-nowrap"
             >
               + New Expense
-            </Link>
+            </button>
           </div>
         </div>
       </div>
@@ -124,12 +130,12 @@ export default function ExpensesPage() {
         ) : expenses.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-gray-600 dark:text-gray-400">No expenses found</p>
-            <Link
-              href="/expenses/new"
+            <button
+              onClick={() => setShowExpenseModal(true)}
               className="text-indigo-600 hover:text-indigo-700 mt-2 inline-block"
             >
               Create your first expense
-            </Link>
+            </button>
           </div>
         ) : (
           <>
@@ -251,6 +257,13 @@ export default function ExpensesPage() {
           </>
         )}
       </div>
+
+      {/* Expense Form Modal */}
+      <ExpenseFormModal
+        isOpen={showExpenseModal}
+        onClose={() => setShowExpenseModal(false)}
+        onSuccess={handleExpenseSuccess}
+      />
     </div>
   );
 }
