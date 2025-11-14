@@ -1,0 +1,147 @@
+I think we can do similar thing for this files also
+ON
+- frontend\app\[locale]\(home)\dashboard\page.tsx from line 466 - 597
+- frontend\app\[locale]\(home)\land\page.tsx from line 375 -506
+- frontend\app\[locale]\(home)\land\rs-numbers\page.tsx from line 330 -481
+
+All are creating same RS Number
+
+And ON
+- frontend\app\[locale]\(home)\land\rs-numbers\[id]\page.tsx from line 504 to 646
+Edit that RS Number
+we can create a reuseable component for that functionality and use that on this 4 place and can reduce 1000 lines of code
+
+
+
+
+Need to go modal base solution for this routes
+- frontend\app\[locale]\(home)\cancellations\new\page.tsx       => OK
+
+- frontend\app\[locale]\(home)\employees\new\page.tsx           => OK
+- frontend\app\[locale]\(home)\employees\edit\[id]\page.tsx     => OK
+
+- frontend\app\[locale]\(home)\expenses\categories\new\page.tsx => OK
+
+- frontend\app\[locale]\(home)\expenses\new\page.tsx            => OK
+
+- frontend\app\[locale]\(home)\receipts\new\page.tsx            => OK
+
+- frontend\app\[locale]\(home)\sales\new\page.tsx
+
+
+
+######################################################################
+####################          Pending             ####################
+######################################################################
+
+Dark Theme missing on
+- frontend\app\[locale]\(home)\reports\page.tsx
+- frontend\app\[locale]\(home)\settings\page.tsx 
+
+Page implementation missing though they are enlisted on docs\Real_Estate_Accounts_Requirements_v1.md and frontend\components\layout\side-nav.tsx
+- /approvals
+- /sms
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
