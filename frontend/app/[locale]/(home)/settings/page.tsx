@@ -69,16 +69,16 @@ export default function SettingsPage() {
 
   return (
     <div className="p-6 space-y-6 max-w-4xl">
-      <h1 className="text-2xl font-bold">System Settings</h1>
+      <h1 className="text-2xl font-bold dark:text-white">System Settings</h1>
 
-      <div className="bg-white border rounded-lg p-6 space-y-4">
-        <h2 className="text-lg font-semibold">Financial Settings</h2>
+      <div className="bg-white dark:bg-slate-900 border dark:border-gray-700 rounded-lg p-6 space-y-4">
+        <h2 className="text-lg font-semibold dark:text-white">Financial Settings</h2>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Lock Date
           </label>
-          <p className="text-sm text-gray-500 mb-2">
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
             Prevent edits before this date (accounting period lock)
           </p>
           <div className="flex gap-2">
@@ -86,11 +86,11 @@ export default function SettingsPage() {
               type="date"
               value={lockDate}
               onChange={(e) => setLockDate(e.target.value)}
-              className="border rounded px-3 py-2"
+              className="border dark:border-gray-700 rounded px-3 py-2 dark:bg-slate-800 dark:text-white"
             />
             <button
               onClick={handleSaveLockDate}
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
             >
               Save Lock Date
             </button>
@@ -98,10 +98,10 @@ export default function SettingsPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Default Office Charge (%)
           </label>
-          <p className="text-sm text-gray-500 mb-2">
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
             Default percentage charged when a booking is cancelled
           </p>
           <input
@@ -110,20 +110,20 @@ export default function SettingsPage() {
             onChange={(e) => setOfficeCharge(e.target.value)}
             min="0"
             max="100"
-            className="border rounded px-3 py-2 w-32"
+            className="border dark:border-gray-700 rounded px-3 py-2 w-32 dark:bg-slate-800 dark:text-white"
           />
-          <span className="ml-2 text-gray-600">%</span>
+          <span className="ml-2 text-gray-600 dark:text-gray-400">%</span>
         </div>
       </div>
 
-      <div className="bg-white border rounded-lg p-6 space-y-4">
-        <h2 className="text-lg font-semibold">SMS & Notification Settings</h2>
+      <div className="bg-white dark:bg-slate-900 border dark:border-gray-700 rounded-lg p-6 space-y-4">
+        <h2 className="text-lg font-semibold dark:text-white">SMS & Notification Settings</h2>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Installment Reminder Days
           </label>
-          <p className="text-sm text-gray-500 mb-2">
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
             Send SMS reminder N days before installment due date
           </p>
           <input
@@ -132,33 +132,33 @@ export default function SettingsPage() {
             onChange={(e) => setInstallmentReminder(e.target.value)}
             min="1"
             max="30"
-            className="border rounded px-3 py-2 w-32"
+            className="border dark:border-gray-700 rounded px-3 py-2 w-32 dark:bg-slate-800 dark:text-white"
           />
-          <span className="ml-2 text-gray-600">days</span>
+          <span className="ml-2 text-gray-600 dark:text-gray-400">days</span>
         </div>
 
         <div className="pt-4">
           <button
             onClick={handleSaveGeneralSettings}
-            className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
           >
             Save General Settings
           </button>
         </div>
       </div>
 
-      <div className="bg-white border rounded-lg p-6">
-        <h2 className="text-lg font-semibold mb-3">Quick Links</h2>
+      <div className="bg-white dark:bg-slate-900 border dark:border-gray-700 rounded-lg p-6">
+        <h2 className="text-lg font-semibold mb-3 dark:text-white">Quick Links</h2>
         <div className="space-y-2">
           <Link
             href="/sms/templates"
-            className="block text-blue-600 hover:text-blue-700"
+            className="block text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
           >
             → Manage SMS Templates
           </Link>
           <Link
             href="/expenses/categories"
-            className="block text-blue-600 hover:text-blue-700"
+            className="block text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
           >
             → Manage Expense Categories
           </Link>
