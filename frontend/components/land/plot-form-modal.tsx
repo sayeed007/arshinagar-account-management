@@ -36,14 +36,14 @@ export function PlotFormModal({
       setFormData({
         plotNumber: plot.plotNumber || '',
         area: plot.area.toString() || '',
-        status: plot.status || 'Available',
+        status: plot.status || PlotStatus.AVAILABLE,
         description: plot.description || '',
       });
     } else {
       setFormData({
         plotNumber: '',
         area: '',
-        status: 'Available',
+        status: PlotStatus.AVAILABLE,
         description: '',
       });
     }

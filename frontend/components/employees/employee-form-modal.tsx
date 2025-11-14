@@ -83,7 +83,7 @@ export function EmployeeFormModal({
     setLoading(true);
 
     try {
-      const data: Record<string, unknown> = {
+      const baseData = {
         name: formData.name,
         designation: formData.designation,
         phone: formData.phone,
@@ -92,31 +92,29 @@ export function EmployeeFormModal({
         address: formData.address || undefined,
         joinDate: formData.joinDate,
         baseSalary: parseFloat(formData.baseSalary),
+        bankAccount:
+          formData.bankName && formData.accountNumber
+            ? {
+                bankName: formData.bankName,
+                accountNumber: formData.accountNumber,
+                accountHolderName: formData.accountHolderName || formData.name,
+              }
+            : undefined,
       };
-
-      // Add resign date only in edit mode
-      if (isEditMode) {
-        data.resignDate = formData.resignDate || undefined;
-      }
-
-      // Add bank account info if provided
-      if (formData.bankName && formData.accountNumber) {
-        data.bankAccount = {
-          bankName: formData.bankName,
-          accountNumber: formData.accountNumber,
-          accountHolderName: formData.accountHolderName || formData.name,
-        };
-      }
 
       let updatedEmployee: Employee;
 
       if (isEditMode && employee) {
-        // Update employee
-        updatedEmployee = await employeesApi.update(employee._id, data);
+        // Update employee - can include resignDate
+        const updateData = {
+          ...baseData,
+          resignDate: formData.resignDate || undefined,
+        };
+        updatedEmployee = await employeesApi.update(employee._id, updateData);
         showSuccess('Employee updated successfully!');
       } else {
-        // Create employee
-        updatedEmployee = await employeesApi.create(data);
+        // Create employee - no resignDate
+        updatedEmployee = await employeesApi.create(baseData);
         showSuccess('Employee created successfully!');
       }
 
