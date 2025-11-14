@@ -6,12 +6,14 @@ import Link from 'next/link';
 import { salesApi, Sale, Client, Plot, RSNumber, SaleStageStatus, SaleStatus } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
 import { getErrorMessage } from '@/lib/types';
+import { CancellationFormModal } from '@/components/cancellations/cancellation-form-modal';
 
 export default function SaleDetailPage() {
   const params = useParams();
   const router = useRouter();
   const [sale, setSale] = useState<Sale | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showCancellationModal, setShowCancellationModal] = useState(false);
 
   useEffect(() => {
     if (params.id) {
@@ -39,6 +41,10 @@ export default function SaleDetailPage() {
       currency: 'BDT',
       minimumFractionDigits: 0,
     }).format(amount);
+  };
+
+  const handleCancellationSuccess = (cancellation: any) => {
+    router.push(`/cancellations/${cancellation._id}`);
   };
 
   const getStageStatusBadge = (status: SaleStageStatus) => {
@@ -305,12 +311,12 @@ export default function SaleDetailPage() {
                 View Installments
               </Link>
               {sale.status === SaleStatus.ACTIVE && (
-                <Link
-                  href={`/cancellations/new?saleId=${sale._id}`}
+                <button
+                  onClick={() => setShowCancellationModal(true)}
                   className="block w-full px-4 py-2 bg-red-600 text-white text-center rounded-md hover:bg-red-700"
                 >
                   Cancel Booking
-                </Link>
+                </button>
               )}
               <Link
                 href="/sales"
@@ -343,6 +349,14 @@ export default function SaleDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Cancellation Form Modal */}
+      <CancellationFormModal
+        isOpen={showCancellationModal}
+        onClose={() => setShowCancellationModal(false)}
+        saleId={sale?._id || null}
+        onSuccess={handleCancellationSuccess}
+      />
     </div>
   );
 }

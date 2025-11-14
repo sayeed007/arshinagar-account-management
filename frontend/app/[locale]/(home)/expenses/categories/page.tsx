@@ -6,6 +6,7 @@ import { expenseCategoryApi, ExpenseCategory } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
 import { getErrorMessage } from '@/lib/types';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { ExpenseCategoryFormModal } from '@/components/expenses/expense-category-form-modal';
 
 export default function ExpenseCategoriesPage() {
   const [categories, setCategories] = useState<ExpenseCategory[]>([]);
@@ -14,6 +15,7 @@ export default function ExpenseCategoriesPage() {
   const [showToggleConfirm, setShowToggleConfirm] = useState(false);
   const [toggling, setToggling] = useState(false);
   const [categoryToToggle, setCategoryToToggle] = useState<{ id: string; name: string; currentStatus: boolean } | null>(null);
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
 
   useEffect(() => {
     loadCategories();
@@ -61,6 +63,10 @@ export default function ExpenseCategoriesPage() {
     }
   };
 
+  const handleCategorySuccess = () => {
+    loadCategories();
+  };
+
   return (
     <div>
       <div className="mb-6">
@@ -82,12 +88,12 @@ export default function ExpenseCategoriesPage() {
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
             />
           </div>
-          <Link
-            href="/expenses/categories/new"
+          <button
+            onClick={() => setShowCategoryModal(true)}
             className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-center whitespace-nowrap"
           >
             + New Category
-          </Link>
+          </button>
         </div>
       </div>
 
@@ -101,12 +107,12 @@ export default function ExpenseCategoriesPage() {
         ) : categories.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-gray-600 dark:text-gray-400">No expense categories found</p>
-            <Link
-              href="/expenses/categories/new"
+            <button
+              onClick={() => setShowCategoryModal(true)}
               className="text-indigo-600 hover:text-indigo-700 mt-2 inline-block"
             >
               Create your first category
-            </Link>
+            </button>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -189,6 +195,13 @@ export default function ExpenseCategoriesPage() {
         cancelText="Cancel"
         variant={categoryToToggle?.currentStatus ? 'warning' : 'info'}
         isLoading={toggling}
+      />
+
+      {/* Expense Category Form Modal */}
+      <ExpenseCategoryFormModal
+        isOpen={showCategoryModal}
+        onClose={() => setShowCategoryModal(false)}
+        onSuccess={handleCategorySuccess}
       />
     </div>
   );
