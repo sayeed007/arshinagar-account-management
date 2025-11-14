@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { salesApi, clientApi, landApi, Client, Plot, PlotStatus, SaleStageStatus } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
 import { getErrorMessage } from '@/lib/types';
+import { ClientFormModal } from '@/components/clients/client-form-modal';
 
 export default function NewSalePage() {
   const router = useRouter();
@@ -13,6 +14,7 @@ export default function NewSalePage() {
   const [clients, setClients] = useState<Client[]>([]);
   const [plots, setPlots] = useState<Plot[]>([]);
   const [loadingData, setLoadingData] = useState(true);
+  const [showClientModal, setShowClientModal] = useState(false);
 
   const [formData, setFormData] = useState({
     clientId: '',
@@ -50,6 +52,13 @@ export default function NewSalePage() {
       ...formData,
       [e.target.name]: e.target.value,
     });
+  };
+
+  const handleClientSuccess = async (newClient: Client) => {
+    // Reload clients and select the new one
+    const clientsRes = await clientApi.getAll({ page: 1, limit: 100, isActive: true });
+    setClients(clientsRes.data || []);
+    setFormData({ ...formData, clientId: newClient._id });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -151,9 +160,13 @@ export default function NewSalePage() {
             {clients.length === 0 && (
               <p className="text-xs text-red-500 mt-1">
                 No clients found.{' '}
-                <Link href="/clients/new" className="underline">
+                <button
+                  type="button"
+                  onClick={() => setShowClientModal(true)}
+                  className="underline hover:text-red-700"
+                >
                   Create a client first
-                </Link>
+                </button>
               </p>
             )}
           </div>
@@ -273,6 +286,13 @@ export default function NewSalePage() {
           </Link>
         </div>
       </form>
+
+      {/* Add Client Modal */}
+      <ClientFormModal
+        isOpen={showClientModal}
+        onClose={() => setShowClientModal(false)}
+        onSuccess={handleClientSuccess}
+      />
     </div>
   );
 }

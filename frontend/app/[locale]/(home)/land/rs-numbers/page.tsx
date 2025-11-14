@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { landApi, RSNumber } from '@/lib/api';
-import { showSuccess, showError } from '@/lib/toast';
+import { showError } from '@/lib/toast';
 import { getErrorMessage } from '@/lib/types';
+import { RSNumberFormModal } from '@/components/land/rs-number-form-modal';
 
 export default function RSNumbersPage() {
   const [rsNumbers, setRSNumbers] = useState<RSNumber[]>([]);
@@ -13,6 +14,7 @@ export default function RSNumbersPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   useEffect(() => {
     loadRSNumbers();
@@ -47,6 +49,10 @@ export default function RSNumbersPage() {
     loadRSNumbers();
   };
 
+  const handleCreateSuccess = () => {
+    loadRSNumbers(); // Refresh the list
+  };
+
   const getUtilizationPercentage = (rs: RSNumber) => {
     if (rs.totalArea === 0) return 0;
     return ((rs.soldArea + rs.allocatedArea) / rs.totalArea) * 100;
@@ -75,12 +81,12 @@ export default function RSNumbersPage() {
             Total: {total} RS Numbers
           </p>
         </div>
-        <Link
-          href="/land/rs-numbers/new"
+        <button
+          onClick={() => setShowCreateModal(true)}
           className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
         >
           + Add RS Number
-        </Link>
+        </button>
       </div>
 
       {/* Search */}
@@ -240,6 +246,13 @@ export default function RSNumbersPage() {
           )}
         </>
       )}
+
+      {/* Create RS Number Modal */}
+      <RSNumberFormModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onSuccess={handleCreateSuccess}
+      />
     </div>
   );
 }

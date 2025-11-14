@@ -6,6 +6,9 @@ import Link from 'next/link';
 import { clientApi, Client, salesApi, Sale, SaleStatus } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
 import { getErrorMessage } from '@/lib/types';
+import { ClientFormModal } from '@/components/clients/client-form-modal';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { Breadcrumb } from '@/components/ui/breadcrumb';
 
 export default function ClientDetailPage() {
   const params = useParams();
@@ -14,6 +17,9 @@ export default function ClientDetailPage() {
   const [sales, setSales] = useState<Sale[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingSales, setLoadingSales] = useState(true);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     if (params.id) {
@@ -49,16 +55,27 @@ export default function ClientDetailPage() {
     }
   };
 
-  const handleDelete = async () => {
-    if (!confirm('Are you sure you want to delete this client?')) return;
+  const handleEditSuccess = () => {
+    loadClient(); // Reload client data
+  };
 
+  const handleDeleteClick = () => {
+    setShowDeleteConfirm(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    setDeleting(true);
     try {
       await clientApi.delete(params.id as string);
       showSuccess('Client deleted successfully');
+      setShowDeleteConfirm(false);
       router.push('/clients');
     } catch (error: unknown) {
       console.error('Failed to delete client:', error);
       showError(getErrorMessage(error));
+      setShowDeleteConfirm(false);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -86,16 +103,13 @@ export default function ClientDetailPage() {
 
   return (
     <div>
-      <div className="mb-6">
-        <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-2">
-          <Link href="/clients" className="hover:text-indigo-600">
-            Clients
-          </Link>
-          <span>/</span>
-          <span>{client.name}</span>
-        </div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{client.name}</h1>
-      </div>
+      <Breadcrumb
+        items={[
+          { label: 'Clients', href: '/clients' },
+          { label: client.name },
+        ]}
+        title={client.name}
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Client Info */}
@@ -335,14 +349,14 @@ export default function ClientDetailPage() {
               Actions
             </h2>
             <div className="space-y-3">
-              <Link
-                href={`/clients/${client._id}/edit`}
-                className="block w-full px-4 py-2 bg-indigo-600 text-white text-center rounded-md hover:bg-indigo-700"
+              <button
+                onClick={() => setShowEditModal(true)}
+                className="w-full px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
               >
                 Edit Client
-              </Link>
+              </button>
               <button
-                onClick={handleDelete}
+                onClick={handleDeleteClick}
                 className="w-full px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
               >
                 Delete Client
@@ -357,6 +371,27 @@ export default function ClientDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Edit Client Modal */}
+      <ClientFormModal
+        isOpen={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        client={client}
+        onSuccess={handleEditSuccess}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Client"
+        message={`Are you sure you want to delete "${client?.name}"?\n\nThis action cannot be undone. All associated data including purchase history will be permanently removed.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+        isLoading={deleting}
+      />
     </div>
   );
 }

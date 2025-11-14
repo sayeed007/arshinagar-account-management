@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { employeesApi, Employee } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
 import { getErrorMessage } from '@/lib/types';
+import { EmployeeFormModal } from '@/components/employees/employee-form-modal';
 
 export default function EmployeesPage() {
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -13,6 +14,7 @@ export default function EmployeesPage() {
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [search, setSearch] = useState('');
+  const [showEmployeeModal, setShowEmployeeModal] = useState(false);
   const limit = 20;
 
   useEffect(() => {
@@ -47,6 +49,10 @@ export default function EmployeesPage() {
     }).format(amount);
   };
 
+  const handleEmployeeSuccess = () => {
+    loadEmployees();
+  };
+
   return (
     <div>
       <div className="mb-6">
@@ -71,12 +77,12 @@ export default function EmployeesPage() {
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
             />
           </div>
-          <Link
-            href="/employees/new"
+          <button
+            onClick={() => setShowEmployeeModal(true)}
             className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-center whitespace-nowrap"
           >
             + New Employee
-          </Link>
+          </button>
         </div>
       </div>
 
@@ -90,12 +96,12 @@ export default function EmployeesPage() {
         ) : employees.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-gray-600 dark:text-gray-400">No employees found</p>
-            <Link
-              href="/employees/new"
+            <button
+              onClick={() => setShowEmployeeModal(true)}
               className="text-indigo-600 hover:text-indigo-700 mt-2 inline-block"
             >
               Add your first employee
-            </Link>
+            </button>
           </div>
         ) : (
           <>
@@ -210,6 +216,13 @@ export default function EmployeesPage() {
           </>
         )}
       </div>
+
+      {/* Employee Form Modal */}
+      <EmployeeFormModal
+        isOpen={showEmployeeModal}
+        onClose={() => setShowEmployeeModal(false)}
+        onSuccess={handleEmployeeSuccess}
+      />
     </div>
   );
 }

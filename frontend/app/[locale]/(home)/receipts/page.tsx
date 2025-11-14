@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { receiptsApi, Receipt, ReceiptApprovalStatus, Client, Sale } from '@/lib/api';
 import { ListQueryParams, getErrorMessage } from '@/lib/types';
 import { showSuccess, showError } from '@/lib/toast';
+import { ReceiptFormModal } from '@/components/receipts/receipt-form-modal';
 
 export default function ReceiptsPage() {
   const searchParams = useSearchParams();
@@ -17,6 +18,7 @@ export default function ReceiptsPage() {
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [statusFilter, setStatusFilter] = useState<ReceiptApprovalStatus | ''>('');
+  const [showReceiptModal, setShowReceiptModal] = useState(false);
   const limit = 10;
 
   useEffect(() => {
@@ -72,6 +74,10 @@ export default function ReceiptsPage() {
     }).format(amount);
   };
 
+  const handleReceiptSuccess = () => {
+    loadReceipts();
+  };
+
   return (
     <div>
       <div className="mb-6">
@@ -112,12 +118,12 @@ export default function ReceiptsPage() {
             >
               📋 Approval Queue
             </Link>
-            <Link
-              href="/receipts/new"
+            <button
+              onClick={() => setShowReceiptModal(true)}
               className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm whitespace-nowrap"
             >
               + New Receipt
-            </Link>
+            </button>
           </div>
         </div>
       </div>
@@ -132,12 +138,12 @@ export default function ReceiptsPage() {
         ) : receipts.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-gray-600 dark:text-gray-400">No receipts found</p>
-            <Link
-              href="/receipts/new"
+            <button
+              onClick={() => setShowReceiptModal(true)}
               className="text-indigo-600 hover:text-indigo-700 mt-2 inline-block"
             >
               Create your first receipt
-            </Link>
+            </button>
           </div>
         ) : (
           <>
@@ -271,6 +277,13 @@ export default function ReceiptsPage() {
           </>
         )}
       </div>
+
+      {/* Receipt Form Modal */}
+      <ReceiptFormModal
+        isOpen={showReceiptModal}
+        onClose={() => setShowReceiptModal(false)}
+        onSuccess={handleReceiptSuccess}
+      />
     </div>
   );
 }

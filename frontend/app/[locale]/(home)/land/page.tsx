@@ -13,6 +13,7 @@ import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import { RSNumberFormModal } from '@/components/land/rs-number-form-modal'
 
 interface LandStats {
   totalRSNumbers: number
@@ -45,6 +46,7 @@ export default function LandInventoryPage() {
   const locale = (params.locale as Locale) || defaultLocale
   const [stats, setStats] = useState<LandStats | null>(null)
   const [loading, setLoading] = useState(true)
+  const [showRSNumberModal, setShowRSNumberModal] = useState(false)
 
   useEffect(() => {
     loadStats()
@@ -72,6 +74,11 @@ export default function LandInventoryPage() {
   const formatArea = (area: number) => {
     return area.toFixed(2)
   }
+
+  const handleRSNumberSuccess = () => {
+    loadStats() // Refresh stats
+  }
+
   // Fetch land statistics
   useEffect(() => {
     const fetchStats = async () => {
@@ -205,12 +212,10 @@ export default function LandInventoryPage() {
                   {t('rsNumbers.viewAll')}
                 </Button>
               </Link>
-              <Link href={getLocalizedHref('/land/rs-numbers/new')}>
-                <Button variant="outline">
-                  <Plus className="mr-2 h-4 w-4" />
-                  {t('rsNumbers.addNew')}
-                </Button>
-              </Link>
+              <Button variant="outline" onClick={() => setShowRSNumberModal(true)}>
+                <Plus className="mr-2 h-4 w-4" />
+                {t('rsNumbers.addNew')}
+              </Button>
             </div>
 
             <div className="pt-4 border-t space-y-2">
@@ -287,6 +292,13 @@ export default function LandInventoryPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Create RS Number Modal */}
+      <RSNumberFormModal
+        isOpen={showRSNumberModal}
+        onClose={() => setShowRSNumberModal(false)}
+        onSuccess={handleRSNumberSuccess}
+      />
     </div>
   )
 }

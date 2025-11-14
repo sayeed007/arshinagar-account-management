@@ -10,7 +10,13 @@
       "Bash(git checkout:*)",
       "Bash(git merge:*)",
       "Bash(git push:*)",
-      "Bash(git fetch:*)"
+      "Bash(git fetch:*)",
+      "Bash(npm run dev:*)",
+      "Bash(ls:*)",
+      "Bash(npx tsc:*)",
+      "Bash(wc:*)",
+      "Bash(tail:*)",
+      "Bash(git rm:*)"
     ],
     "deny": [],
     "ask": []

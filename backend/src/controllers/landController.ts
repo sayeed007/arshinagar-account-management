@@ -334,6 +334,75 @@ export const createPlot = async (
 };
 
 /**
+ * Get All Plots with Pagination and Filtering
+ */
+export const getAllPlots = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const {
+      page = 1,
+      limit = 20,
+      search = '',
+      status,
+      rsNumberId,
+      sortBy = 'createdAt',
+      sortOrder = 'desc',
+    } = req.query;
+
+    const pageNum = parseInt(page as string);
+    const limitNum = parseInt(limit as string);
+    const skip = (pageNum - 1) * limitNum;
+
+    // Build query
+    const query: any = { isActive: true };
+
+    // Search by plot number
+    if (search) {
+      query.plotNumber = { $regex: search, $options: 'i' };
+    }
+
+    // Filter by status
+    if (status) {
+      query.status = status;
+    }
+
+    // Filter by RS Number
+    if (rsNumberId) {
+      query.rsNumberId = rsNumberId;
+    }
+
+    const total = await Plot.countDocuments(query);
+
+    // Build sort
+    const sort: any = {};
+    sort[sortBy as string] = sortOrder === 'asc' ? 1 : -1;
+
+    const plots = await Plot.find(query)
+      .populate('clientId', 'name phone email')
+      .populate('rsNumberId', 'rsNumber projectName location unitType')
+      .sort(sort)
+      .limit(limitNum)
+      .skip(skip)
+      .lean();
+
+    res.status(200).json({
+      success: true,
+      data: plots,
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        total,
+        totalPages: Math.ceil(total / limitNum),
+      },
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
  * Get All Plots for an RS Number
  */
 export const getPlotsByRSNumber = async (
@@ -596,6 +665,65 @@ export const getLandStats = async (
         areaStats,
         availableLandStats,
         soldLandStats,
+      },
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Recalculate RS Number Areas
+ * This utility endpoint recalculates soldArea and allocatedArea for all RS Numbers
+ * based on their actual plots. Useful for fixing data inconsistencies.
+ */
+export const recalculateRSNumberAreas = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const rsNumbers = await RSNumber.find({ isActive: true });
+    let updatedCount = 0;
+
+    for (const rsNumber of rsNumbers) {
+      // Get all active plots for this RS Number
+      const plots = await Plot.find({ rsNumberId: rsNumber._id, isActive: true });
+
+      // Calculate sold and allocated areas
+      let soldArea = 0;
+      let allocatedArea = 0;
+
+      for (const plot of plots) {
+        if (plot.status === PlotStatus.SOLD) {
+          soldArea += plot.area;
+        } else {
+          // Reserved, Available, or Blocked plots count as allocated
+          allocatedArea += plot.area;
+        }
+      }
+
+      // Update RS Number if values changed
+      if (rsNumber.soldArea !== soldArea || rsNumber.allocatedArea !== allocatedArea) {
+        rsNumber.soldArea = soldArea;
+        rsNumber.allocatedArea = allocatedArea;
+        rsNumber.calculateRemainingArea();
+        await rsNumber.save();
+        updatedCount++;
+
+        logger.info(
+          `Recalculated areas for ${rsNumber.rsNumber}: Sold=${soldArea}, Allocated=${allocatedArea}, Remaining=${rsNumber.remainingArea}`
+        );
+      }
+    }
+
+    logger.info(`RS Number area recalculation completed. Updated ${updatedCount} records.`);
+
+    res.status(200).json({
+      success: true,
+      message: `Recalculated areas for ${updatedCount} RS Numbers`,
+      data: {
+        totalRSNumbers: rsNumbers.length,
+        updatedCount,
       },
     });
   } catch (error) {

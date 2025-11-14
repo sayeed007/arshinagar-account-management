@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { employeesApi, Employee, EmployeeCost } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
 import { getErrorMessage } from '@/lib/types';
+import { EmployeeFormModal } from '@/components/employees/employee-form-modal';
 
 export default function EmployeeDetailPage() {
   const params = useParams();
@@ -14,6 +15,7 @@ export default function EmployeeDetailPage() {
   const [costs, setCosts] = useState<EmployeeCost[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingCosts, setLoadingCosts] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   useEffect(() => {
     if (params.id) {
@@ -46,6 +48,10 @@ export default function EmployeeDetailPage() {
     } finally {
       setLoadingCosts(false);
     }
+  };
+
+  const handleEditSuccess = () => {
+    loadEmployee();
   };
 
   const formatCurrency = (amount: number) => {
@@ -222,12 +228,12 @@ export default function EmployeeDetailPage() {
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 sticky top-6">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Actions</h2>
             <div className="space-y-3">
-              <Link
-                href={`/employees/edit/${employee._id}`}
+              <button
+                onClick={() => setShowEditModal(true)}
                 className="block w-full px-4 py-2 bg-indigo-600 text-white text-center rounded-md hover:bg-indigo-700"
               >
                 Edit Employee
-              </Link>
+              </button>
               <Link
                 href={`/employees/${employee._id}/costs/new`}
                 className="block w-full px-4 py-2 bg-green-600 text-white text-center rounded-md hover:bg-green-700"
@@ -256,6 +262,14 @@ export default function EmployeeDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Edit Employee Modal */}
+      <EmployeeFormModal
+        isOpen={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        employee={employee}
+        onSuccess={handleEditSuccess}
+      />
     </div>
   );
 }

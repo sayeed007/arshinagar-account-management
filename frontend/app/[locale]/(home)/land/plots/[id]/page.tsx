@@ -7,6 +7,7 @@ import { landApi, Plot, RSNumber, PlotStatus } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
 import { getErrorMessage } from '@/lib/types';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { PlotFormModal } from '@/components/land/plot-form-modal';
 
 export default function PlotDetailPage() {
   const params = useParams();
@@ -16,6 +17,7 @@ export default function PlotDetailPage() {
   const [loading, setLoading] = useState(true);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   useEffect(() => {
     if (params.id) {
@@ -34,7 +36,7 @@ export default function PlotDetailPage() {
         const rsData = await landApi.rsNumbers.getById(
           typeof data.rsNumberId === 'string' ? data.rsNumberId : data.rsNumberId._id
         );
-        setRSNumber(rsData);
+        setRSNumber(rsData?.rsNumber);
       }
     } catch (error: unknown) {
       console.error('Failed to load plot:', error);
@@ -107,6 +109,7 @@ export default function PlotDetailPage() {
       </div>
     );
   }
+
 
   return (
     <div>
@@ -238,15 +241,131 @@ export default function PlotDetailPage() {
             </dl>
           </div>
 
-          {/* Client Info - Phase 3 */}
-          {plot.status === 'Sold' && (
+          {/* Client Info */}
+          {(plot.status === 'Sold' || plot.status === 'Reserved') && plot.clientId && (
             <div className="mt-6 bg-white dark:bg-gray-800 rounded-lg shadow p-6">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                 Client Information
               </h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Client information and sales details will be available in Phase 3 (Sales module)
-              </p>
+              {typeof plot.clientId === 'object' ? (
+                <dl className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-4">
+                  <div>
+                    <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                      Client Name
+                    </dt>
+                    <dd className="mt-1 text-sm text-gray-900 dark:text-white font-semibold">
+                      {plot.clientId.name}
+                    </dd>
+                  </div>
+
+                  <div>
+                    <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                      Phone
+                    </dt>
+                    <dd className="mt-1 text-sm text-gray-900 dark:text-white">
+                      {plot.clientId.phone}
+                    </dd>
+                  </div>
+
+                  {plot.clientId.email && (
+                    <div>
+                      <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                        Email
+                      </dt>
+                      <dd className="mt-1 text-sm text-gray-900 dark:text-white">
+                        {plot.clientId.email}
+                      </dd>
+                    </div>
+                  )}
+
+                  {plot.clientId.address && (
+                    <div className="md:col-span-2">
+                      <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                        Address
+                      </dt>
+                      <dd className="mt-1 text-sm text-gray-900 dark:text-white">
+                        {plot.clientId.address}
+                      </dd>
+                    </div>
+                  )}
+
+                  {plot.clientId.nid && (
+                    <div>
+                      <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                        NID
+                      </dt>
+                      <dd className="mt-1 text-sm text-gray-900 dark:text-white">
+                        {plot.clientId.nid}
+                      </dd>
+                    </div>
+                  )}
+
+                  <div className="md:col-span-2">
+                    <Link
+                      href={`/clients/${plot.clientId._id}`}
+                      className="text-sm text-indigo-600 hover:text-indigo-700 dark:text-indigo-400"
+                    >
+                      View Full Client Details →
+                    </Link>
+                  </div>
+                </dl>
+              ) : (
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Client ID: {plot.clientId}
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* Sale Information */}
+          {plot.status === 'Sold' && plot.price && (
+            <div className="mt-6 bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                Sale Information
+              </h2>
+              <dl className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-4">
+                <div>
+                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                    Sale Price
+                  </dt>
+                  <dd className="mt-1 text-sm text-gray-900 dark:text-white font-semibold">
+                    ৳ {Number(plot.price).toLocaleString()}
+                  </dd>
+                </div>
+
+                {plot.saleDate && (
+                  <div>
+                    <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                      Sale Date
+                    </dt>
+                    <dd className="mt-1 text-sm text-gray-900 dark:text-white">
+                      {new Date(plot.saleDate).toLocaleDateString()}
+                    </dd>
+                  </div>
+                )}
+
+                {rsNumber && (
+                  <div>
+                    <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                      Price per {rsNumber.unitType}
+                    </dt>
+                    <dd className="mt-1 text-sm text-gray-900 dark:text-white">
+                      ৳ {(Number(plot.price) / Number(plot.area)).toLocaleString(undefined, {
+                        maximumFractionDigits: 2,
+                      })}
+                    </dd>
+                  </div>
+                )}
+
+                <div className="md:col-span-2">
+                  <Link
+                    href="/sales"
+                    className="text-sm text-indigo-600 hover:text-indigo-700 dark:text-indigo-400"
+                  >
+                    View detailed payment information in Sales →
+                  </Link>
+                </div>
+              </dl>
             </div>
           )}
         </div>
@@ -258,12 +377,12 @@ export default function PlotDetailPage() {
               Actions
             </h2>
             <div className="space-y-3">
-              <Link
-                href={`/land/plots/${plot._id}/edit`}
-                className="block w-full px-4 py-2 bg-indigo-600 text-white text-center rounded-md hover:bg-indigo-700"
+              <button
+                onClick={() => setShowEditModal(true)}
+                className="w-full px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
               >
                 Edit Plot
-              </Link>
+              </button>
               <button
                 onClick={handleDeleteClick}
                 className="w-full px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
@@ -293,6 +412,17 @@ export default function PlotDetailPage() {
         variant="danger"
         isLoading={deleting}
       />
+
+      {/* Edit Plot Modal */}
+      {rsNumber && (
+        <PlotFormModal
+          isOpen={showEditModal}
+          onClose={() => setShowEditModal(false)}
+          rsNumber={rsNumber}
+          plot={plot}
+          onSuccess={loadPlot}
+        />
+      )}
     </div>
   );
 }

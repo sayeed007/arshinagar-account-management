@@ -4,10 +4,14 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
 import { clientApi, landApi, salesApi, receiptsApi, expensesApi, employeesApi, employeeCostsApi } from '@/lib/api';
+import { ClientFormModal } from '@/components/clients/client-form-modal';
+import { RSNumberFormModal } from '@/components/land/rs-number-form-modal';
 
 export default function DashboardPage() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
+  const [showClientModal, setShowClientModal] = useState(false);
+  const [showRSNumberModal, setShowRSNumberModal] = useState(false);
   const [stats, setStats] = useState({
     totalClients: 0,
     clientsThisMonth: 0,
@@ -140,6 +144,14 @@ export default function DashboardPage() {
     return `৳${(amount / 1000000).toFixed(2)}M`;
   };
 
+  const handleClientSuccess = () => {
+    loadStats();
+  };
+
+  const handleRSNumberSuccess = () => {
+    loadStats(); // Refresh dashboard stats
+  };
+
   const statCards = [
     {
       name: 'Total Clients',
@@ -257,9 +269,9 @@ export default function DashboardPage() {
           Quick Actions
         </h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Link
-            href="/clients/new"
-            className="bg-white dark:bg-gray-800 p-6 shadow rounded-lg hover:shadow-md transition-shadow"
+          <button
+            onClick={() => setShowClientModal(true)}
+            className="bg-white dark:bg-gray-800 p-6 shadow rounded-lg hover:shadow-md transition-shadow text-left"
           >
             <div className="flex items-center">
               <span className="text-3xl mr-4">👤</span>
@@ -268,11 +280,11 @@ export default function DashboardPage() {
                 <p className="text-xs text-gray-500 dark:text-gray-400">Create new client</p>
               </div>
             </div>
-          </Link>
+          </button>
 
-          <Link
-            href="/land/rs-numbers/new"
-            className="bg-white dark:bg-gray-800 p-6 shadow rounded-lg hover:shadow-md transition-shadow"
+          <button
+            onClick={() => setShowRSNumberModal(true)}
+            className="bg-white dark:bg-gray-800 p-6 shadow rounded-lg hover:shadow-md transition-shadow text-left"
           >
             <div className="flex items-center">
               <span className="text-3xl mr-4">🏞️</span>
@@ -281,7 +293,7 @@ export default function DashboardPage() {
                 <p className="text-xs text-gray-500 dark:text-gray-400">Register RS number</p>
               </div>
             </div>
-          </Link>
+          </button>
 
           <Link
             href="/sales/new"
@@ -363,6 +375,19 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* Add Client Modal */}
+      <ClientFormModal
+        isOpen={showClientModal}
+        onClose={() => setShowClientModal(false)}
+        onSuccess={handleClientSuccess}
+      />
+
+      {/* Create RS Number Modal */}
+      <RSNumberFormModal
+        isOpen={showRSNumberModal}
+        onClose={() => setShowRSNumberModal(false)}
+        onSuccess={handleRSNumberSuccess}
+      />
     </div>
   );
 }
