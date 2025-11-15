@@ -1,5 +1,6 @@
 'use client';
 import { showSuccess, showError } from '@/lib/toast';
+import { API_BASE_URL } from '@/lib/api';
 import Link from 'next/link';
 
 import { useState } from 'react';
@@ -12,7 +13,7 @@ export default function SettingsPage() {
   const handleSaveLockDate = async () => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/settings/finance/lock-date`,
+        `${API_BASE_URL}/settings/finance/lock-date`,
         {
           method: 'POST',
           headers: {
@@ -51,7 +52,7 @@ export default function SettingsPage() {
       ];
 
       for (const setting of settings) {
-        await fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings`, {
+        await fetch(`${API_BASE_URL}/settings`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

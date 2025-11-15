@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { API_BASE_URL } from '@/lib/api';
 
 export default function ReportsPage() {
   const [dateRange, setDateRange] = useState({
@@ -45,7 +46,6 @@ export default function ReportsPage() {
   ];
 
   const handleViewReport = (reportId: string) => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
     const token = localStorage.getItem('accessToken');
 
     let endpoint = '';
@@ -57,8 +57,8 @@ export default function ReportsPage() {
       endpoint = `/reports/expense/${reportId}`;
     }
 
-    const url = `${apiUrl}${endpoint}?startDate=${dateRange.startDate}&endDate=${dateRange.endDate}`;
-    window.open(url + `&token=${token}`, '_blank');
+    const url = `${API_BASE_URL}${endpoint}?startDate=${dateRange.startDate}&endDate=${dateRange.endDate}&token=${token}`;
+    window.open(url, '_blank');
   };
 
   return (
