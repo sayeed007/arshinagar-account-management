@@ -2,13 +2,16 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { refundsApi, Refund, RefundStatus, RefundApprovalStatus, Cancellation, Sale, Client, Plot, RSNumber, PaymentMethod } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
 import { getErrorMessage } from '@/lib/types';
 
-export default function RefundDetailPage({ params }: { params: { id: string } }) {
+export default function RefundDetailPage() {
   const router = useRouter();
+  const params = useParams();
+  const id = params.id as string;
+
   const [loading, setLoading] = useState(true);
   const [refund, setRefund] = useState<Refund | null>(null);
   const [showSubmitModal, setShowSubmitModal] = useState(false);
@@ -26,12 +29,12 @@ export default function RefundDetailPage({ params }: { params: { id: string } })
 
   useEffect(() => {
     loadRefund();
-  }, [params.id]);
+  }, [id]);
 
   const loadRefund = async () => {
     try {
       setLoading(true);
-      const refund = await refundsApi.getById(params.id);
+      const refund = await refundsApi.getById(id);
       setRefund(refund);
     } catch (error: unknown) {
       console.error('Failed to load refund:', error);
@@ -44,7 +47,7 @@ export default function RefundDetailPage({ params }: { params: { id: string } })
   const handleSubmit = async () => {
     try {
       setActionLoading(true);
-      await refundsApi.submit(params.id);
+      await refundsApi.submit(id);
       showSuccess('Refund submitted for approval successfully');
       setShowSubmitModal(false);
       loadRefund();
@@ -59,7 +62,7 @@ export default function RefundDetailPage({ params }: { params: { id: string } })
   const handleApprove = async () => {
     try {
       setActionLoading(true);
-      await refundsApi.approve(params.id, actionRemarks || undefined);
+      await refundsApi.approve(id, actionRemarks || undefined);
       showSuccess('Refund approved successfully');
       setShowApproveModal(false);
       setActionRemarks('');
@@ -80,7 +83,7 @@ export default function RefundDetailPage({ params }: { params: { id: string } })
 
     try {
       setActionLoading(true);
-      await refundsApi.reject(params.id, actionRemarks);
+      await refundsApi.reject(id, actionRemarks);
       showSuccess('Refund rejected successfully');
       setShowRejectModal(false);
       setActionRemarks('');
@@ -101,7 +104,7 @@ export default function RefundDetailPage({ params }: { params: { id: string } })
 
     try {
       setActionLoading(true);
-      await refundsApi.markAsPaid(params.id, paymentData);
+      await refundsApi.markAsPaid(id, paymentData);
       showSuccess('Refund marked as paid successfully');
       setShowPaymentModal(false);
       setPaymentData({
