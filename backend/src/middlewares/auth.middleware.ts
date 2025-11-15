@@ -147,3 +147,100 @@ export const optionalAuthenticate = async (
 
 // Export alias for backward compatibility
 export const authenticateToken = authenticate;
+
+/**
+ * Authentication Middleware for Reports
+ * Accepts token from either Authorization header or query parameter
+ * This is useful for opening reports in new windows/tabs
+ */
+export const authenticateReport = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    let token: string | undefined;
+
+    // First, try to get token from Authorization header
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7);
+    }
+
+    // If not in header, try query parameter
+    if (!token && req.query.token && typeof req.query.token === 'string') {
+      token = req.query.token;
+    }
+
+    if (!token) {
+      res.status(401).json({
+        success: false,
+        error: {
+          code: ErrorCode.UNAUTHORIZED,
+          message: 'No authentication token provided',
+        },
+      });
+      return;
+    }
+
+    // Verify token
+    try {
+      const decoded = verifyAccessToken(token);
+
+      // Attach user info to request
+      req.user = decoded;
+
+      // Extract IP address
+      req.ipAddress =
+        (req.headers['x-forwarded-for'] as string)?.split(',')[0] ||
+        req.connection.remoteAddress ||
+        req.socket.remoteAddress ||
+        'unknown';
+
+      next();
+    } catch (error: unknown) {
+      // Token verification failed
+      if (isTokenExpiredError(error)) {
+        res.status(401).json({
+          success: false,
+          error: {
+            code: ErrorCode.TOKEN_EXPIRED,
+            message: 'Authentication token has expired',
+          },
+        });
+        return;
+      }
+
+      if (isJWTError(error)) {
+        res.status(401).json({
+          success: false,
+          error: {
+            code: ErrorCode.INVALID_TOKEN,
+            message: 'Invalid authentication token',
+          },
+        });
+        return;
+      }
+
+      // Other errors
+      logger.error('Token verification error:', error);
+      res.status(401).json({
+        success: false,
+        error: {
+          code: ErrorCode.UNAUTHORIZED,
+          message: 'Authentication failed',
+        },
+      });
+      return;
+    }
+  } catch (error) {
+    logger.error('Report authentication middleware error:', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        code: ErrorCode.INTERNAL_ERROR,
+        message: 'Internal server error during authentication',
+      },
+    });
+  }
+};

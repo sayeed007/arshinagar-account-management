@@ -1,12 +1,12 @@
 import express from 'express';
 import * as reportController from '../controllers/reportController';
-import { authenticateToken } from '../middlewares/auth.middleware';
+import { authenticateReport } from '../middlewares/auth.middleware';
 import { requireRole } from '../middlewares/rbac.middleware';
 
 const router = express.Router();
 
-// All routes require authentication
-router.use(authenticateToken);
+// All routes require authentication (accepts token from header or query parameter)
+router.use(authenticateReport);
 
 /**
  * @swagger
