@@ -15,6 +15,7 @@ export default function EmployeesPage() {
   const [totalPages, setTotalPages] = useState(0);
   const [search, setSearch] = useState('');
   const [showEmployeeModal, setShowEmployeeModal] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const limit = 20;
 
   useEffect(() => {
@@ -53,6 +54,21 @@ export default function EmployeesPage() {
     loadEmployees();
   };
 
+  const handleEditEmployee = (employee: Employee) => {
+    setSelectedEmployee(employee);
+    setShowEmployeeModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowEmployeeModal(false);
+    setSelectedEmployee(null);
+  };
+
+  const handleAddNewEmployee = () => {
+    setSelectedEmployee(null);
+    setShowEmployeeModal(true);
+  };
+
   return (
     <div>
       <div className="mb-6">
@@ -78,7 +94,7 @@ export default function EmployeesPage() {
             />
           </div>
           <button
-            onClick={() => setShowEmployeeModal(true)}
+            onClick={handleAddNewEmployee}
             className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-center whitespace-nowrap"
           >
             + New Employee
@@ -97,7 +113,7 @@ export default function EmployeesPage() {
           <div className="text-center py-12">
             <p className="text-gray-600 dark:text-gray-400">No employees found</p>
             <button
-              onClick={() => setShowEmployeeModal(true)}
+              onClick={handleAddNewEmployee}
               className="text-indigo-600 hover:text-indigo-700 mt-2 inline-block"
             >
               Add your first employee
@@ -174,12 +190,12 @@ export default function EmployeesPage() {
                         >
                           View
                         </Link>
-                        <Link
-                          href={`/employees/edit/${employee._id}`}
+                        <button
+                          onClick={() => handleEditEmployee(employee)}
                           className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
                         >
                           Edit
-                        </Link>
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -220,7 +236,8 @@ export default function EmployeesPage() {
       {/* Employee Form Modal */}
       <EmployeeFormModal
         isOpen={showEmployeeModal}
-        onClose={() => setShowEmployeeModal(false)}
+        onClose={handleCloseModal}
+        employee={selectedEmployee}
         onSuccess={handleEmployeeSuccess}
       />
     </div>
