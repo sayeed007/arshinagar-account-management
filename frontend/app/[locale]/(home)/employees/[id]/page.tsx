@@ -7,6 +7,7 @@ import { employeesApi, Employee, EmployeeCost } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
 import { getErrorMessage } from '@/lib/types';
 import { EmployeeFormModal } from '@/components/employees/employee-form-modal';
+import { EmployeeCostFormModal } from '@/components/employees/employee-cost-form-modal';
 
 export default function EmployeeDetailPage() {
   const params = useParams();
@@ -16,6 +17,7 @@ export default function EmployeeDetailPage() {
   const [loading, setLoading] = useState(true);
   const [loadingCosts, setLoadingCosts] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showCostModal, setShowCostModal] = useState(false);
 
   useEffect(() => {
     if (params.id) {
@@ -52,6 +54,10 @@ export default function EmployeeDetailPage() {
 
   const handleEditSuccess = () => {
     loadEmployee();
+  };
+
+  const handleCostSuccess = () => {
+    loadCosts();
   };
 
   const formatCurrency = (amount: number) => {
@@ -176,12 +182,12 @@ export default function EmployeeDetailPage() {
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Cost History</h2>
-              <Link
-                href={`/employees/${employee._id}/costs/new`}
+              <button
+                onClick={() => setShowCostModal(true)}
                 className="px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm"
               >
                 + Add Cost Entry
-              </Link>
+              </button>
             </div>
 
             {loadingCosts ? (
@@ -234,12 +240,12 @@ export default function EmployeeDetailPage() {
               >
                 Edit Employee
               </button>
-              <Link
-                href={`/employees/${employee._id}/costs/new`}
+              <button
+                onClick={() => setShowCostModal(true)}
                 className="block w-full px-4 py-2 bg-green-600 text-white text-center rounded-md hover:bg-green-700"
               >
                 Add Cost Entry
-              </Link>
+              </button>
               <Link
                 href="/employees"
                 className="block w-full px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-center rounded-md hover:bg-gray-300 dark:hover:bg-gray-600"
@@ -269,6 +275,14 @@ export default function EmployeeDetailPage() {
         onClose={() => setShowEditModal(false)}
         employee={employee}
         onSuccess={handleEditSuccess}
+      />
+
+      {/* Add Cost Entry Modal */}
+      <EmployeeCostFormModal
+        isOpen={showCostModal}
+        onClose={() => setShowCostModal(false)}
+        employee={employee}
+        onSuccess={handleCostSuccess}
       />
     </div>
   );
