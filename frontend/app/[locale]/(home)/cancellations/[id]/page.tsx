@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { cancellationsApi, refundsApi, Cancellation, CancellationStatus, Refund, Sale, Client, Plot, RSNumber } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
 import { getErrorMessage } from '@/lib/types';
@@ -11,8 +11,11 @@ interface CancellationWithRefunds extends Cancellation {
   refunds: Refund[];
 }
 
-export default function CancellationDetailPage({ params }: { params: { id: string } }) {
+export default function CancellationDetailPage() {
   const router = useRouter();
+  const params = useParams();
+  const id = params.id as string;
+
   const [loading, setLoading] = useState(true);
   const [cancellation, setCancellation] = useState<CancellationWithRefunds | null>(null);
   const [showApproveModal, setShowApproveModal] = useState(false);
@@ -22,12 +25,12 @@ export default function CancellationDetailPage({ params }: { params: { id: strin
 
   useEffect(() => {
     loadCancellation();
-  }, [params.id]);
+  }, [id]);
 
   const loadCancellation = async () => {
     try {
       setLoading(true);
-      const data = await cancellationsApi.getById(params.id);
+      const data = await cancellationsApi.getById(id);
       setCancellation(data);
     } catch (error: unknown) {
       console.error('Failed to load cancellation:', error);
@@ -40,7 +43,7 @@ export default function CancellationDetailPage({ params }: { params: { id: strin
   const handleApprove = async () => {
     try {
       setActionLoading(true);
-      await cancellationsApi.approve(params.id, actionNotes || undefined);
+      await cancellationsApi.approve(id, actionNotes || undefined);
       showSuccess('Cancellation approved successfully');
       setShowApproveModal(false);
       setActionNotes('');
@@ -61,7 +64,7 @@ export default function CancellationDetailPage({ params }: { params: { id: strin
 
     try {
       setActionLoading(true);
-      await cancellationsApi.reject(params.id, actionNotes);
+      await cancellationsApi.reject(id, actionNotes);
       showSuccess('Cancellation rejected successfully');
       setShowRejectModal(false);
       setActionNotes('');
