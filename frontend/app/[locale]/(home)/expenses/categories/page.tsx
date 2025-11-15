@@ -7,6 +7,7 @@ import { showSuccess, showError } from '@/lib/toast';
 import { getErrorMessage } from '@/lib/types';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { ExpenseCategoryFormModal } from '@/components/expenses/expense-category-form-modal';
+import { Breadcrumb } from '@/components/ui/breadcrumb';
 
 export default function ExpenseCategoriesPage() {
   const [categories, setCategories] = useState<ExpenseCategory[]>([]);
@@ -69,12 +70,14 @@ export default function ExpenseCategoriesPage() {
 
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Expense Categories</h1>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-          Manage expense categories for organization
-        </p>
-      </div>
+      <Breadcrumb
+        items={[
+          { label: 'Expenses', href: '/expenses' },
+          { label: 'Categories' }
+        ]}
+        title="Expense Categories"
+        subtitle="Manage expense categories for organization"
+      />
 
       {/* Actions Bar */}
       <div className="mb-6 bg-white dark:bg-gray-800 rounded-lg shadow p-4">

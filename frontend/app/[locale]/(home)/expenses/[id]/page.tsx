@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { expensesApi, Expense, ExpenseCategory, User, ExpenseStatus } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
 import { getErrorMessage } from '@/lib/types';
+import { Breadcrumb } from '@/components/ui/breadcrumb';
 
 export default function ExpenseDetailPage() {
   const params = useParams();
@@ -87,31 +88,23 @@ export default function ExpenseDetailPage() {
 
   return (
     <div>
-      <div className="mb-6">
-        <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-2">
-          <Link href="/expenses" className="hover:text-indigo-600">
-            Expenses
-          </Link>
-          <span>/</span>
-          <span>{expense.expenseNumber}</span>
-        </div>
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              {expense.expenseNumber}
-            </h1>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-              Expense Date: {new Date(expense.expenseDate).toLocaleDateString()}
-            </p>
-          </div>
-          <span
-            className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${getStatusBadgeClass(
-              expense.status
-            )}`}
-          >
-            {expense.status}
-          </span>
-        </div>
+      <Breadcrumb
+        items={[
+          { label: 'Expenses', href: '/expenses' },
+          { label: expense.expenseNumber }
+        ]}
+        title={expense.expenseNumber}
+        subtitle={`Expense Date: ${new Date(expense.expenseDate).toLocaleDateString()}`}
+      />
+
+      <div className="mb-6 flex items-center justify-end">
+        <span
+          className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${getStatusBadgeClass(
+            expense.status
+          )}`}
+        >
+          {expense.status}
+        </span>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">

@@ -6,6 +6,8 @@ import { expensesApi, Expense, ExpenseStatus, ExpenseCategory } from '@/lib/api'
 import { ListQueryParams, getErrorMessage } from '@/lib/types';
 import { showSuccess, showError } from '@/lib/toast';
 import { ExpenseFormModal } from '@/components/expenses/expense-form-modal';
+import { ExpenseCategoryFormModal } from '@/components/expenses/expense-category-form-modal';
+import { Breadcrumb } from '@/components/ui/breadcrumb';
 
 export default function ExpensesPage() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -15,6 +17,7 @@ export default function ExpensesPage() {
   const [totalPages, setTotalPages] = useState(0);
   const [statusFilter, setStatusFilter] = useState<ExpenseStatus | ''>('');
   const [showExpenseModal, setShowExpenseModal] = useState(false);
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
   const limit = 10;
 
   useEffect(() => {
@@ -70,14 +73,18 @@ export default function ExpensesPage() {
     loadExpenses();
   };
 
+  const handleCategorySuccess = () => {
+    // Category added successfully, user can now use it in expenses
+    showSuccess('Category added successfully!');
+  };
+
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Expenses Management</h1>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-          Manage company expenses and approvals
-        </p>
-      </div>
+      <Breadcrumb
+        items={[{ label: 'Expenses' }]}
+        title="Expenses Management"
+        subtitle="Manage company expenses and approvals"
+      />
 
       {/* Filters and Actions */}
       <div className="mb-6 bg-white dark:bg-gray-800 rounded-lg shadow p-4">
@@ -103,7 +110,19 @@ export default function ExpensesPage() {
             </select>
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href="/expenses/categories"
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm whitespace-nowrap"
+            >
+              📁 Manage Categories
+            </Link>
+            <button
+              onClick={() => setShowCategoryModal(true)}
+              className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 text-sm whitespace-nowrap"
+            >
+              + Quick Add Category
+            </button>
             <Link
               href="/expenses/approval-queue"
               className="px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 text-sm whitespace-nowrap"
@@ -263,6 +282,13 @@ export default function ExpensesPage() {
         isOpen={showExpenseModal}
         onClose={() => setShowExpenseModal(false)}
         onSuccess={handleExpenseSuccess}
+      />
+
+      {/* Quick Add Category Modal */}
+      <ExpenseCategoryFormModal
+        isOpen={showCategoryModal}
+        onClose={() => setShowCategoryModal(false)}
+        onSuccess={handleCategorySuccess}
       />
     </div>
   );
