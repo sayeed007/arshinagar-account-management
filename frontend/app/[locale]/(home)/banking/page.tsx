@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { bankAccountsApi, cashAccountsApi, BankAccount, CashAccount, AccountType } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
 import { getErrorMessage } from '@/lib/types';
+import { BankAccountFormModal } from '@/components/banking/bank-account-form-modal';
+import { CashAccountFormModal } from '@/components/banking/cash-account-form-modal';
 
 export default function BankingDashboardPage() {
   const [loading, setLoading] = useState(true);
@@ -12,6 +13,12 @@ export default function BankingDashboardPage() {
   const [cashStats, setCashStats] = useState<any>(null);
   const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([]);
   const [cashAccounts, setCashAccounts] = useState<CashAccount[]>([]);
+
+  // Modal states
+  const [isBankModalOpen, setIsBankModalOpen] = useState(false);
+  const [isCashModalOpen, setIsCashModalOpen] = useState(false);
+  const [selectedBankAccount, setSelectedBankAccount] = useState<BankAccount | null>(null);
+  const [selectedCashAccount, setSelectedCashAccount] = useState<CashAccount | null>(null);
 
   useEffect(() => {
     loadDashboardData();
@@ -23,8 +30,8 @@ export default function BankingDashboardPage() {
       const [bankStatsRes, cashStatsRes, bankAccountsRes, cashAccountsRes] = await Promise.all([
         bankAccountsApi.getStats(),
         cashAccountsApi.getStats(),
-        bankAccountsApi.getAll({ limit: 10, isActive: true }),
-        cashAccountsApi.getAll({ limit: 10, isActive: true }),
+        bankAccountsApi.getAll({ limit: 100, isActive: true }),
+        cashAccountsApi.getAll({ limit: 100, isActive: true }),
       ]);
 
       setBankStats(bankStatsRes);
@@ -36,6 +43,64 @@ export default function BankingDashboardPage() {
       showError(getErrorMessage(error));
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleOpenBankModal = (account?: BankAccount) => {
+    setSelectedBankAccount(account || null);
+    setIsBankModalOpen(true);
+  };
+
+  const handleCloseBankModal = () => {
+    setIsBankModalOpen(false);
+    setSelectedBankAccount(null);
+  };
+
+  const handleOpenCashModal = (account?: CashAccount) => {
+    setSelectedCashAccount(account || null);
+    setIsCashModalOpen(true);
+  };
+
+  const handleCloseCashModal = () => {
+    setIsCashModalOpen(false);
+    setSelectedCashAccount(null);
+  };
+
+  const handleBankAccountSuccess = () => {
+    loadDashboardData();
+  };
+
+  const handleCashAccountSuccess = () => {
+    loadDashboardData();
+  };
+
+  const handleDeleteBankAccount = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this bank account?')) {
+      return;
+    }
+
+    try {
+      await bankAccountsApi.delete(id);
+      showSuccess('Bank account deleted successfully');
+      loadDashboardData();
+    } catch (error: unknown) {
+      console.error('Failed to delete bank account:', error);
+      showError(getErrorMessage(error));
+    }
+  };
+
+  const handleDeleteCashAccount = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this cash account?')) {
+      return;
+    }
+
+    try {
+      await cashAccountsApi.delete(id);
+      showSuccess('Cash account deleted successfully');
+      loadDashboardData();
+    } catch (error: unknown) {
+      console.error('Failed to delete cash account:', error);
+      showError(getErrorMessage(error));
     }
   };
 
@@ -61,7 +126,7 @@ export default function BankingDashboardPage() {
   }
 
   return (
-    <div>
+    <div className="p-6">
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Banking & Accounts</h1>
@@ -184,58 +249,36 @@ export default function BankingDashboardPage() {
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <Link
-          href="/banking/bank-accounts/new"
-          className="flex items-center justify-center gap-2 px-4 py-3 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <button
+          onClick={() => handleOpenBankModal()}
+          className="flex items-center justify-center gap-2 px-4 py-3 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
           Add Bank Account
-        </Link>
-        <Link
-          href="/banking/cash-accounts/new"
-          className="flex items-center justify-center gap-2 px-4 py-3 bg-purple-600 text-white rounded-md hover:bg-purple-700"
+        </button>
+        <button
+          onClick={() => handleOpenCashModal()}
+          className="flex items-center justify-center gap-2 px-4 py-3 bg-purple-600 text-white rounded-md hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
           Add Cash Account
-        </Link>
-        <Link
-          href="/banking/cheques"
-          className="flex items-center justify-center gap-2 px-4 py-3 bg-green-600 text-white rounded-md hover:bg-green-700"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-            />
-          </svg>
-          Manage Cheques
-        </Link>
+        </button>
       </div>
 
       {/* Bank Accounts List */}
       <div className="mb-6 bg-white dark:bg-gray-800 rounded-lg shadow">
         <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex justify-between items-center">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Bank Accounts</h2>
-            <Link
-              href="/banking/bank-accounts"
-              className="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300"
-            >
-              View All →
-            </Link>
-          </div>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Bank Accounts</h2>
         </div>
         <div className="overflow-x-auto">
           {bankAccounts.length === 0 ? (
             <div className="p-6 text-center text-gray-500 dark:text-gray-400">
-              No bank accounts found
+              No bank accounts found. Click "Add Bank Account" to create one.
             </div>
           ) : (
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
@@ -253,18 +296,18 @@ export default function BankingDashboardPage() {
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Balance
                   </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                 {bankAccounts.map((account) => (
                   <tr key={account._id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <Link
-                        href={`/banking/bank-accounts/${account._id}`}
-                        className="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300"
-                      >
+                      <div className="text-sm font-medium text-gray-900 dark:text-white">
                         {account.bankName}
-                      </Link>
+                      </div>
                       <div className="text-xs text-gray-500 dark:text-gray-400">
                         {account.accountName}
                       </div>
@@ -280,6 +323,20 @@ export default function BankingDashboardPage() {
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-semibold text-gray-900 dark:text-white">
                       {formatCurrency(account.currentBalance)}
                     </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm space-x-2">
+                      <button
+                        onClick={() => handleOpenBankModal(account)}
+                        className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 font-medium"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteBankAccount(account._id)}
+                        className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 font-medium"
+                      >
+                        Delete
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -291,20 +348,12 @@ export default function BankingDashboardPage() {
       {/* Cash Accounts List */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
         <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex justify-between items-center">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Cash Accounts</h2>
-            <Link
-              href="/banking/cash-accounts"
-              className="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300"
-            >
-              View All →
-            </Link>
-          </div>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Cash Accounts</h2>
         </div>
         <div className="overflow-x-auto">
           {cashAccounts.length === 0 ? (
             <div className="p-6 text-center text-gray-500 dark:text-gray-400">
-              No cash accounts found
+              No cash accounts found. Click "Add Cash Account" to create one.
             </div>
           ) : (
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
@@ -319,24 +368,38 @@ export default function BankingDashboardPage() {
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Balance
                   </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                 {cashAccounts.map((account) => (
                   <tr key={account._id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <Link
-                        href={`/banking/cash-accounts/${account._id}`}
-                        className="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300"
-                      >
+                      <div className="text-sm font-medium text-gray-900 dark:text-white">
                         {account.name}
-                      </Link>
+                      </div>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                       {account.description || '-'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-semibold text-gray-900 dark:text-white">
                       {formatCurrency(account.currentBalance)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm space-x-2">
+                      <button
+                        onClick={() => handleOpenCashModal(account)}
+                        className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 font-medium"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteCashAccount(account._id)}
+                        className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 font-medium"
+                      >
+                        Delete
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -345,6 +408,21 @@ export default function BankingDashboardPage() {
           )}
         </div>
       </div>
+
+      {/* Modals */}
+      <BankAccountFormModal
+        isOpen={isBankModalOpen}
+        onClose={handleCloseBankModal}
+        account={selectedBankAccount}
+        onSuccess={handleBankAccountSuccess}
+      />
+
+      <CashAccountFormModal
+        isOpen={isCashModalOpen}
+        onClose={handleCloseCashModal}
+        account={selectedCashAccount}
+        onSuccess={handleCashAccountSuccess}
+      />
     </div>
   );
 }
