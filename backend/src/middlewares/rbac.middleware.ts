@@ -21,6 +21,12 @@ export const authorize = (...allowedRoles: UserRole[]) => {
         return;
       }
 
+      // Admin has access to all resources
+      if (req.user.role === UserRole.ADMIN) {
+        next();
+        return;
+      }
+
       // Check if user's role is in allowed roles
       if (!allowedRoles.includes(req.user.role)) {
         logger.warn(
