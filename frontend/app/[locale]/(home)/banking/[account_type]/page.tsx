@@ -7,6 +7,7 @@ import { showSuccess, showError } from '@/lib/toast';
 import { getErrorMessage } from '@/lib/types';
 import { BankAccountFormModal } from '@/components/banking/bank-account-form-modal';
 import { CashAccountFormModal } from '@/components/banking/cash-account-form-modal';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 
 type AccountTypeParam = 'bank-accounts' | 'cash-accounts';
 
@@ -23,6 +24,11 @@ export default function AccountsListPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedBankAccount, setSelectedBankAccount] = useState<BankAccount | null>(null);
   const [selectedCashAccount, setSelectedCashAccount] = useState<CashAccount | null>(null);
+
+  // Delete confirmation states
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     loadAccounts();
@@ -65,22 +71,30 @@ export default function AccountsListPage() {
     loadAccounts();
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm(`Are you sure you want to delete this ${isBankAccounts ? 'bank' : 'cash'} account?`)) {
-      return;
-    }
+  const handleDeleteClick = (id: string) => {
+    setDeletingId(id);
+    setShowDeleteConfirm(true);
+  };
 
+  const handleDeleteConfirm = async () => {
+    if (!deletingId) return;
+
+    setIsDeleting(true);
     try {
       if (isBankAccounts) {
-        await bankAccountsApi.delete(id);
+        await bankAccountsApi.delete(deletingId);
       } else {
-        await cashAccountsApi.delete(id);
+        await cashAccountsApi.delete(deletingId);
       }
       showSuccess('Account deleted successfully');
+      setShowDeleteConfirm(false);
+      setDeletingId(null);
       loadAccounts();
     } catch (error: unknown) {
       console.error('Failed to delete account:', error);
       showError(getErrorMessage(error));
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -225,7 +239,7 @@ export default function AccountsListPage() {
                             Edit
                           </button>
                           <button
-                            onClick={() => handleDelete(account._id)}
+                            onClick={() => handleDeleteClick(account._id)}
                             className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 font-medium"
                           >
                             Delete
@@ -254,7 +268,7 @@ export default function AccountsListPage() {
                             Edit
                           </button>
                           <button
-                            onClick={() => handleDelete(account._id)}
+                            onClick={() => handleDeleteClick(account._id)}
                             className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 font-medium"
                           >
                             Delete
@@ -284,6 +298,18 @@ export default function AccountsListPage() {
           onSuccess={handleSuccess}
         />
       )}
+
+      {/* Delete Confirmation */}
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={handleDeleteConfirm}
+        title={`Delete ${isBankAccounts ? 'Bank' : 'Cash'} Account`}
+        message={`Are you sure you want to delete this ${isBankAccounts ? 'bank' : 'cash'} account? This action cannot be undone.`}
+        confirmText="Delete"
+        variant="danger"
+        isLoading={isDeleting}
+      />
     </div>
   );
 }

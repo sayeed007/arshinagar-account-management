@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { chequesApi, Cheque, ChequeStatus, ChequeType } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
 import { getErrorMessage } from '@/lib/types';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { CheckCircle, XCircle, AlertCircle, Clock, DollarSign } from 'lucide-react';
 
 type FilterStatus = 'all' | ChequeStatus;
@@ -12,6 +13,15 @@ export default function ChequesPage() {
   const [loading, setLoading] = useState(true);
   const [cheques, setCheques] = useState<Cheque[]>([]);
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
+
+  // Confirm dialog states
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [showBounceConfirm, setShowBounceConfirm] = useState(false);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [selectedChequeId, setSelectedChequeId] = useState<string | null>(null);
+  const [bounceReason, setBounceReason] = useState('');
+  const [cancelReason, setCancelReason] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
   const [stats, setStats] = useState({
     totalCheques: 0,
     totalAmount: 0,
@@ -60,47 +70,85 @@ export default function ChequesPage() {
     }
   };
 
-  const handleMarkAsCleared = async (id: string) => {
-    if (!confirm('Mark this cheque as cleared?')) return;
+  const handleMarkAsClearedClick = (id: string) => {
+    setSelectedChequeId(id);
+    setShowClearConfirm(true);
+  };
 
+  const handleMarkAsClearedConfirm = async () => {
+    if (!selectedChequeId) return;
+
+    setIsProcessing(true);
     try {
-      await chequesApi.markAsCleared(id);
+      await chequesApi.markAsCleared(selectedChequeId);
       showSuccess('Cheque marked as cleared');
+      setShowClearConfirm(false);
+      setSelectedChequeId(null);
       loadCheques();
       loadStats();
     } catch (error: unknown) {
       console.error('Failed to mark cheque as cleared:', error);
       showError(getErrorMessage(error));
+    } finally {
+      setIsProcessing(false);
     }
   };
 
-  const handleMarkAsBounced = async (id: string) => {
-    const reason = prompt('Please enter the bounce reason:');
-    if (!reason) return;
+  const handleMarkAsBouncedClick = (id: string) => {
+    setSelectedChequeId(id);
+    setBounceReason('');
+    setShowBounceConfirm(true);
+  };
 
+  const handleMarkAsBouncedConfirm = async () => {
+    if (!selectedChequeId || !bounceReason.trim()) {
+      showError('Please enter a bounce reason');
+      return;
+    }
+
+    setIsProcessing(true);
     try {
-      await chequesApi.markAsBounced(id, reason);
+      await chequesApi.markAsBounced(selectedChequeId, bounceReason);
       showSuccess('Cheque marked as bounced');
+      setShowBounceConfirm(false);
+      setSelectedChequeId(null);
+      setBounceReason('');
       loadCheques();
       loadStats();
     } catch (error: unknown) {
       console.error('Failed to mark cheque as bounced:', error);
       showError(getErrorMessage(error));
+    } finally {
+      setIsProcessing(false);
     }
   };
 
-  const handleCancel = async (id: string) => {
-    const reason = prompt('Please enter the cancellation reason:');
-    if (!reason) return;
+  const handleCancelClick = (id: string) => {
+    setSelectedChequeId(id);
+    setCancelReason('');
+    setShowCancelConfirm(true);
+  };
 
+  const handleCancelConfirm = async () => {
+    if (!selectedChequeId || !cancelReason.trim()) {
+      showError('Please enter a cancellation reason');
+      return;
+    }
+
+    setIsProcessing(true);
     try {
-      await chequesApi.cancel(id, reason);
+      await chequesApi.cancel(selectedChequeId, cancelReason);
       showSuccess('Cheque cancelled');
+      setShowCancelConfirm(false);
+      setSelectedChequeId(null);
+      setCancelReason('');
       loadCheques();
       loadStats();
     } catch (error: unknown) {
       console.error('Failed to cancel cheque:', error);
       showError(getErrorMessage(error));
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -352,19 +400,19 @@ export default function ChequesPage() {
                       {cheque.status === ChequeStatus.PENDING && (
                         <>
                           <button
-                            onClick={() => handleMarkAsCleared(cheque._id)}
+                            onClick={() => handleMarkAsClearedClick(cheque._id)}
                             className="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300 font-medium"
                           >
                             Clear
                           </button>
                           <button
-                            onClick={() => handleMarkAsBounced(cheque._id)}
+                            onClick={() => handleMarkAsBouncedClick(cheque._id)}
                             className="text-purple-600 dark:text-purple-400 hover:text-purple-900 dark:hover:text-purple-300 font-medium"
                           >
                             Bounce
                           </button>
                           <button
-                            onClick={() => handleCancel(cheque._id)}
+                            onClick={() => handleCancelClick(cheque._id)}
                             className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 font-medium"
                           >
                             Cancel
@@ -394,6 +442,62 @@ export default function ChequesPage() {
           </div>
         </div>
       )}
+
+      {/* Confirm Dialogs */}
+      <ConfirmDialog
+        isOpen={showClearConfirm}
+        onClose={() => setShowClearConfirm(false)}
+        onConfirm={handleMarkAsClearedConfirm}
+        title="Mark Cheque as Cleared"
+        message="Are you sure you want to mark this cheque as cleared?"
+        confirmText="Mark as Cleared"
+        variant="success"
+        isLoading={isProcessing}
+      />
+
+      <ConfirmDialog
+        isOpen={showBounceConfirm}
+        onClose={() => {
+          setShowBounceConfirm(false);
+          setBounceReason('');
+        }}
+        onConfirm={handleMarkAsBouncedConfirm}
+        title="Mark Cheque as Bounced"
+        message="Please enter the reason for bouncing this cheque:"
+        confirmText="Mark as Bounced"
+        variant="warning"
+        isLoading={isProcessing}
+      >
+        <textarea
+          value={bounceReason}
+          onChange={(e) => setBounceReason(e.target.value)}
+          placeholder="Enter bounce reason..."
+          className="w-full border dark:border-gray-700 rounded-md px-3 py-2 dark:bg-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-yellow-500"
+          rows={3}
+        />
+      </ConfirmDialog>
+
+      <ConfirmDialog
+        isOpen={showCancelConfirm}
+        onClose={() => {
+          setShowCancelConfirm(false);
+          setCancelReason('');
+        }}
+        onConfirm={handleCancelConfirm}
+        title="Cancel Cheque"
+        message="Please enter the reason for cancelling this cheque:"
+        confirmText="Cancel Cheque"
+        variant="danger"
+        isLoading={isProcessing}
+      >
+        <textarea
+          value={cancelReason}
+          onChange={(e) => setCancelReason(e.target.value)}
+          placeholder="Enter cancellation reason..."
+          className="w-full border dark:border-gray-700 rounded-md px-3 py-2 dark:bg-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-red-500"
+          rows={3}
+        />
+      </ConfirmDialog>
     </div>
   );
 }

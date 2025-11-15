@@ -7,6 +7,7 @@ import { showSuccess, showError } from '@/lib/toast';
 import { getErrorMessage } from '@/lib/types';
 import { BankAccountFormModal } from '@/components/banking/bank-account-form-modal';
 import { CashAccountFormModal } from '@/components/banking/cash-account-form-modal';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { ArrowLeft, Edit, Trash2, Calendar, Building, CreditCard, FileText } from 'lucide-react';
 
 type AccountTypeParam = 'bank-accounts' | 'cash-accounts';
@@ -24,6 +25,10 @@ export default function AccountDetailPage() {
 
   // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Delete confirmation states
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     loadAccountDetails();
@@ -60,14 +65,12 @@ export default function AccountDetailPage() {
     loadAccountDetails();
   };
 
-  const handleDelete = async () => {
-    const account = isBankAccounts ? bankAccount : cashAccount;
-    if (!account) return;
+  const handleDeleteClick = () => {
+    setShowDeleteConfirm(true);
+  };
 
-    if (!confirm(`Are you sure you want to delete this ${isBankAccounts ? 'bank' : 'cash'} account?`)) {
-      return;
-    }
-
+  const handleDeleteConfirm = async () => {
+    setIsDeleting(true);
     try {
       if (isBankAccounts) {
         await bankAccountsApi.delete(accountId);
@@ -79,6 +82,9 @@ export default function AccountDetailPage() {
     } catch (error: unknown) {
       console.error('Failed to delete account:', error);
       showError(getErrorMessage(error));
+      setShowDeleteConfirm(false);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -146,7 +152,7 @@ export default function AccountDetailPage() {
               Edit
             </button>
             <button
-              onClick={handleDelete}
+              onClick={handleDeleteClick}
               className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600"
             >
               <Trash2 className="w-4 h-4" />
@@ -352,6 +358,18 @@ export default function AccountDetailPage() {
           onSuccess={handleSuccess}
         />
       )}
+
+      {/* Delete Confirmation */}
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={handleDeleteConfirm}
+        title={`Delete ${isBankAccounts ? 'Bank' : 'Cash'} Account`}
+        message={`Are you sure you want to delete this ${isBankAccounts ? 'bank' : 'cash'} account? This action cannot be undone.`}
+        confirmText="Delete"
+        variant="danger"
+        isLoading={isDeleting}
+      />
     </div>
   );
 }

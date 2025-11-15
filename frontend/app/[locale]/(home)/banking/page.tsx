@@ -7,6 +7,7 @@ import { showSuccess, showError } from '@/lib/toast';
 import { getErrorMessage } from '@/lib/types';
 import { BankAccountFormModal } from '@/components/banking/bank-account-form-modal';
 import { CashAccountFormModal } from '@/components/banking/cash-account-form-modal';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 
 export default function BankingDashboardPage() {
   const [loading, setLoading] = useState(true);
@@ -20,6 +21,13 @@ export default function BankingDashboardPage() {
   const [isCashModalOpen, setIsCashModalOpen] = useState(false);
   const [selectedBankAccount, setSelectedBankAccount] = useState<BankAccount | null>(null);
   const [selectedCashAccount, setSelectedCashAccount] = useState<CashAccount | null>(null);
+
+  // Delete confirmation states
+  const [showDeleteBankConfirm, setShowDeleteBankConfirm] = useState(false);
+  const [showDeleteCashConfirm, setShowDeleteCashConfirm] = useState(false);
+  const [deletingBankId, setDeletingBankId] = useState<string | null>(null);
+  const [deletingCashId, setDeletingCashId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     loadDashboardData();
@@ -75,33 +83,49 @@ export default function BankingDashboardPage() {
     loadDashboardData();
   };
 
-  const handleDeleteBankAccount = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this bank account?')) {
-      return;
-    }
+  const handleDeleteBankClick = (id: string) => {
+    setDeletingBankId(id);
+    setShowDeleteBankConfirm(true);
+  };
 
+  const handleDeleteBankConfirm = async () => {
+    if (!deletingBankId) return;
+
+    setIsDeleting(true);
     try {
-      await bankAccountsApi.delete(id);
+      await bankAccountsApi.delete(deletingBankId);
       showSuccess('Bank account deleted successfully');
+      setShowDeleteBankConfirm(false);
+      setDeletingBankId(null);
       loadDashboardData();
     } catch (error: unknown) {
       console.error('Failed to delete bank account:', error);
       showError(getErrorMessage(error));
+    } finally {
+      setIsDeleting(false);
     }
   };
 
-  const handleDeleteCashAccount = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this cash account?')) {
-      return;
-    }
+  const handleDeleteCashClick = (id: string) => {
+    setDeletingCashId(id);
+    setShowDeleteCashConfirm(true);
+  };
 
+  const handleDeleteCashConfirm = async () => {
+    if (!deletingCashId) return;
+
+    setIsDeleting(true);
     try {
-      await cashAccountsApi.delete(id);
+      await cashAccountsApi.delete(deletingCashId);
       showSuccess('Cash account deleted successfully');
+      setShowDeleteCashConfirm(false);
+      setDeletingCashId(null);
       loadDashboardData();
     } catch (error: unknown) {
       console.error('Failed to delete cash account:', error);
       showError(getErrorMessage(error));
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -353,7 +377,7 @@ export default function BankingDashboardPage() {
                         Edit
                       </button>
                       <button
-                        onClick={() => handleDeleteBankAccount(account._id)}
+                        onClick={() => handleDeleteBankClick(account._id)}
                         className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 font-medium"
                       >
                         Delete
@@ -429,7 +453,7 @@ export default function BankingDashboardPage() {
                         Edit
                       </button>
                       <button
-                        onClick={() => handleDeleteCashAccount(account._id)}
+                        onClick={() => handleDeleteCashClick(account._id)}
                         className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 font-medium"
                       >
                         Delete
@@ -456,6 +480,29 @@ export default function BankingDashboardPage() {
         onClose={handleCloseCashModal}
         account={selectedCashAccount}
         onSuccess={handleCashAccountSuccess}
+      />
+
+      {/* Delete Confirmations */}
+      <ConfirmDialog
+        isOpen={showDeleteBankConfirm}
+        onClose={() => setShowDeleteBankConfirm(false)}
+        onConfirm={handleDeleteBankConfirm}
+        title="Delete Bank Account"
+        message="Are you sure you want to delete this bank account? This action cannot be undone."
+        confirmText="Delete"
+        variant="danger"
+        isLoading={isDeleting}
+      />
+
+      <ConfirmDialog
+        isOpen={showDeleteCashConfirm}
+        onClose={() => setShowDeleteCashConfirm(false)}
+        onConfirm={handleDeleteCashConfirm}
+        title="Delete Cash Account"
+        message="Are you sure you want to delete this cash account? This action cannot be undone."
+        confirmText="Delete"
+        variant="danger"
+        isLoading={isDeleting}
       />
     </div>
   );
