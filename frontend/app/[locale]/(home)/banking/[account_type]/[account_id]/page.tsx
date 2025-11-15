@@ -8,7 +8,8 @@ import { getErrorMessage } from '@/lib/types';
 import { BankAccountFormModal } from '@/components/banking/bank-account-form-modal';
 import { CashAccountFormModal } from '@/components/banking/cash-account-form-modal';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
-import { ArrowLeft, Edit, Trash2, Calendar, Building, CreditCard, FileText } from 'lucide-react';
+import { Breadcrumb } from '@/components/ui/breadcrumb';
+import { Edit, Trash2, Calendar, Building, CreditCard, FileText } from 'lucide-react';
 
 type AccountTypeParam = 'bank-accounts' | 'cash-accounts';
 
@@ -126,41 +127,34 @@ export default function AccountDetailPage() {
 
   return (
     <div className="p-6">
-      {/* Header */}
-      <div className="mb-6 flex justify-between items-start">
-        <div className="flex items-center gap-4">
+      <Breadcrumb
+        items={[
+          { label: 'Banking & Accounts', href: '/banking' },
+          { label: isBankAccounts ? 'Bank Accounts' : 'Cash Accounts', href: `/banking/${accountType}` },
+          { label: account ? (isBankAccounts ? (account as BankAccount).accountName : (account as CashAccount).name) : 'Loading...' },
+        ]}
+        title={account ? (isBankAccounts ? (account as BankAccount).accountName : (account as CashAccount).name) : pageTitle}
+        subtitle="View and manage account details"
+      />
+
+      {account && (
+        <div className="mb-6 flex justify-end gap-2">
           <button
-            onClick={() => router.push(`/banking/${accountType}`)}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition-colors"
+            onClick={handleOpenModal}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
           >
-            <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            <Edit className="w-4 h-4" />
+            Edit
           </button>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{pageTitle}</h1>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-              View and manage account details
-            </p>
-          </div>
+          <button
+            onClick={handleDeleteClick}
+            className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600"
+          >
+            <Trash2 className="w-4 h-4" />
+            Delete
+          </button>
         </div>
-        {account && (
-          <div className="flex gap-2">
-            <button
-              onClick={handleOpenModal}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
-            >
-              <Edit className="w-4 h-4" />
-              Edit
-            </button>
-            <button
-              onClick={handleDeleteClick}
-              className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600"
-            >
-              <Trash2 className="w-4 h-4" />
-              Delete
-            </button>
-          </div>
-        )}
-      </div>
+      )}
 
       {loading ? (
         <div className="flex items-center justify-center min-h-[400px]">

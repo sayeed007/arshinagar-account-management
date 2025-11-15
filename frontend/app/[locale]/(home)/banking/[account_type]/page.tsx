@@ -8,6 +8,7 @@ import { getErrorMessage } from '@/lib/types';
 import { BankAccountFormModal } from '@/components/banking/bank-account-form-modal';
 import { CashAccountFormModal } from '@/components/banking/cash-account-form-modal';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { Breadcrumb } from '@/components/ui/breadcrumb';
 
 type AccountTypeParam = 'bank-accounts' | 'cash-accounts';
 
@@ -128,13 +129,16 @@ export default function AccountsListPage() {
 
   return (
     <div className="p-6">
-      <div className="mb-6 flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{pageTitle}</h1>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            Manage all {isBankAccounts ? 'bank' : 'cash'} accounts
-          </p>
-        </div>
+      <Breadcrumb
+        items={[
+          { label: 'Banking & Accounts', href: '/banking' },
+          { label: pageTitle },
+        ]}
+        title={pageTitle}
+        subtitle={`Manage all ${isBankAccounts ? 'bank' : 'cash'} accounts`}
+      />
+
+      <div className="mb-6 flex justify-end">
         <button
           onClick={() => handleOpenModal()}
           className={`px-4 py-2 text-white rounded-md ${

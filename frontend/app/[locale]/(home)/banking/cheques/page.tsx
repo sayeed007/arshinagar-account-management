@@ -5,6 +5,7 @@ import { chequesApi, Cheque, ChequeStatus, ChequeType } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
 import { getErrorMessage } from '@/lib/types';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { Breadcrumb } from '@/components/ui/breadcrumb';
 import { CheckCircle, XCircle, AlertCircle, Clock, DollarSign } from 'lucide-react';
 
 type FilterStatus = 'all' | ChequeStatus;
@@ -207,13 +208,14 @@ export default function ChequesPage() {
 
   return (
     <div className="p-6">
-      {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Cheques Management</h1>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-          Track and manage all cheques
-        </p>
-      </div>
+      <Breadcrumb
+        items={[
+          { label: 'Banking & Accounts', href: '/banking' },
+          { label: 'Cheques' },
+        ]}
+        title="Cheques Management"
+        subtitle="Track and manage all cheques"
+      />
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
