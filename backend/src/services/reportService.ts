@@ -18,14 +18,32 @@ class ReportService {
       .sort({ date: 1, createdAt: 1 })
       .lean();
 
+    let runningBalance = 0;
+    const transactions = ledgerEntries.map((entry) => {
+      const isReceipt = entry.debit > 0;
+      const amount = isReceipt ? entry.debit : entry.credit;
+      runningBalance += isReceipt ? amount : -amount;
+
+      return {
+        date: entry.date,
+        particulars: entry.description || entry.account || 'Transaction',
+        receiptNumber: isReceipt ? entry.referenceNumber : undefined,
+        paymentNumber: !isReceipt ? entry.referenceNumber : undefined,
+        type: isReceipt ? 'Receipt' : 'Payment',
+        amount,
+        balance: runningBalance,
+        category: entry.category || undefined,
+      };
+    });
+
     const summary = {
-      totalDebit: ledgerEntries.reduce((sum, entry) => sum + entry.debit, 0),
-      totalCredit: ledgerEntries.reduce((sum, entry) => sum + entry.credit, 0),
-      count: ledgerEntries.length,
+      totalReceipts: ledgerEntries.reduce((sum, entry) => sum + entry.debit, 0),
+      totalPayments: ledgerEntries.reduce((sum, entry) => sum + entry.credit, 0),
+      balance: runningBalance,
     };
 
     return {
-      entries: ledgerEntries,
+      transactions,
       summary,
       period: { startDate, endDate },
     };
@@ -43,19 +61,50 @@ class ReportService {
       .sort({ date: 1 })
       .lean();
 
+    // Get opening balance (all transactions before startDate)
+    const priorTransactions = await Ledger.find({
+      date: { $lt: startDate },
+      account: /cash/i,
+    }).lean();
+
+    const openingBalance = priorTransactions.reduce(
+      (sum, t) => sum + t.debit - t.credit,
+      0
+    );
+
+    let runningBalance = openingBalance;
+    const transactions = cashTransactions.map((entry) => {
+      const isReceipt = entry.debit > 0;
+      const amount = isReceipt ? entry.debit : entry.credit;
+      runningBalance += isReceipt ? amount : -amount;
+
+      return {
+        date: entry.date,
+        particulars: entry.description || entry.account || 'Cash Transaction',
+        voucherNumber: entry.referenceNumber,
+        type: isReceipt ? 'Receipt' : 'Payment',
+        amount,
+        balance: runningBalance,
+      };
+    });
+
+    const totalReceipts = cashTransactions
+      .filter((t) => t.debit > 0)
+      .reduce((sum, t) => sum + t.debit, 0);
+
+    const totalPayments = cashTransactions
+      .filter((t) => t.credit > 0)
+      .reduce((sum, t) => sum + t.credit, 0);
+
     const summary = {
-      totalReceipts: cashTransactions
-        .filter((t) => t.debit > 0)
-        .reduce((sum, t) => sum + t.debit, 0),
-      totalPayments: cashTransactions
-        .filter((t) => t.credit > 0)
-        .reduce((sum, t) => sum + t.credit, 0),
+      openingBalance,
+      totalReceipts,
+      totalPayments,
+      closingBalance: openingBalance + totalReceipts - totalPayments,
     };
 
-    summary['balance'] = summary.totalReceipts - summary.totalPayments;
-
     return {
-      transactions: cashTransactions,
+      transactions,
       summary,
       period: { startDate, endDate },
     };
@@ -80,19 +129,56 @@ class ReportService {
       .sort({ date: 1 })
       .lean();
 
-    const summary = {
-      totalReceipts: bankTransactions
-        .filter((t) => t.debit > 0)
-        .reduce((sum, t) => sum + t.debit, 0),
-      totalPayments: bankTransactions
-        .filter((t) => t.credit > 0)
-        .reduce((sum, t) => sum + t.credit, 0),
+    // Get opening balance (all transactions before startDate)
+    const priorQuery: any = {
+      date: { $lt: startDate },
+      account: /bank/i,
     };
 
-    summary['balance'] = summary.totalReceipts - summary.totalPayments;
+    if (bankAccountId) {
+      priorQuery.bankAccountId = bankAccountId;
+    }
+
+    const priorTransactions = await Ledger.find(priorQuery).lean();
+
+    const openingBalance = priorTransactions.reduce(
+      (sum, t) => sum + t.debit - t.credit,
+      0
+    );
+
+    let runningBalance = openingBalance;
+    const transactions = bankTransactions.map((entry) => {
+      const isReceipt = entry.debit > 0;
+      const amount = isReceipt ? entry.debit : entry.credit;
+      runningBalance += isReceipt ? amount : -amount;
+
+      return {
+        date: entry.date,
+        particulars: entry.description || entry.account || 'Bank Transaction',
+        voucherNumber: entry.referenceNumber,
+        type: isReceipt ? 'Receipt' : 'Payment',
+        amount,
+        balance: runningBalance,
+      };
+    });
+
+    const totalReceipts = bankTransactions
+      .filter((t) => t.debit > 0)
+      .reduce((sum, t) => sum + t.debit, 0);
+
+    const totalPayments = bankTransactions
+      .filter((t) => t.credit > 0)
+      .reduce((sum, t) => sum + t.credit, 0);
+
+    const summary = {
+      openingBalance,
+      totalReceipts,
+      totalPayments,
+      closingBalance: openingBalance + totalReceipts - totalPayments,
+    };
 
     return {
-      transactions: bankTransactions,
+      transactions,
       summary,
       period: { startDate, endDate },
     };

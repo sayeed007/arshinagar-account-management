@@ -2591,14 +2591,21 @@ export interface ExpenseByCategoryItem {
 }
 
 export interface ExpenseByCategoryReport {
-  categories: ExpenseByCategoryItem[];
+  byCategory: {
+    [categoryName: string]: {
+      expenses: any[];
+      total: number;
+    };
+  };
   summary: {
     totalExpenses: number;
     totalAmount: number;
-    period: {
-      startDate: string;
-      endDate: string;
-    };
+    categoriesCount: number;
+    expensesCount: number;
+  };
+  period?: {
+    startDate: Date;
+    endDate: Date;
   };
 }
 
@@ -2623,19 +2630,96 @@ export interface EmployeeCostSummaryItem {
 }
 
 export interface EmployeeCostSummaryReport {
-  employees: EmployeeCostSummaryItem[];
-  summary: {
-    totalEmployees: number;
-    totalSalary: number;
-    totalCommission: number;
-    totalAllowances: number;
-    totalDeductions: number;
-    totalAdvances: number;
-    totalNetPay: number;
-    period: {
-      startDate: string;
-      endDate: string;
+  byEmployee: {
+    [employeeId: string]: {
+      employee: any;
+      costs: any[];
+      totals: {
+        salary: number;
+        commission: number;
+        fuel: number;
+        entertainment: number;
+        bonus: number;
+        overtime: number;
+        otherAllowances: number;
+        advances: number;
+        deductions: number;
+        netPay: number;
+      };
     };
+  };
+  summary: {
+    salary: number;
+    commission: number;
+    fuel: number;
+    entertainment: number;
+    bonus: number;
+    overtime: number;
+    otherAllowances: number;
+    advances: number;
+    deductions: number;
+    netPay: number;
+  };
+  period?: {
+    startDate: Date;
+    endDate: Date;
+  };
+}
+
+export interface StageWiseCollectionReport {
+  collections: {
+    booking: Array<{
+      receipt: any;
+      stage: string;
+      amount: number;
+    }>;
+    installment: Array<{
+      receipt: any;
+      stage: string;
+      amount: number;
+    }>;
+    registration: Array<{
+      receipt: any;
+      stage: string;
+      amount: number;
+    }>;
+    handover: Array<{
+      receipt: any;
+      stage: string;
+      amount: number;
+    }>;
+    other: Array<{
+      receipt: any;
+      stage: string;
+      amount: number;
+    }>;
+  };
+  summary: {
+    booking: number;
+    installment: number;
+    registration: number;
+    handover: number;
+    other: number;
+    total: number;
+  };
+  period?: {
+    startDate?: Date;
+    endDate?: Date;
+  };
+}
+
+export interface ReceiptPaymentRegisterReport {
+  receipts: any[];
+  payments: any[];
+  summary: {
+    totalReceipts: number;
+    totalPayments: number;
+    receiptCount: number;
+    paymentCount: number;
+  };
+  period: {
+    startDate: Date;
+    endDate: Date;
   };
 }
 
@@ -2723,6 +2807,38 @@ export const reportsApi = {
   }): Promise<EmployeeCostSummaryReport> => {
     const response = await apiClient.get<ApiResponse<EmployeeCostSummaryReport>>(
       '/reports/employee/cost-summary',
+      {
+        params,
+      }
+    );
+    return response.data.data!;
+  },
+
+  /**
+   * Get Stage-wise Collection Report
+   */
+  getStageWiseCollection: async (params?: {
+    startDate?: string;
+    endDate?: string;
+  }): Promise<StageWiseCollectionReport> => {
+    const response = await apiClient.get<ApiResponse<StageWiseCollectionReport>>(
+      '/reports/sales/stage-wise-collection',
+      {
+        params,
+      }
+    );
+    return response.data.data!;
+  },
+
+  /**
+   * Get Receipt & Payment Register
+   */
+  getReceiptPaymentRegister: async (params: {
+    startDate: string;
+    endDate: string;
+  }): Promise<ReceiptPaymentRegisterReport> => {
+    const response = await apiClient.get<ApiResponse<ReceiptPaymentRegisterReport>>(
+      '/reports/financial/receipt-payment',
       {
         params,
       }
