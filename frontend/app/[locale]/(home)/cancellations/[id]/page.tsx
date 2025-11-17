@@ -8,6 +8,7 @@ import { showSuccess, showError } from '@/lib/toast';
 import { getErrorMessage } from '@/lib/types';
 import { CancellationApproveModal } from '@/components/cancellations/cancellation-approve-modal';
 import { CancellationRejectModal } from '@/components/cancellations/cancellation-reject-modal';
+import { Breadcrumb } from '@/components/ui/breadcrumb';
 
 interface CancellationWithRefunds extends Cancellation {
   refunds: Refund[];
@@ -128,37 +129,29 @@ export default function CancellationDetailPage() {
 
   return (
     <div>
-      {/* Header */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <Link
-              href="/cancellations"
-              className="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300 mb-2 inline-block"
-            >
-              ← Back to Cancellations
-            </Link>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              Cancellation Details
-            </h1>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-              {sale.saleNumber} - {client.name}
-            </p>
-          </div>
-          <div>
-            <span
-              className={`px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full ${getStatusBadgeClass(
-                cancellation.status
-              )}`}
-            >
-              {cancellation.status}
-            </span>
-          </div>
-        </div>
+      {/* Header with Breadcrumb */}
+      <div className="flex items-start justify-between mb-6">
+        <Breadcrumb
+          items={[
+            { label: 'Cancellations', href: '/cancellations' },
+            { label: 'Details' },
+          ]}
+          title="Cancellation Details"
+          subtitle={`${sale.saleNumber} - ${client.name}`}
+        />
+        <span
+          className={`px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full ${getStatusBadgeClass(
+            cancellation.status
+          )}`}
+        >
+          {cancellation.status}
+        </span>
+      </div>
 
-        {/* Action Buttons */}
+      {/* Action Buttons */}
+      <div className="mb-6">
         {cancellation.status === CancellationStatus.PENDING && (
-          <div className="mt-4 flex gap-3">
+          <div className="flex gap-3">
             <button
               onClick={() => setShowApproveModal(true)}
               className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
