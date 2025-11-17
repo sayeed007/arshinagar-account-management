@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { smsApi, SMSTemplate, SMSLog, SMSCategory, SMSStatus } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
 import { getErrorMessage } from '@/lib/types';
@@ -12,7 +13,10 @@ import { Eye, Edit2, Trash2 } from 'lucide-react';
 type TabType = 'overview' | 'templates' | 'logs' | 'send';
 
 export default function SMSPage() {
-  const [activeTab, setActiveTab] = useState<TabType>('overview');
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const initialTab = (searchParams.get('tab') as TabType) || 'overview';
+  const [activeTab, setActiveTab] = useState<TabType>(initialTab);
   const [templates, setTemplates] = useState<SMSTemplate[]>([]);
   const [logs, setLogs] = useState<SMSLog[]>([]);
   const [stats, setStats] = useState({
@@ -142,6 +146,12 @@ export default function SMSPage() {
     setIsLogDetailsModalOpen(true);
   };
 
+  // Tab handler with URL update
+  const handleTabChange = (tab: TabType) => {
+    setActiveTab(tab);
+    router.push(`/sms?tab=${tab}`, { scroll: false });
+  };
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleString('en-BD', {
       year: 'numeric',
@@ -189,7 +199,7 @@ export default function SMSPage() {
           ].map((tab) => (
             <button
               key={tab.key}
-              onClick={() => setActiveTab(tab.key as TabType)}
+              onClick={() => handleTabChange(tab.key as TabType)}
               className={`py-2 px-1 border-b-2 font-medium text-sm ${
                 activeTab === tab.key
                   ? 'border-blue-500 text-blue-600 dark:text-blue-400'

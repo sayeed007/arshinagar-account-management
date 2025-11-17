@@ -152,7 +152,7 @@ export default function SettingsPage() {
         <h2 className="text-lg font-semibold mb-3 dark:text-white">Quick Links</h2>
         <div className="space-y-2">
           <Link
-            href="/sms/templates"
+            href="/sms?tab=templates"
             className="block text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
           >
             → Manage SMS Templates
