@@ -1,0 +1,40 @@
+services:
+  - type: web
+    name: arshinagar-backend
+    runtime: node
+    region: singapore
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGODB_URI
+        sync: false # Set this in Render dashboard
+      - key: JWT_SECRET
+        generateValue: true
+        sync: false
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+        sync: false
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: JWT_REFRESH_EXPIRES_IN
+        value: 30d
+      - key: TZ
+        value: Asia/Dhaka
+      - key: LOG_LEVEL
+        value: info
+      - key: SMS_ENABLED
+        value: false
+      - key: ENABLE_CRON_JOBS
+        value: true
+      - key: RATE_LIMIT_WINDOW_MS
+        value: 900000
+      - key: RATE_LIMIT_MAX_REQUESTS
+        value: 100
+      - key: AUTH_RATE_LIMIT_MAX_REQUESTS
+        value: 10
+    healthCheckPath: /api/health
