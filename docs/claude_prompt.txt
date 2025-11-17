@@ -1,3 +1,10 @@
+docs\Real_Estate_Accounts_Requirements_v1.md
+docs\CLAUDE_CODE_IMPLEMENTATION_PROMPT.md
+
+
+
+
+
 I think we can do similar thing for this files also
 ON
 - frontend\app\[locale]\(home)\dashboard\page.tsx from line 466 - 597
@@ -34,31 +41,32 @@ Need to go modal base solution for this routes
 ####################          Pending             ####################
 ######################################################################
 
-Dark Theme missing on
-- frontend\app\[locale]\(home)\reports\page.tsx
-- frontend\app\[locale]\(home)\settings\page.tsx 
 
-Page implementation missing though they are enlisted on docs\Real_Estate_Accounts_Requirements_v1.md and frontend\components\layout\side-nav.tsx
-- /approvals
-- /sms
+You were right - I also need some pages in there like
+/banking/bank-accounts
+/banking/bank-accounts/[account_id]
 
+also
+/banking/cash-accounts
+/banking/cash-accounts/[account_id]
 
-
-
-
-
-
+Can we merge them and just create
+/banking/[accounts_type]
+/banking/[accounts_type]/[account_id]
 
 
-
-
+also we need a page for 
+/banking/cheques and maybe its cascading
 
 
 
 
-
-
-
+Ok that part is working fine thanks. Now I have a route /sms
+frontend\app\[locale]\(home)\sms\page.tsx
+Now I have some missing feature here
+1. I have /sms/templates but it has no route in ui
+2. See a template details is missing
+3. Create and edit a new sms template is also missing (Go for modal based solution - see this for a ref frontend\components\employees\employee-form-modal.tsx)
 
 
 
