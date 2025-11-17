@@ -5,7 +5,7 @@ import { Modal, ModalContent, ModalFooter } from '@/components/ui/modal';
 import { smsApi, SMSTemplate, SMSCategory } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
 import { getErrorMessage } from '@/lib/types';
-import { Plus, X } from 'lucide-react';
+import { Plus, X, Info } from 'lucide-react';
 
 interface SMSTemplateFormModalProps {
   isOpen: boolean;
@@ -22,6 +22,25 @@ const categoryLabels: Record<SMSCategory, string> = {
   [SMSCategory.BULK]: 'Bulk SMS',
   [SMSCategory.MANUAL]: 'Manual SMS',
 };
+
+// Available variables for SMS templates
+const availableVariables = [
+  { value: 'clientName', label: 'Client Name', description: 'Customer full name' },
+  { value: 'phone', label: 'Phone Number', description: 'Customer phone number' },
+  { value: 'amount', label: 'Amount', description: 'Payment or due amount' },
+  { value: 'plotNo', label: 'Plot Number', description: 'Plot/unit number' },
+  { value: 'plotProject', label: 'Project Name', description: 'Project/RS number' },
+  { value: 'dueDate', label: 'Due Date', description: 'Payment due date' },
+  { value: 'receiptNo', label: 'Receipt Number', description: 'Receipt/voucher number' },
+  { value: 'saleNumber', label: 'Sale Number', description: 'Sale reference number' },
+  { value: 'monthsDue', label: 'Months Due', description: 'Number of months overdue' },
+  { value: 'totalDue', label: 'Total Due', description: 'Total outstanding amount' },
+  { value: 'lastPaymentDate', label: 'Last Payment Date', description: 'Date of last payment' },
+  { value: 'chequeNo', label: 'Cheque Number', description: 'Cheque number' },
+  { value: 'chequeDate', label: 'Cheque Date', description: 'Cheque due date' },
+  { value: 'bankName', label: 'Bank Name', description: 'Bank name' },
+  { value: 'installmentNo', label: 'Installment Number', description: 'Installment number' },
+];
 
 export function SMSTemplateFormModal({
   isOpen,
@@ -250,23 +269,33 @@ export function SMSTemplateFormModal({
                 Variables
               </label>
               <div className="flex gap-2 mb-2">
-                <input
-                  type="text"
-                  value={newVariable}
-                  onChange={(e) => setNewVariable(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      handleAddVariable();
-                    }
-                  }}
-                  placeholder="e.g., clientName, amount, plotNo"
-                  className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
+                <div className="flex-1">
+                  <select
+                    value={newVariable}
+                    onChange={(e) => setNewVariable(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="">Select a variable to add</option>
+                    {availableVariables
+                      .filter((v) => !formData.variables.includes(v.value))
+                      .map((variable) => (
+                        <option key={variable.value} value={variable.value}>
+                          {variable.label} - {variable.description}
+                        </option>
+                      ))}
+                  </select>
+                  {newVariable && (
+                    <p className="text-xs text-blue-600 dark:text-blue-400 mt-1 flex items-center gap-1">
+                      <Info className="w-3 h-3" />
+                      {availableVariables.find((v) => v.value === newVariable)?.description}
+                    </p>
+                  )}
+                </div>
                 <button
                   type="button"
                   onClick={handleAddVariable}
-                  className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center gap-2"
+                  disabled={!newVariable}
+                  className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center gap-2"
                 >
                   <Plus className="w-4 h-4" />
                   Add
@@ -291,7 +320,7 @@ export function SMSTemplateFormModal({
               </div>
               {formData.variables.length === 0 && (
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  No variables added yet. Add variables that will be replaced with actual data when sending SMS.
+                  No variables added yet. Select from the dropdown above to add variables that will be replaced with actual data when sending SMS.
                 </p>
               )}
             </div>
