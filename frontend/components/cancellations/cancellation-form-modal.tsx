@@ -5,23 +5,31 @@ import { Modal, ModalContent, ModalFooter } from '@/components/ui/modal';
 import { salesApi, cancellationsApi, Sale, Client, Plot, RSNumber, Cancellation } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
 import { getErrorMessage } from '@/lib/types';
+import { X } from 'lucide-react';
 
 interface CancellationFormModalProps {
   isOpen: boolean;
   onClose: () => void;
-  saleId: string | null;
+  cancellation?: Cancellation | null;
   onSuccess: (cancellation: Cancellation) => void;
 }
 
 export function CancellationFormModal({
   isOpen,
   onClose,
-  saleId,
+  cancellation,
   onSuccess,
 }: CancellationFormModalProps) {
+  const isEditMode = !!cancellation;
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
   const [sale, setSale] = useState<Sale | null>(null);
+
+  // For sale search in create mode
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [sales, setSales] = useState<Sale[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedSaleId, setSelectedSaleId] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     reason: '',
@@ -30,28 +38,83 @@ export function CancellationFormModal({
     notes: '',
   });
 
-  // Load sale data when modal opens or saleId changes
+  // Initialize form data for edit mode
   useEffect(() => {
-    if (isOpen && saleId) {
-      loadSale();
-    } else {
+    if (isOpen && isEditMode && cancellation) {
+      setFormData({
+        reason: cancellation.reason,
+        officeChargePercent: cancellation.officeChargePercent,
+        otherDeductions: cancellation.otherDeductions,
+        notes: cancellation.notes || '',
+      });
+      const saleId = typeof cancellation.saleId === 'string' ? cancellation.saleId : cancellation.saleId._id;
+      setSelectedSaleId(saleId);
+      loadSale(saleId);
+    } else if (!isEditMode) {
+      // Reset for create mode
+      setFormData({
+        reason: '',
+        officeChargePercent: 10,
+        otherDeductions: 0,
+        notes: '',
+      });
+      setSelectedSaleId(null);
       setSale(null);
-      setLoadingData(true);
+      setSearchQuery('');
+      setSales([]);
+      setLoadingData(false);
     }
-  }, [isOpen, saleId]);
+  }, [isOpen, cancellation, isEditMode]);
 
-  const loadSale = async () => {
+  // Search for sales in create mode
+  useEffect(() => {
+    if (!isEditMode && searchQuery.length >= 2) {
+      searchSales(searchQuery);
+    } else if (searchQuery.length === 0) {
+      setSales([]);
+    }
+  }, [searchQuery, isEditMode]);
+
+  const searchSales = async (query: string) => {
+    try {
+      setSearchLoading(true);
+      const response = await salesApi.getAll({ search: query, limit: 20 });
+      setSales(response.data || []);
+    } catch (error) {
+      console.error('Failed to search sales:', error);
+      setSales([]);
+    } finally {
+      setSearchLoading(false);
+    }
+  };
+
+  const loadSale = async (saleId: string) => {
     try {
       setLoadingData(true);
-      const data = await salesApi.getById(saleId!);
+      const data = await salesApi.getById(saleId);
       setSale(data);
     } catch (error: unknown) {
       console.error('Failed to load sale:', error);
       showError(getErrorMessage(error));
-      onClose();
+      if (!isEditMode) {
+        setSale(null);
+      }
     } finally {
       setLoadingData(false);
     }
+  };
+
+  const handleSelectSale = (saleToSelect: Sale) => {
+    setSelectedSaleId(saleToSelect._id);
+    loadSale(saleToSelect._id);
+    setSearchQuery('');
+    setSales([]);
+  };
+
+  const handleClearSale = () => {
+    setSelectedSaleId(null);
+    setSale(null);
+    setSearchQuery('');
   };
 
   const calculateRefundableAmount = () => {
@@ -71,8 +134,8 @@ export function CancellationFormModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!saleId) {
-      showError('Sale ID is required');
+    if (!selectedSaleId && !isEditMode) {
+      showError('Please select a sale');
       return;
     }
 
@@ -99,24 +162,28 @@ export function CancellationFormModal({
 
     try {
       setLoading(true);
-      const data = await cancellationsApi.create({
-        saleId,
-        ...formData,
-      });
+      let result: Cancellation;
 
-      showSuccess('Cancellation created successfully!');
-      onSuccess(data);
+      if (isEditMode) {
+        result = await cancellationsApi.update(cancellation._id, {
+          reason: formData.reason,
+          officeChargePercent: formData.officeChargePercent,
+          otherDeductions: formData.otherDeductions,
+          notes: formData.notes || undefined,
+        });
+        showSuccess('Cancellation updated successfully!');
+      } else {
+        result = await cancellationsApi.create({
+          saleId: selectedSaleId!,
+          ...formData,
+        });
+        showSuccess('Cancellation created successfully!');
+      }
+
+      onSuccess(result);
       onClose();
-
-      // Reset form
-      setFormData({
-        reason: '',
-        officeChargePercent: 10,
-        otherDeductions: 0,
-        notes: '',
-      });
     } catch (error: unknown) {
-      console.error('Failed to create cancellation:', error);
+      console.error('Failed to save cancellation:', error);
       showError(getErrorMessage(error));
     } finally {
       setLoading(false);
@@ -129,10 +196,6 @@ export function CancellationFormModal({
     }
   };
 
-  if (!saleId) {
-    return null;
-  }
-
   const client = sale?.clientId as Client;
   const plot = sale?.plotId as Plot;
   const rsNumber = sale?.rsNumberId as RSNumber;
@@ -143,11 +206,51 @@ export function CancellationFormModal({
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
-      title="Cancel Booking"
+      title={isEditMode ? 'Edit Cancellation' : 'Create Cancellation'}
       size="xl"
     >
       <form onSubmit={handleSubmit}>
         <ModalContent>
+          {/* Sale Selection (Create Mode Only) */}
+          {!isEditMode && !selectedSaleId && (
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Search & Select Sale <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search by sale number, client name, or phone..."
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              />
+              {searchLoading && (
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">Searching...</p>
+              )}
+              {sales.length > 0 && (
+                <div className="mt-2 max-h-64 overflow-y-auto border border-gray-300 dark:border-gray-700 rounded-md">
+                  {sales.map((saleItem) => {
+                    const saleClient = saleItem.clientId as Client;
+                    return (
+                      <div
+                        key={saleItem._id}
+                        onClick={() => handleSelectSale(saleItem)}
+                        className="p-3 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer border-b dark:border-gray-700 last:border-b-0"
+                      >
+                        <div className="font-medium text-gray-900 dark:text-white">
+                          {saleItem.saleNumber}
+                        </div>
+                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                          {saleClient.name} - {saleClient.phone}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+
           {loadingData ? (
             <div className="text-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
@@ -157,9 +260,21 @@ export function CancellationFormModal({
             <div className="space-y-4">
               {/* Sale Information Card */}
               <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
-                <h3 className="text-md font-semibold text-gray-900 dark:text-white mb-3">
-                  Sale Information
-                </h3>
+                <div className="flex justify-between items-center mb-3">
+                  <h3 className="text-md font-semibold text-gray-900 dark:text-white">
+                    Sale Information
+                  </h3>
+                  {!isEditMode && (
+                    <button
+                      type="button"
+                      onClick={handleClearSale}
+                      className="text-sm text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-200 flex items-center gap-1"
+                    >
+                      <X className="w-4 h-4" />
+                      Change Sale
+                    </button>
+                  )}
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
                     <dt className="text-xs font-medium text-gray-500 dark:text-gray-400">Sale Number</dt>
@@ -327,11 +442,11 @@ export function CancellationFormModal({
                 )}
               </div>
             </div>
-          ) : (
+          ) : !isEditMode && selectedSaleId ? (
             <div className="text-center py-8">
               <p className="text-gray-600 dark:text-gray-400">Sale not found</p>
             </div>
-          )}
+          ) : null}
         </ModalContent>
 
         <ModalFooter>
@@ -349,7 +464,7 @@ export function CancellationFormModal({
               disabled={loading || loadingData || !sale || refundableAmount < 0}
               className="flex-1 px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'Creating Cancellation...' : 'Create Cancellation'}
+              {loading ? (isEditMode ? 'Updating...' : 'Creating...') : (isEditMode ? 'Update Cancellation' : 'Create Cancellation')}
             </button>
           </div>
         </ModalFooter>

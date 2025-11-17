@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { cancellationsApi, Cancellation, CancellationStatus, Sale, Client } from '@/lib/api';
 import { ListQueryParams, getErrorMessage } from '@/lib/types';
 import { showSuccess, showError } from '@/lib/toast';
+import { CancellationFormModal } from '@/components/cancellations/cancellation-form-modal';
+import { Plus, Edit2 } from 'lucide-react';
 
 export default function CancellationsPage() {
   const [loading, setLoading] = useState(true);
@@ -12,6 +14,10 @@ export default function CancellationsPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [statusFilter, setStatusFilter] = useState<string>('');
+
+  // Modal states
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedCancellation, setSelectedCancellation] = useState<Cancellation | null>(null);
 
   useEffect(() => {
     loadCancellations();
@@ -61,6 +67,23 @@ export default function CancellationsPage() {
     }
   };
 
+  // Modal handlers
+  const handleCreate = () => {
+    setSelectedCancellation(null);
+    setIsModalOpen(true);
+  };
+
+  const handleEdit = (cancellation: Cancellation) => {
+    setSelectedCancellation(cancellation);
+    setIsModalOpen(true);
+  };
+
+  const handleModalSuccess = () => {
+    setIsModalOpen(false);
+    setSelectedCancellation(null);
+    loadCancellations();
+  };
+
   if (loading && cancellations.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -82,6 +105,13 @@ export default function CancellationsPage() {
               Manage booking cancellations and refund processing
             </p>
           </div>
+          <button
+            onClick={handleCreate}
+            className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            Create Cancellation
+          </button>
         </div>
 
         {/* Filters */}
@@ -176,12 +206,22 @@ export default function CancellationsPage() {
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                          <Link
-                            href={`/cancellations/${cancellation._id}`}
-                            className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300"
-                          >
-                            View Details
-                          </Link>
+                          <div className="flex justify-end gap-3">
+                            <button
+                              onClick={() => handleEdit(cancellation)}
+                              className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 flex items-center gap-1"
+                              title="Edit Cancellation"
+                            >
+                              <Edit2 className="w-4 h-4" />
+                              Edit
+                            </button>
+                            <Link
+                              href={`/cancellations/${cancellation._id}`}
+                              className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300"
+                            >
+                              View Details
+                            </Link>
+                          </div>
                         </td>
                       </tr>
                     );
@@ -240,6 +280,14 @@ export default function CancellationsPage() {
           </>
         )}
       </div>
+
+      {/* Cancellation Form Modal */}
+      <CancellationFormModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        cancellation={selectedCancellation}
+        onSuccess={handleModalSuccess}
+      />
     </div>
   );
 }
