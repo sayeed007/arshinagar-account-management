@@ -6,6 +6,8 @@ import { useRouter, useParams } from 'next/navigation';
 import { cancellationsApi, refundsApi, Cancellation, CancellationStatus, Refund, Sale, Client, Plot, RSNumber } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
 import { getErrorMessage } from '@/lib/types';
+import { CancellationApproveModal } from '@/components/cancellations/cancellation-approve-modal';
+import { CancellationRejectModal } from '@/components/cancellations/cancellation-reject-modal';
 
 interface CancellationWithRefunds extends Cancellation {
   refunds: Refund[];
@@ -20,7 +22,6 @@ export default function CancellationDetailPage() {
   const [cancellation, setCancellation] = useState<CancellationWithRefunds | null>(null);
   const [showApproveModal, setShowApproveModal] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
-  const [actionNotes, setActionNotes] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
@@ -40,13 +41,12 @@ export default function CancellationDetailPage() {
     }
   };
 
-  const handleApprove = async () => {
+  const handleApprove = async (notes?: string) => {
     try {
       setActionLoading(true);
-      await cancellationsApi.approve(id, actionNotes || undefined);
+      await cancellationsApi.approve(id, notes);
       showSuccess('Cancellation approved successfully');
       setShowApproveModal(false);
-      setActionNotes('');
       loadCancellation();
     } catch (error: unknown) {
       console.error('Failed to approve cancellation:', error);
@@ -56,18 +56,12 @@ export default function CancellationDetailPage() {
     }
   };
 
-  const handleReject = async () => {
-    if (!actionNotes.trim()) {
-      showError('Rejection reason is required');
-      return;
-    }
-
+  const handleReject = async (reason: string) => {
     try {
       setActionLoading(true);
-      await cancellationsApi.reject(id, actionNotes);
+      await cancellationsApi.reject(id, reason);
       showSuccess('Cancellation rejected successfully');
       setShowRejectModal(false);
-      setActionNotes('');
       loadCancellation();
     } catch (error: unknown) {
       console.error('Failed to reject cancellation:', error);
@@ -434,99 +428,20 @@ export default function CancellationDetailPage() {
       )}
 
       {/* Approve Modal */}
-      {showApproveModal && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
-          <div className="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4">
-            <div className="p-6">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                Approve Cancellation
-              </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                Are you sure you want to approve this cancellation? This will allow refund processing to begin.
-              </p>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Notes (Optional)
-                </label>
-                <textarea
-                  value={actionNotes}
-                  onChange={(e) => setActionNotes(e.target.value)}
-                  rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
-                  placeholder="Add any notes..."
-                />
-              </div>
-              <div className="flex justify-end gap-3">
-                <button
-                  onClick={() => {
-                    setShowApproveModal(false);
-                    setActionNotes('');
-                  }}
-                  disabled={actionLoading}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleApprove}
-                  disabled={actionLoading}
-                  className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 disabled:opacity-50"
-                >
-                  {actionLoading ? 'Approving...' : 'Approve'}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <CancellationApproveModal
+        isOpen={showApproveModal}
+        onClose={() => setShowApproveModal(false)}
+        onApprove={handleApprove}
+        loading={actionLoading}
+      />
 
       {/* Reject Modal */}
-      {showRejectModal && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
-          <div className="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4">
-            <div className="p-6">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                Reject Cancellation
-              </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                Please provide a reason for rejecting this cancellation. The sale will be restored to active status.
-              </p>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Rejection Reason <span className="text-red-500">*</span>
-                </label>
-                <textarea
-                  value={actionNotes}
-                  onChange={(e) => setActionNotes(e.target.value)}
-                  rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
-                  placeholder="Enter rejection reason..."
-                  required
-                />
-              </div>
-              <div className="flex justify-end gap-3">
-                <button
-                  onClick={() => {
-                    setShowRejectModal(false);
-                    setActionNotes('');
-                  }}
-                  disabled={actionLoading}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleReject}
-                  disabled={actionLoading}
-                  className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:opacity-50"
-                >
-                  {actionLoading ? 'Rejecting...' : 'Reject'}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <CancellationRejectModal
+        isOpen={showRejectModal}
+        onClose={() => setShowRejectModal(false)}
+        onReject={handleReject}
+        loading={actionLoading}
+      />
     </div>
   );
 }
