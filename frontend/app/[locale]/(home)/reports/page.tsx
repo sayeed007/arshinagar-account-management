@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { API_BASE_URL } from '@/lib/api';
 
 export default function ReportsPage() {
   const [dateRange, setDateRange] = useState({
@@ -46,19 +45,20 @@ export default function ReportsPage() {
   ];
 
   const handleViewReport = (reportId: string) => {
-    const token = localStorage.getItem('accessToken');
+    // Build URL with query parameters for the report viewer page
+    const params = new URLSearchParams({
+      startDate: dateRange.startDate,
+      endDate: dateRange.endDate,
+    });
 
-    let endpoint = '';
+    // Navigate to the appropriate report viewer page
     if (financialReports.find((r) => r.id === reportId)) {
-      endpoint = `/reports/financial/${reportId}`;
+      window.location.href = `/reports/financial/${reportId}?${params.toString()}`;
     } else if (salesReports.find((r) => r.id === reportId)) {
-      endpoint = `/reports/sales/${reportId}`;
+      window.location.href = `/reports/sales/${reportId}?${params.toString()}`;
     } else if (expenseReports.find((r) => r.id === reportId)) {
-      endpoint = `/reports/expense/${reportId}`;
+      window.location.href = `/reports/expense/${reportId}?${params.toString()}`;
     }
-
-    const url = `${API_BASE_URL}${endpoint}?startDate=${dateRange.startDate}&endDate=${dateRange.endDate}&token=${token}`;
-    window.open(url, '_blank');
   };
 
   return (

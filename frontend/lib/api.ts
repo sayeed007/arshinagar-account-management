@@ -2469,4 +2469,266 @@ export const smsApi = {
   },
 };
 
+// ============================================================================
+// Reports Types & API
+// ============================================================================
+
+export interface DayBookTransaction {
+  date: string;
+  particulars: string;
+  receiptNumber?: string;
+  paymentNumber?: string;
+  type: 'Receipt' | 'Payment';
+  amount: number;
+  balance: number;
+  category?: string;
+}
+
+export interface DayBookReport {
+  transactions: DayBookTransaction[];
+  summary: {
+    totalReceipts: number;
+    totalPayments: number;
+    balance: number;
+  };
+  period: {
+    startDate: string;
+    endDate: string;
+  };
+}
+
+export interface CashBookTransaction {
+  date: string;
+  particulars: string;
+  voucherNumber?: string;
+  type: 'Receipt' | 'Payment';
+  amount: number;
+  balance: number;
+}
+
+export interface CashBookReport {
+  transactions: CashBookTransaction[];
+  summary: {
+    openingBalance: number;
+    totalReceipts: number;
+    totalPayments: number;
+    closingBalance: number;
+  };
+  period: {
+    startDate: string;
+    endDate: string;
+  };
+  account?: {
+    _id: string;
+    name: string;
+  };
+}
+
+export interface BankBookReport {
+  transactions: CashBookTransaction[];
+  summary: {
+    openingBalance: number;
+    totalReceipts: number;
+    totalPayments: number;
+    closingBalance: number;
+  };
+  period: {
+    startDate: string;
+    endDate: string;
+  };
+  account?: {
+    _id: string;
+    bankName: string;
+    accountNumber: string;
+  };
+}
+
+export interface AgingBucket {
+  range: string;
+  count: number;
+  amount: number;
+  clients: Array<{
+    clientId: string;
+    clientName: string;
+    phone: string;
+    saleId: string;
+    plotNo: string;
+    totalSale: number;
+    totalPaid: number;
+    balance: number;
+    lastPaymentDate?: string;
+    daysPastDue: number;
+  }>;
+}
+
+export interface AgingReport {
+  current: AgingBucket;
+  days31to60: AgingBucket;
+  days61to90: AgingBucket;
+  over90: AgingBucket;
+  total: {
+    count: number;
+    amount: number;
+  };
+  asOfDate: string;
+}
+
+export interface ExpenseByCategoryItem {
+  category: {
+    _id: string;
+    name: string;
+  };
+  totalAmount: number;
+  count: number;
+  percentage: number;
+  expenses: Array<{
+    _id: string;
+    expenseNumber: string;
+    amount: number;
+    expenseDate: string;
+    description: string;
+  }>;
+}
+
+export interface ExpenseByCategoryReport {
+  categories: ExpenseByCategoryItem[];
+  summary: {
+    totalExpenses: number;
+    totalAmount: number;
+    period: {
+      startDate: string;
+      endDate: string;
+    };
+  };
+}
+
+export interface EmployeeCostSummaryItem {
+  employee: {
+    _id: string;
+    name: string;
+    designation: string;
+  };
+  totalSalary: number;
+  totalCommission: number;
+  totalAllowances: number;
+  totalDeductions: number;
+  totalAdvances: number;
+  netPayable: number;
+  records: Array<{
+    _id: string;
+    month: number;
+    year: number;
+    netPay: number;
+  }>;
+}
+
+export interface EmployeeCostSummaryReport {
+  employees: EmployeeCostSummaryItem[];
+  summary: {
+    totalEmployees: number;
+    totalSalary: number;
+    totalCommission: number;
+    totalAllowances: number;
+    totalDeductions: number;
+    totalAdvances: number;
+    totalNetPay: number;
+    period: {
+      startDate: string;
+      endDate: string;
+    };
+  };
+}
+
+/**
+ * Reports API Methods
+ */
+export const reportsApi = {
+  /**
+   * Get Day Book report
+   */
+  getDayBook: async (params: { startDate: string; endDate: string }): Promise<DayBookReport> => {
+    const response = await apiClient.get<ApiResponse<DayBookReport>>('/reports/financial/day-book', {
+      params,
+    });
+    return response.data.data!;
+  },
+
+  /**
+   * Get Cash Book report
+   */
+  getCashBook: async (params: {
+    startDate: string;
+    endDate: string;
+    accountId?: string;
+  }): Promise<CashBookReport> => {
+    const response = await apiClient.get<ApiResponse<CashBookReport>>(
+      '/reports/financial/cash-book',
+      {
+        params,
+      }
+    );
+    return response.data.data!;
+  },
+
+  /**
+   * Get Bank Book report
+   */
+  getBankBook: async (params: {
+    startDate: string;
+    endDate: string;
+    accountId?: string;
+  }): Promise<BankBookReport> => {
+    const response = await apiClient.get<ApiResponse<BankBookReport>>(
+      '/reports/financial/bank-book',
+      {
+        params,
+      }
+    );
+    return response.data.data!;
+  },
+
+  /**
+   * Get Aging Report
+   */
+  getAgingReport: async (params?: { asOfDate?: string }): Promise<AgingReport> => {
+    const response = await apiClient.get<ApiResponse<AgingReport>>('/reports/sales/aging', {
+      params,
+    });
+    return response.data.data!;
+  },
+
+  /**
+   * Get Expense by Category Report
+   */
+  getExpenseByCategory: async (params: {
+    startDate: string;
+    endDate: string;
+  }): Promise<ExpenseByCategoryReport> => {
+    const response = await apiClient.get<ApiResponse<ExpenseByCategoryReport>>(
+      '/reports/expense/by-category',
+      {
+        params,
+      }
+    );
+    return response.data.data!;
+  },
+
+  /**
+   * Get Employee Cost Summary Report
+   */
+  getEmployeeCostSummary: async (params: {
+    startDate: string;
+    endDate: string;
+    employeeId?: string;
+  }): Promise<EmployeeCostSummaryReport> => {
+    const response = await apiClient.get<ApiResponse<EmployeeCostSummaryReport>>(
+      '/reports/employee/cost-summary',
+      {
+        params,
+      }
+    );
+    return response.data.data!;
+  },
+};
+
 export default apiClient;
