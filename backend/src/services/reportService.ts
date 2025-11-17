@@ -280,12 +280,11 @@ class ReportService {
       .lean();
 
     const today = new Date();
-    const aging = {
+    const agingBuckets = {
       current: [],
-      days_1_30: [],
-      days_31_60: [],
-      days_61_90: [],
-      days_90_plus: [],
+      days31to60: [],
+      days61to90: [],
+      over90: [],
     };
 
     for (const sale of sales) {
@@ -316,38 +315,50 @@ class ReportService {
         oldestDueDate: oldestDue.dueDate,
       };
 
-      if (daysPastDue < 0) {
-        aging.current.push(agingEntry);
-      } else if (daysPastDue <= 30) {
-        aging.days_1_30.push(agingEntry);
+      if (daysPastDue <= 30) {
+        agingBuckets.current.push(agingEntry);
       } else if (daysPastDue <= 60) {
-        aging.days_31_60.push(agingEntry);
+        agingBuckets.days31to60.push(agingEntry);
       } else if (daysPastDue <= 90) {
-        aging.days_61_90.push(agingEntry);
+        agingBuckets.days61to90.push(agingEntry);
       } else {
-        aging.days_90_plus.push(agingEntry);
+        agingBuckets.over90.push(agingEntry);
       }
     }
 
-    const summary = {
-      current: aging.current.reduce((sum, a) => sum + a.dueAmount, 0),
-      days_1_30: aging.days_1_30.reduce((sum, a) => sum + a.dueAmount, 0),
-      days_31_60: aging.days_31_60.reduce((sum, a) => sum + a.dueAmount, 0),
-      days_61_90: aging.days_61_90.reduce((sum, a) => sum + a.dueAmount, 0),
-      days_90_plus: aging.days_90_plus.reduce((sum, a) => sum + a.dueAmount, 0),
+    // Calculate amounts and counts for each bucket
+    const current = {
+      amount: agingBuckets.current.reduce((sum, a) => sum + a.dueAmount, 0),
+      count: agingBuckets.current.length,
     };
 
-    summary['total'] =
-      summary.current +
-      summary.days_1_30 +
-      summary.days_31_60 +
-      summary.days_61_90 +
-      summary.days_90_plus;
+    const days31to60 = {
+      amount: agingBuckets.days31to60.reduce((sum, a) => sum + a.dueAmount, 0),
+      count: agingBuckets.days31to60.length,
+    };
+
+    const days61to90 = {
+      amount: agingBuckets.days61to90.reduce((sum, a) => sum + a.dueAmount, 0),
+      count: agingBuckets.days61to90.length,
+    };
+
+    const over90 = {
+      amount: agingBuckets.over90.reduce((sum, a) => sum + a.dueAmount, 0),
+      count: agingBuckets.over90.length,
+    };
+
+    const total = {
+      amount: current.amount + days31to60.amount + days61to90.amount + over90.amount,
+      count: current.count + days31to60.count + days61to90.count + over90.count,
+    };
 
     return {
-      aging,
-      summary,
-      generatedAt: new Date(),
+      current,
+      days31to60,
+      days61to90,
+      over90,
+      total,
+      asOfDate: new Date(),
     };
   }
 
