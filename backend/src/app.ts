@@ -61,9 +61,12 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 // Rate Limiting
+// Higher limits for development, stricter for production
+const isDevelopment = process.env.NODE_ENV === 'development';
+
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
+  max: isDevelopment ? 10000 : 100, // Much higher limit in dev mode
   message: {
     success: false,
     error: {
@@ -73,6 +76,7 @@ const limiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
+  skip: isDevelopment ? () => true : undefined, // Skip rate limiting entirely in dev
 });
 
 // Apply rate limiting to all routes
@@ -81,7 +85,7 @@ app.use('/api/', limiter);
 // Stricter rate limiting for auth routes
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10, // Limit each IP to 10 requests per windowMs
+  max: isDevelopment ? 1000 : 10, // Higher limit in dev mode
   message: {
     success: false,
     error: {
@@ -89,6 +93,7 @@ const authLimiter = rateLimit({
       message: 'Too many authentication attempts, please try again later',
     },
   },
+  skip: isDevelopment ? () => true : undefined, // Skip rate limiting entirely in dev
 });
 
 app.use('/api/auth/login', authLimiter);
