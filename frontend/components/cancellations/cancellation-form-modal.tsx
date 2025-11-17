@@ -11,6 +11,7 @@ interface CancellationFormModalProps {
   isOpen: boolean;
   onClose: () => void;
   cancellation?: Cancellation | null;
+  saleId?: string | null;
   onSuccess: (cancellation: Cancellation) => void;
 }
 
@@ -18,6 +19,7 @@ export function CancellationFormModal({
   isOpen,
   onClose,
   cancellation,
+  saleId,
   onSuccess,
 }: CancellationFormModalProps) {
   const isEditMode = !!cancellation;
@@ -47,9 +49,9 @@ export function CancellationFormModal({
         otherDeductions: cancellation.otherDeductions,
         notes: cancellation.notes || '',
       });
-      const saleId = typeof cancellation.saleId === 'string' ? cancellation.saleId : cancellation.saleId._id;
-      setSelectedSaleId(saleId);
-      loadSale(saleId);
+      const saleIdFromCancellation = typeof cancellation.saleId === 'string' ? cancellation.saleId : cancellation.saleId._id;
+      setSelectedSaleId(saleIdFromCancellation);
+      loadSale(saleIdFromCancellation);
     } else if (!isEditMode) {
       // Reset for create mode
       setFormData({
@@ -58,13 +60,19 @@ export function CancellationFormModal({
         otherDeductions: 0,
         notes: '',
       });
-      setSelectedSaleId(null);
-      setSale(null);
+      // If saleId is provided (from sales detail page), pre-select it
+      if (saleId) {
+        setSelectedSaleId(saleId);
+        loadSale(saleId);
+      } else {
+        setSelectedSaleId(null);
+        setSale(null);
+        setLoadingData(false);
+      }
       setSearchQuery('');
       setSales([]);
-      setLoadingData(false);
     }
-  }, [isOpen, cancellation, isEditMode]);
+  }, [isOpen, cancellation, isEditMode, saleId]);
 
   // Search for sales in create mode
   useEffect(() => {

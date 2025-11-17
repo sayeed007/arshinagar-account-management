@@ -12,6 +12,9 @@ interface SMSLogDetailsModalProps {
 export function SMSLogDetailsModal({ isOpen, onClose, log }: SMSLogDetailsModalProps) {
   if (!isOpen || !log) return null;
 
+  // Type assertion after null check
+  const smsLog = log as SMSLog;
+
   const getStatusColor = (status: SMSStatus) => {
     switch (status) {
       case SMSStatus.SENT:
@@ -57,8 +60,8 @@ export function SMSLogDetailsModal({ isOpen, onClose, log }: SMSLogDetailsModalP
           {/* Status Badge */}
           <div className="flex items-center gap-3">
             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Status:</span>
-            <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(log.status)}`}>
-              {log.status}
+            <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(smsLog.status)}`}>
+              {smsLog.status}
             </span>
           </div>
 
@@ -68,7 +71,7 @@ export function SMSLogDetailsModal({ isOpen, onClose, log }: SMSLogDetailsModalP
               Phone Number
             </label>
             <div className="px-4 py-2 bg-gray-50 dark:bg-gray-800 rounded-md">
-              <p className="text-gray-900 dark:text-white font-mono">{log.phone}</p>
+              <p className="text-gray-900 dark:text-white font-mono">{smsLog.phone}</p>
             </div>
           </div>
 
@@ -79,7 +82,7 @@ export function SMSLogDetailsModal({ isOpen, onClose, log }: SMSLogDetailsModalP
             </label>
             <div className="px-4 py-2 bg-gray-50 dark:bg-gray-800 rounded-md">
               <p className="text-gray-900 dark:text-white capitalize">
-                {log.category.replace(/_/g, ' ')}
+                {smsLog.category.replace(/_/g, ' ')}
               </p>
             </div>
           </div>
@@ -91,22 +94,22 @@ export function SMSLogDetailsModal({ isOpen, onClose, log }: SMSLogDetailsModalP
             </label>
             <div className="px-4 py-3 bg-gray-50 dark:bg-gray-800 rounded-md">
               <p className="text-gray-900 dark:text-white whitespace-pre-wrap break-words">
-                {log.message}
+                {smsLog.message}
               </p>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                Length: {log.message.length} characters
+                Length: {smsLog.message.length} characters
               </p>
             </div>
           </div>
 
           {/* Template Code (if available) */}
-          {log.templateCode && (
+          {smsLog.templateCode && (
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Template Code
               </label>
               <div className="px-4 py-2 bg-gray-50 dark:bg-gray-800 rounded-md">
-                <p className="text-gray-900 dark:text-white font-mono">{log.templateCode}</p>
+                <p className="text-gray-900 dark:text-white font-mono">{smsLog.templateCode}</p>
               </div>
             </div>
           )}
@@ -118,44 +121,44 @@ export function SMSLogDetailsModal({ isOpen, onClose, log }: SMSLogDetailsModalP
                 Created At
               </label>
               <div className="px-4 py-2 bg-gray-50 dark:bg-gray-800 rounded-md">
-                <p className="text-sm text-gray-900 dark:text-white">{formatDate(log.createdAt)}</p>
+                <p className="text-sm text-gray-900 dark:text-white">{formatDate(smsLog.createdAt)}</p>
               </div>
             </div>
-            {log.sentAt && (
+            {smsLog.sentAt && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Sent At
                 </label>
                 <div className="px-4 py-2 bg-gray-50 dark:bg-gray-800 rounded-md">
-                  <p className="text-sm text-gray-900 dark:text-white">{formatDate(log.sentAt)}</p>
+                  <p className="text-sm text-gray-900 dark:text-white">{formatDate(smsLog.sentAt)}</p>
                 </div>
               </div>
             )}
           </div>
 
-          {/* Provider Response (if available) */}
-          {log.providerResponse && (
+          {/* Gateway Response (if available) */}
+          {smsLog.gatewayResponse && (
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Provider Response
+                Gateway Response
               </label>
               <div className="px-4 py-3 bg-gray-50 dark:bg-gray-800 rounded-md">
                 <pre className="text-xs text-gray-900 dark:text-white whitespace-pre-wrap break-words font-mono">
-                  {JSON.stringify(log.providerResponse, null, 2)}
+                  {JSON.stringify(smsLog.gatewayResponse as Record<string, unknown>, null, 2)}
                 </pre>
               </div>
             </div>
           )}
 
           {/* Error Message (if available) */}
-          {log.error && (
+          {smsLog.errorMessage && (
             <div>
               <label className="block text-sm font-medium text-red-700 dark:text-red-400 mb-1">
                 Error Message
               </label>
               <div className="px-4 py-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
                 <p className="text-sm text-red-900 dark:text-red-200 whitespace-pre-wrap break-words">
-                  {log.error}
+                  {smsLog.errorMessage}
                 </p>
               </div>
             </div>
