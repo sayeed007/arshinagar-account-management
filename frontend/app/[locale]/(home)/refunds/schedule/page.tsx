@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { cancellationsApi, refundsApi, Cancellation, Sale, Client } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
 import { getErrorMessage } from '@/lib/types';
+import { Breadcrumb } from '@/components/ui/breadcrumb';
 
 export default function RefundSchedulePage() {
   const router = useRouter();
@@ -163,20 +164,15 @@ export default function RefundSchedulePage() {
   return (
     <div>
       {/* Header */}
-      <div className="mb-6">
-        <Link
-          href={`/cancellations/${cancellation._id}`}
-          className="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300 mb-2 inline-block"
-        >
-          ← Back to Cancellation
-        </Link>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-          Create Refund Schedule
-        </h1>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-          {sale.saleNumber} - {client.name}
-        </p>
-      </div>
+      <Breadcrumb
+        items={[
+          { label: 'Cancellations', href: '/cancellations' },
+          { label: 'Details', href: `/cancellations/${cancellation._id}` },
+          { label: 'Create Refund Schedule' },
+        ]}
+        title="Create Refund Schedule"
+        subtitle={`${sale.saleNumber} - ${client.name}`}
+      />
 
       {/* Cancellation Summary */}
       <div className="mb-6 bg-white dark:bg-gray-800 rounded-lg shadow p-6">

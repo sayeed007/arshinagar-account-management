@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { refundsApi, Refund, RefundApprovalStatus, Cancellation, Sale, Client } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
 import { getErrorMessage } from '@/lib/types';
+import { Breadcrumb } from '@/components/ui/breadcrumb';
 
 export default function ApprovalQueuePage() {
   const [loading, setLoading] = useState(true);
@@ -59,18 +60,14 @@ export default function ApprovalQueuePage() {
 
   return (
     <div>
-      <div className="mb-6">
-        <Link
-          href="/refunds"
-          className="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300 mb-2 inline-block"
-        >
-          ← Back to Refunds
-        </Link>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Refund Approval Queue</h1>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-          Refunds pending your approval
-        </p>
-      </div>
+      <Breadcrumb
+        items={[
+          { label: 'Refunds', href: '/refunds' },
+          { label: 'Approval Queue' },
+        ]}
+        title="Refund Approval Queue"
+        subtitle="Refunds pending your approval"
+      />
 
       {/* Approval Queue List */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">

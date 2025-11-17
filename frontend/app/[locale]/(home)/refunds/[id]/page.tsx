@@ -6,6 +6,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { refundsApi, Refund, RefundStatus, RefundApprovalStatus, Cancellation, Sale, Client, Plot, RSNumber, PaymentMethod } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
 import { getErrorMessage } from '@/lib/types';
+import { Breadcrumb } from '@/components/ui/breadcrumb';
 
 export default function RefundDetailPage() {
   const router = useRouter();
@@ -193,43 +194,37 @@ export default function RefundDetailPage() {
 
   return (
     <div>
-      {/* Header */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <Link
-              href="/refunds"
-              className="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300 mb-2 inline-block"
-            >
-              ← Back to Refunds
-            </Link>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              Refund Details
-            </h1>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-              {refund.refundNumber} - Installment {refund.installmentNumber}
-            </p>
-          </div>
-          <div className="flex flex-col gap-2 items-end">
-            <span
-              className={`px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full ${getStatusBadgeClass(
-                refund.status
-              )}`}
-            >
-              {refund.status}
-            </span>
-            <span
-              className={`px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full ${getApprovalBadgeClass(
-                refund.approvalStatus
-              )}`}
-            >
-              {refund.approvalStatus}
-            </span>
-          </div>
+      {/* Header with Breadcrumb */}
+      <div className="flex items-start justify-between mb-6">
+        <Breadcrumb
+          items={[
+            { label: 'Refunds', href: '/refunds' },
+            { label: 'Details' },
+          ]}
+          title="Refund Details"
+          subtitle={`${refund.refundNumber} - Installment ${refund.installmentNumber}`}
+        />
+        <div className="flex flex-col gap-2 items-end">
+          <span
+            className={`px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full ${getStatusBadgeClass(
+              refund.status
+            )}`}
+          >
+            {refund.status}
+          </span>
+          <span
+            className={`px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full ${getApprovalBadgeClass(
+              refund.approvalStatus
+            )}`}
+          >
+            {refund.approvalStatus}
+          </span>
         </div>
+      </div>
 
-        {/* Action Buttons */}
-        <div className="mt-4 flex flex-wrap gap-3">
+      {/* Action Buttons */}
+      <div className="mb-6">
+        <div className="flex flex-wrap gap-3">
           {refund.approvalStatus === RefundApprovalStatus.DRAFT && (
             <button
               onClick={() => setShowSubmitModal(true)}
