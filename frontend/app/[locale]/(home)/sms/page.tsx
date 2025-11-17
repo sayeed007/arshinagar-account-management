@@ -6,6 +6,7 @@ import { showSuccess, showError } from '@/lib/toast';
 import { getErrorMessage } from '@/lib/types';
 import { SMSTemplateFormModal } from '@/components/sms/sms-template-form-modal';
 import { SMSTemplateDetailsModal } from '@/components/sms/sms-template-details-modal';
+import { SMSLogDetailsModal } from '@/components/sms/sms-log-details-modal';
 import { Eye, Edit2, Trash2 } from 'lucide-react';
 
 type TabType = 'overview' | 'templates' | 'logs' | 'send';
@@ -33,6 +34,8 @@ export default function SMSPage() {
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<SMSTemplate | null>(null);
+  const [isLogDetailsModalOpen, setIsLogDetailsModalOpen] = useState(false);
+  const [selectedLog, setSelectedLog] = useState<SMSLog | null>(null);
 
   useEffect(() => {
     loadData();
@@ -48,8 +51,12 @@ export default function SMSPage() {
         const templatesData = await smsApi.getTemplates();
         setTemplates(templatesData);
       } else if (activeTab === 'logs') {
-        const logsData = await smsApi.getLogs({ limit: 50 });
+        const [logsData, statsData] = await Promise.all([
+          smsApi.getLogs({ limit: 50 }),
+          smsApi.getStats(),
+        ]);
         setLogs(logsData.logs);
+        setStats(statsData);
       }
     } catch (error: unknown) {
       console.error('Failed to load data:', error);
@@ -127,6 +134,12 @@ export default function SMSPage() {
 
   const handleTemplateSuccess = (template: SMSTemplate) => {
     loadData();
+  };
+
+  // Log handlers
+  const handleViewLog = (log: SMSLog) => {
+    setSelectedLog(log);
+    setIsLogDetailsModalOpen(true);
   };
 
   const formatDate = (dateString: string) => {
@@ -347,69 +360,103 @@ export default function SMSPage() {
         {/* Logs Tab */}
         {activeTab === 'logs' && (
           <div>
-            <h2 className="text-lg font-semibold mb-4 dark:text-white">Recent SMS Logs</h2>
+            <h2 className="text-lg font-semibold mb-4 dark:text-white">SMS Logs</h2>
 
             {loading ? (
               <div className="text-center py-12">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
               </div>
-            ) : logs.length === 0 ? (
-              <div className="bg-white dark:bg-slate-900 border dark:border-gray-700 rounded-lg p-12 text-center">
-                <p className="text-gray-600 dark:text-gray-400">No SMS logs found</p>
-              </div>
             ) : (
-              <div className="bg-white dark:bg-slate-900 border dark:border-gray-700 rounded-lg overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead className="bg-gray-50 dark:bg-gray-800">
-                      <tr>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                          Phone
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                          Message
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                          Category
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                          Status
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                          Sent At
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                      {logs.map((log) => (
-                        <tr key={log._id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
-                          <td className="px-4 py-3 whitespace-nowrap">
-                            <div className="text-sm font-medium text-gray-900 dark:text-white">
-                              {log.phone}
-                            </div>
-                          </td>
-                          <td className="px-4 py-3">
-                            <div className="text-sm text-gray-600 dark:text-gray-400 max-w-md truncate">
-                              {log.message}
-                            </div>
-                          </td>
-                          <td className="px-4 py-3 whitespace-nowrap">
-                            <div className="text-xs text-gray-600 dark:text-gray-400 capitalize">
-                              {log.category.replace(/_/g, ' ')}
-                            </div>
-                          </td>
-                          <td className="px-4 py-3 whitespace-nowrap">{getStatusBadge(log.status)}</td>
-                          <td className="px-4 py-3 whitespace-nowrap">
-                            <div className="text-xs text-gray-600 dark:text-gray-400">
-                              {log.sentAt ? formatDate(log.sentAt) : 'Not sent'}
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+              <>
+                {/* Stats Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                  <div className="bg-white dark:bg-slate-900 border dark:border-gray-700 rounded-lg p-4">
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Total SMS</p>
+                    <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.total}</p>
+                  </div>
+                  <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+                    <p className="text-sm text-green-700 dark:text-green-400">Sent</p>
+                    <p className="text-2xl font-bold text-green-600 dark:text-green-400">{stats.sent}</p>
+                  </div>
+                  <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+                    <p className="text-sm text-red-700 dark:text-red-400">Failed</p>
+                    <p className="text-2xl font-bold text-red-600 dark:text-red-400">{stats.failed}</p>
+                  </div>
                 </div>
-              </div>
+
+                {/* Logs Table */}
+                {logs.length === 0 ? (
+                  <div className="bg-white dark:bg-slate-900 border dark:border-gray-700 rounded-lg p-12 text-center">
+                    <p className="text-gray-600 dark:text-gray-400">No SMS logs found</p>
+                  </div>
+                ) : (
+                  <div className="bg-white dark:bg-slate-900 border dark:border-gray-700 rounded-lg overflow-hidden">
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead className="bg-gray-50 dark:bg-gray-800">
+                          <tr>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
+                              Phone
+                            </th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
+                              Message
+                            </th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
+                              Category
+                            </th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
+                              Status
+                            </th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
+                              Sent At
+                            </th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
+                              Action
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                          {logs.map((log) => (
+                            <tr key={log._id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                              <td className="px-4 py-3 whitespace-nowrap">
+                                <div className="text-sm font-medium text-gray-900 dark:text-white">
+                                  {log.phone}
+                                </div>
+                              </td>
+                              <td className="px-4 py-3">
+                                <div className="text-sm text-gray-600 dark:text-gray-400 max-w-md truncate">
+                                  {log.message}
+                                </div>
+                              </td>
+                              <td className="px-4 py-3 whitespace-nowrap">
+                                <div className="text-xs text-gray-600 dark:text-gray-400 capitalize">
+                                  {log.category.replace(/_/g, ' ')}
+                                </div>
+                              </td>
+                              <td className="px-4 py-3 whitespace-nowrap">{getStatusBadge(log.status)}</td>
+                              <td className="px-4 py-3 whitespace-nowrap">
+                                <div className="text-xs text-gray-600 dark:text-gray-400">
+                                  {log.sentAt ? formatDate(log.sentAt) : 'Not sent'}
+                                </div>
+                              </td>
+                              <td className="px-4 py-3 whitespace-nowrap">
+                                <button
+                                  onClick={() => handleViewLog(log)}
+                                  className="inline-flex items-center gap-1 px-3 py-1.5 text-sm bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded hover:bg-blue-100 dark:hover:bg-blue-900/30"
+                                  title="View Details"
+                                >
+                                  <Eye className="w-4 h-4" />
+                                  View
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </div>
         )}
@@ -506,6 +553,11 @@ export default function SMSPage() {
         onClose={() => setIsDetailsModalOpen(false)}
         template={selectedTemplate}
         onEdit={handleEditTemplate}
+      />
+      <SMSLogDetailsModal
+        isOpen={isLogDetailsModalOpen}
+        onClose={() => setIsLogDetailsModalOpen(false)}
+        log={selectedLog}
       />
     </div>
   );
