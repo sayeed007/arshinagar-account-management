@@ -4,6 +4,9 @@ import { useState, useEffect } from 'react';
 import { smsApi, SMSTemplate, SMSLog, SMSCategory, SMSStatus } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
 import { getErrorMessage } from '@/lib/types';
+import { SMSTemplateFormModal } from '@/components/sms/sms-template-form-modal';
+import { SMSTemplateDetailsModal } from '@/components/sms/sms-template-details-modal';
+import { Eye, Edit2, Trash2 } from 'lucide-react';
 
 type TabType = 'overview' | 'templates' | 'logs' | 'send';
 
@@ -25,6 +28,11 @@ export default function SMSPage() {
   const [testMessage, setTestMessage] = useState('');
   const [bulkPhones, setBulkPhones] = useState('');
   const [bulkMessage, setBulkMessage] = useState('');
+
+  // Modal states
+  const [isFormModalOpen, setIsFormModalOpen] = useState(false);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<SMSTemplate | null>(null);
 
   useEffect(() => {
     loadData();
@@ -84,6 +92,41 @@ export default function SMSPage() {
       console.error('Failed to send bulk SMS:', error);
       showError(getErrorMessage(error));
     }
+  };
+
+  // Template handlers
+  const handleCreateTemplate = () => {
+    setSelectedTemplate(null);
+    setIsFormModalOpen(true);
+  };
+
+  const handleEditTemplate = (template: SMSTemplate) => {
+    setSelectedTemplate(template);
+    setIsFormModalOpen(true);
+  };
+
+  const handleViewTemplate = (template: SMSTemplate) => {
+    setSelectedTemplate(template);
+    setIsDetailsModalOpen(true);
+  };
+
+  const handleDeleteTemplate = async (template: SMSTemplate) => {
+    if (!confirm(`Are you sure you want to delete the template "${template.name}"?`)) {
+      return;
+    }
+
+    try {
+      await smsApi.deleteTemplate(template._id);
+      showSuccess('Template deleted successfully');
+      loadData();
+    } catch (error: unknown) {
+      console.error('Failed to delete template:', error);
+      showError(getErrorMessage(error));
+    }
+  };
+
+  const handleTemplateSuccess = (template: SMSTemplate) => {
+    loadData();
   };
 
   const formatDate = (dateString: string) => {
@@ -221,7 +264,10 @@ export default function SMSPage() {
           <div>
             <div className="mb-4 flex justify-between items-center">
               <h2 className="text-lg font-semibold dark:text-white">SMS Templates</h2>
-              <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600">
+              <button
+                onClick={handleCreateTemplate}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+              >
                 + New Template
               </button>
             </div>
@@ -242,25 +288,54 @@ export default function SMSPage() {
                     className="bg-white dark:bg-slate-900 border dark:border-gray-700 rounded-lg p-4"
                   >
                     <div className="flex justify-between items-start mb-2">
-                      <h3 className="font-semibold dark:text-white">{template.name}</h3>
-                      <span
-                        className={`px-2 py-1 text-xs rounded ${
-                          template.isActive
-                            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                            : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
-                        }`}
+                      <div className="flex-1">
+                        <h3 className="font-semibold dark:text-white">{template.name}</h3>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          {template.templateCode}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`px-2 py-1 text-xs rounded ${
+                            template.isActive
+                              ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                              : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
+                          }`}
+                        >
+                          {template.isActive ? 'Active' : 'Inactive'}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400 mb-2 line-clamp-2">
+                      <strong>EN:</strong> {template.messageEN}
+                    </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">
+                      <strong>BN:</strong> {template.messageBN}
+                    </div>
+                    <div className="flex gap-2 pt-3 border-t border-gray-200 dark:border-gray-700">
+                      <button
+                        onClick={() => handleViewTemplate(template)}
+                        className="flex-1 flex items-center justify-center gap-1 px-3 py-1.5 text-sm bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded hover:bg-blue-100 dark:hover:bg-blue-900/30"
+                        title="View Details"
                       >
-                        {template.isActive ? 'Active' : 'Inactive'}
-                      </span>
-                    </div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
-                      Code: {template.templateCode}
-                    </p>
-                    <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                      <strong>English:</strong> {template.messageEN}
-                    </div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">
-                      <strong>Bangla:</strong> {template.messageBN}
+                        <Eye className="w-4 h-4" />
+                        View
+                      </button>
+                      <button
+                        onClick={() => handleEditTemplate(template)}
+                        className="flex-1 flex items-center justify-center gap-1 px-3 py-1.5 text-sm bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded hover:bg-green-100 dark:hover:bg-green-900/30"
+                        title="Edit Template"
+                      >
+                        <Edit2 className="w-4 h-4" />
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteTemplate(template)}
+                        className="flex items-center justify-center gap-1 px-3 py-1.5 text-sm bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded hover:bg-red-100 dark:hover:bg-red-900/30"
+                        title="Delete Template"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -418,6 +493,20 @@ export default function SMSPage() {
           </div>
         )}
       </div>
+
+      {/* Modals */}
+      <SMSTemplateFormModal
+        isOpen={isFormModalOpen}
+        onClose={() => setIsFormModalOpen(false)}
+        template={selectedTemplate}
+        onSuccess={handleTemplateSuccess}
+      />
+      <SMSTemplateDetailsModal
+        isOpen={isDetailsModalOpen}
+        onClose={() => setIsDetailsModalOpen(false)}
+        template={selectedTemplate}
+        onEdit={handleEditTemplate}
+      />
     </div>
   );
 }

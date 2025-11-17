@@ -571,7 +571,7 @@ export default function ReportsPage() {
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Total Payroll</p>
                 <p className="text-2xl font-bold text-purple-600 dark:text-purple-400 mt-1">
-                  {formatCurrency(employeeCostSummary.summary.totalNetPay)}
+                  {formatCurrency(employeeCostSummary.summary.netPay)}
                 </p>
               </div>
               <div className="p-3 bg-purple-100 dark:bg-purple-900/20 rounded-full">
