@@ -276,7 +276,7 @@ class ReportService {
   async generateAgingReport(): Promise<any> {
     const sales = await Sale.find({ saleStatus: { $nin: ['Cancelled', 'Completed'] } })
       .populate('clientId', 'name phone')
-      .populate('plot', 'plotNumber project')
+      .populate('plotId', 'plotNumber project')
       .lean();
 
     const today = new Date();
